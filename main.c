@@ -2,20 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "nodes.h"
+
 /*
  * TODO
  * ====
  * - output to file
  */
 
-#define TZNODE_MAX_INPUTS 16 
-#define TZNODE_MAX_OUTPUTS 16
-#define TZNODE_MEMORY_SIZE 32
 #define TZARA_MAX_OUTPUT_CHANS 2
 #define TZARA_MAX_NODES 4096
 
 #define PARSER_CACHE_SIZE 1024
-#define TZNODE_NAME_SIZE 256
 
 #define TZARA_OUTPUT_NODE_INDEX -0xaa
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
@@ -23,114 +21,11 @@
 
 #define TESTBUFLENGTH 256 
 
-float tzSamplerate = 44100.f;
 
 enum TzErrors {
     NO_ERROR = 0,
     MAX_MEMORY
 };
-
-typedef struct TzNode TzNode;
-struct TzNode {
-    float* inputs[TZNODE_MAX_INPUTS];
-    int numInputs;
-    float outputs[TZNODE_MAX_OUTPUTS];
-    int numOutputs;
-    void (*perform)(TzNode*);
-    float memory[TZNODE_MEMORY_SIZE];
-    char name[TZNODE_NAME_SIZE];
-    char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
-    char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
-}; 
-
-void flush (TzNode* n) {
-    int i = 0;
-    for (i  = 0; i < TZNODE_MAX_INPUTS; ++i) {
-        n->inputs[i] = NULL;
-    }
-    for (i  = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
-        n->outputs[i] = 0.f;
-    }
-    for (i = 0; i < TZNODE_MEMORY_SIZE; ++i) {
-        n->memory[i] = 0.f;
-    }
-    memset(n->name, '\0', TZNODE_NAME_SIZE);
-    for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
-        memset(n->inputsNames[i], '\0', TZNODE_NAME_SIZE);
-    }
-    for (i = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
-        memset(n->outputsNames[i], '\0', TZNODE_NAME_SIZE);
-    }
-}
-
-TzNode* allocateNewNode () {
-    TzNode* n = (TzNode*)(malloc(sizeof(TzNode)));
-    flush(n);
-    return n;
-}
-
-enum NodeTypes {
-    INVALID_NODE_TYPE = 0,
-    ADDER_NODE,
-    PHASOR_NODE
-};
-
-float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
-    return n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
-}
-
-void performAdder (TzNode* n) {
-    const float in1 = getNodeInput(n, 0, 0.f);
-    const float in2 = getNodeInput(n, 1, 0.f);
-    n->outputs[0] = in1 + in2;
-}
-
-TzNode* createAdderNode () {
-    TzNode* n = allocateNewNode();
-    n->numInputs = 2;
-    strcpy(n->inputsNames[0], "in1");
-    strcpy(n->inputsNames[1], "in2");
-    n->numOutputs = 1;
-    strcpy(n->outputsNames[0], "out");
-    n->perform = &performAdder;
-    return n;
-}
-
-
-void performConstant (TzNode* n) {
-    n->outputs[0] = n->memory[0];
-}
-
-TzNode* createConstantNode (float val) {
-    TzNode* n = allocateNewNode();
-    n->numInputs = 0;
-    n->numOutputs = 1;
-    strcpy(n->outputsNames[0], "out");
-    n->memory[0] = val;
-    n->perform = &performConstant;
-    return n;
-}
-
-void performPhasor (TzNode* n) {
-    const float freq = getNodeInput(n, 0, 440.f);
-    const float incr = freq / tzSamplerate;
-    float* phase = n->memory;
-    n->outputs[0] = *phase;
-    *phase += incr;
-    while (*phase > 1.f) *phase -= 1.f;
-}
-
-TzNode* createPhasorNode () {
-    TzNode* n = allocateNewNode();
-    n->numInputs = 1;
-    strcpy(n->inputsNames[0], "freq");
-    n->numOutputs = 1;
-    strcpy(n->outputsNames[0], "out");
-    n->memory[0] = 0.f;
-    n->perform = &performPhasor;
-    return n;
-}
-
 
 typedef struct Tzara Tzara;
 struct Tzara {
@@ -187,7 +82,7 @@ void connectModuleToOutput (Tzara* tz, int inModule, int inOutput, int outInput)
     }
 }
 
-void process (Tzara* tz, float** out, int numChans, int numSamps) {
+void process (Tzara* tz, float** out, int numChans, int numSamps, float samplerate) {
     int i = 0;
     int n = 0;
     int c = 0;
@@ -195,7 +90,7 @@ void process (Tzara* tz, float** out, int numChans, int numSamps) {
     for (i = 0; i < numSamps; ++i) {
         /* naive implementation */
         for (n = 0; n < tz->numNodes; ++n) {
-            tz->nodes[n]->perform(tz->nodes[n]);
+            tz->nodes[n]->perform(tz->nodes[n], samplerate);
         }
 
         for (c = 0; c < numChans; ++c) {
@@ -606,6 +501,7 @@ int main (int argc, char** argv) {
     float* data[TZARA_MAX_OUTPUT_CHANS];
     FILE* patch = NULL;
     Tzara tz;
+    const float samplerate = 44100.f;
     int error = NO_ERROR;
     int i = 0;
 
@@ -627,7 +523,7 @@ int main (int argc, char** argv) {
     }
 
 
-    process (&tz, data, numChans, TESTBUFLENGTH);
+    process (&tz, data, numChans, TESTBUFLENGTH, samplerate);
 
     for (i = 0; i < TESTBUFLENGTH; ++i) {
         printf("%f ", data[0][i]);

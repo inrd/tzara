@@ -1,4 +1,5 @@
 tzara
+*.o
 
 .DS_Store
 .Trashes
