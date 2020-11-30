@@ -17,8 +17,8 @@
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
 #define TZARA_OUTPUT_RIGHT_INDEX -0xcc
 
-#define TESTBUFLENGTH 88200 
-
+#define TZARA_WAV_DURATION_SEC 60
+#define TZARA_BUFFER_SIZE 4096
 
 enum TzErrors {
     NO_ERROR = 0,
@@ -504,6 +504,8 @@ int main (int argc, char** argv) {
     float* outData;
     int error = NO_ERROR;
     int i, j = 0;
+    unsigned long int numFrames = (unsigned long int)samplerate * TZARA_WAV_DURATION_SEC;
+    unsigned long int framesCount = 0;
 
     if (argc < 2) {
         fprintf(stderr, "Usage:\ntzara [patchfile]\n\n");
@@ -523,11 +525,8 @@ int main (int argc, char** argv) {
     fclose(patch);
 
     for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
-        data[i] = (float*)malloc(TESTBUFLENGTH * sizeof(float));
+        data[i] = (float*)malloc(TZARA_BUFFER_SIZE * sizeof(float));
     }
-
-
-    process (&tz, data, numChans, TESTBUFLENGTH, samplerate);
 
     drwav_data_format format;
     format.container = drwav_container_riff;     
@@ -537,14 +536,20 @@ int main (int argc, char** argv) {
     format.bitsPerSample = 32;
     drwav_init_file_write(&wav, "out.wav", &format, NULL);
 
-    outData = (float*)malloc(TESTBUFLENGTH * 2 * sizeof(float));
+    outData = (float*)malloc(TZARA_BUFFER_SIZE * 2 * sizeof(float));
 
-    for (i = 0, j = 0; j < TESTBUFLENGTH; i += 2, ++j) {
-        outData[i] = data[0][j];
-        outData[i+1] = data[1][j];
+    while (framesCount < numFrames) {
+        process (&tz, data, numChans, TZARA_BUFFER_SIZE, samplerate);
+
+        for (i = 0, j = 0; j < TZARA_BUFFER_SIZE; i += 2, ++j) {
+            outData[i] = data[0][j];
+            outData[i+1] = data[1][j];
+        }
+        
+        drwav_write_pcm_frames(&wav, TZARA_BUFFER_SIZE, outData);
+
+        framesCount += TZARA_BUFFER_SIZE;
     }
-    
-    drwav_write_pcm_frames(&wav, TESTBUFLENGTH, outData);
 
     drwav_uninit(&wav);
 

@@ -10,7 +10,7 @@ tzara: $(OBJECTS)
 .o: $*.c
 	$(CC) $(CFLAGS) $*.c
 clean:
-	rm -rf *.o
+	rm -rf *.o tzara
 install:
 	cp tzara /usr/local/bin/tzara
 

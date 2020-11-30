@@ -4,7 +4,7 @@
 + phasor osc2
 
 = 120 osc1@freq
-= 166 osc2@freq
+= 244 osc2@freq
 
 > osc1@out out@l 
 > osc2@out out@r 
