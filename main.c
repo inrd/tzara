@@ -1,0 +1,643 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+/*
+ * TODO
+ * ====
+ * - parse programs
+ * - output to file
+ */
+
+#define TZNODE_MAX_INPUTS 16 
+#define TZNODE_MAX_OUTPUTS 16
+#define TZNODE_MEMORY_SIZE 32
+#define TZARA_MAX_OUTPUT_CHANS 2
+#define TZARA_MAX_NODES 4096
+
+#define PARSER_CACHE_SIZE 1024
+#define TZNODE_NAME_SIZE 256
+
+#define TZARA_OUTPUT_NODE_INDEX -0xaa
+#define TZARA_OUTPUT_LEFT_INDEX -0xbb
+#define TZARA_OUTPUT_RIGHT_INDEX -0xcc
+
+#define TESTBUFLENGTH 256 
+
+float tzSamplerate = 44100.f;
+
+enum TzErrors {
+    NO_ERROR = 0,
+    MAX_MEMORY
+};
+
+typedef struct TzNode TzNode;
+struct TzNode {
+    float* inputs[TZNODE_MAX_INPUTS];
+    int numInputs;
+    float outputs[TZNODE_MAX_OUTPUTS];
+    int numOutputs;
+    void (*perform)(TzNode*);
+    float memory[TZNODE_MEMORY_SIZE];
+    char name[TZNODE_NAME_SIZE];
+    char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
+    char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+}; 
+
+void flush (TzNode* n) {
+    int i = 0;
+    for (i  = 0; i < TZNODE_MAX_INPUTS; ++i) {
+        n->inputs[i] = NULL;
+    }
+    for (i  = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
+        n->outputs[i] = 0.f;
+    }
+    for (i = 0; i < TZNODE_MEMORY_SIZE; ++i) {
+        n->memory[i] = 0.f;
+    }
+    memset(n->name, '\0', TZNODE_NAME_SIZE);
+    for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
+        memset(n->inputsNames[i], '\0', TZNODE_NAME_SIZE);
+    }
+    for (i = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
+        memset(n->outputsNames[i], '\0', TZNODE_NAME_SIZE);
+    }
+}
+
+TzNode* allocateNewNode () {
+    TzNode* n = (TzNode*)(malloc(sizeof(TzNode)));
+    flush(n);
+    return n;
+}
+
+enum NodeTypes {
+    INVALID_NODE_TYPE = 0,
+    ADDER_NODE,
+    PHASOR_NODE
+};
+
+float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
+    return n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
+}
+
+void performAdder (TzNode* n) {
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in1 + in2;
+}
+
+TzNode* createAdderNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performAdder;
+    return n;
+}
+
+
+void performConstant (TzNode* n) {
+    n->outputs[0] = n->memory[0];
+}
+
+TzNode* createConstantNode (float val) {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 0;
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = val;
+    n->perform = &performConstant;
+    return n;
+}
+
+void performPhasor (TzNode* n) {
+    const float freq = getNodeInput(n, 0, 440.f);
+    const float incr = freq / tzSamplerate;
+    float* phase = n->memory;
+    n->outputs[0] = *phase;
+    *phase += incr;
+    while (*phase > 1.f) *phase -= 1.f;
+}
+
+TzNode* createPhasorNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "freq");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performPhasor;
+    return n;
+}
+
+
+typedef struct Tzara Tzara;
+struct Tzara {
+    TzNode* nodes[TZARA_MAX_NODES];
+    int numNodes;
+    float* outputs[TZARA_MAX_OUTPUT_CHANS];
+};
+
+void init(Tzara* t, const int numChans) {
+    int i = 0;
+    for (i = 0; i < TZARA_MAX_NODES; ++i) {
+        t->nodes[i] = NULL;
+    }
+    t->numNodes = 0;
+
+    for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
+        t->outputs[i] = NULL;
+    }
+}
+
+int addNode (Tzara* tz, TzNode* n, const char* name) {
+    if (tz->numNodes < (TZARA_MAX_NODES - 1)) {
+        strncpy(n->name, name, sizeof(n->name));
+        tz->nodes[tz->numNodes] = n;
+        ++tz->numNodes;
+        return NO_ERROR;
+    }
+    return MAX_MEMORY;
+}
+
+void connectModules (Tzara* tz, int inModule, int inOutput, int outModule, int outInput) {
+    if ((outInput < tz->nodes[outModule]->numInputs) && (inOutput < tz->nodes[inModule]->numOutputs)) {
+        if (tz->nodes[outModule]->inputs[outInput] != NULL) {
+            fprintf(stdout, "Warning : node input was already connected. Replacing connection.\n");
+        }
+        tz->nodes[outModule]->inputs[outInput] = &(tz->nodes[inModule]->outputs[inOutput]);
+    }
+    else {
+        /* TODO : should abort */
+        fprintf(stderr, "Invalid routing...\n");
+    }
+}
+
+void connectModuleToOutput (Tzara* tz, int inModule, int inOutput, int outInput) {
+    if ((outInput < TZARA_MAX_OUTPUT_CHANS) && (inOutput < tz->nodes[inModule]->numOutputs)) {
+        if (tz->outputs[outInput] != NULL) {
+            fprintf(stdout, "Warning : out channel %d was already connected. Replacing connection.\n", outInput);
+        }
+        tz->outputs[outInput] = &(tz->nodes[inModule]->outputs[inOutput]);
+    }
+    else {
+        /* TODO : should abort */
+        fprintf(stderr, "Invalid routing...\n");
+    }
+}
+
+void process (Tzara* tz, float** out, int numChans, int numSamps) {
+    int i = 0;
+    int n = 0;
+    int c = 0;
+
+    for (i = 0; i < numSamps; ++i) {
+        /* naive implementation */
+        for (n = 0; n < tz->numNodes; ++n) {
+            tz->nodes[n]->perform(tz->nodes[n]);
+        }
+
+        for (c = 0; c < numChans; ++c) {
+            out[c][i] = (c < TZARA_MAX_OUTPUT_CHANS) && (tz->outputs[c] != NULL)? *(tz->outputs[c]) : 0.f;
+        }
+    }
+}
+
+void release (Tzara* tz) {
+    int i = 0;
+    for (i = 0; i < tz->numNodes; ++i) {
+        free(tz->nodes[i]);
+        tz->nodes[i] = NULL;
+    }
+    for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
+        tz->outputs[i] = NULL;
+    }
+}
+
+enum Operators {
+    NO_OP = 0,
+    COMMENT_OP,
+    CREATE_NODE_OP,
+    CREATE_CONSTANT_OP,
+    CONNECT_OP
+};
+
+int parseOperator (char op) {
+    switch (op) {
+        case '#':
+            return COMMENT_OP;
+            break;
+
+        case '+':
+            return CREATE_NODE_OP;
+            break;
+
+        case '=':
+            return CREATE_CONSTANT_OP;
+            break;
+
+        case '>':
+            return CONNECT_OP;
+            break;
+
+        default:
+            return NO_OP;
+            break;
+    }
+}
+
+void parseCommentInstruction (const char* instr) {
+    fprintf(stdout, "%s", instr);
+}
+
+int parseNodeType (const char* name) {
+    const char* adderID = "add";
+    const char* phasorID = "phasor";
+    const int nameLength = strlen(name);
+
+    if (strncmp(name, adderID, nameLength) == 0) return ADDER_NODE;
+    if (strncmp(name, phasorID, nameLength) == 0) return PHASOR_NODE;
+
+    return INVALID_NODE_TYPE;
+}
+
+void trimNewLine (char* str) {
+    const int strSize = strlen(str);
+    int i = 0;
+    for (i = 0; i < strSize; ++i) {
+        if (str[i] == '\n') {
+            str[i] = '\0';
+        }
+    }
+}
+
+void parseCreateNodeInstruction (Tzara* tz, char* instr) {
+    char* token;
+    int nodeType = INVALID_NODE_TYPE;
+    char name [TZNODE_NAME_SIZE];
+    int ic = 0;
+
+    token = strtok(instr, " ");
+
+    while (token != NULL) {
+        /* drop first token (operator) */
+        switch (ic) {
+            case 1:
+                nodeType = parseNodeType(token);
+                break;
+            case 2:
+                trimNewLine(token);
+                strncpy(name, token, sizeof(name));
+                break;
+            default:
+                break;
+        }
+        token = strtok(NULL, " ");
+        ++ic;
+    }
+
+    if (ic < 3) {
+        fprintf(stderr, "Not enough arguments...\n");
+        /*TODO: abort */
+        return;
+    }
+
+    switch(nodeType) {
+        case ADDER_NODE:
+            printf("Creating adder : %s\n", name);
+            addNode(tz, createAdderNode(), name);
+            break;
+        
+        case PHASOR_NODE:
+            printf("Creating phasor : %s\n", name);
+            addNode(tz, createPhasorNode(), name);
+            break;
+        default:
+            /* TODO: abort*/
+            fprintf(stderr, "Could not create node : invalid node type...\n");
+            break;
+    }
+}
+
+int searchNode (Tzara* tz, const char* name) {
+    int i = 0;
+    int nameLength = strlen(name);
+    for (i = 0; i < tz->numNodes; ++i) {
+        if (nameLength == strlen(tz->nodes[i]->name)) {
+            if (strncmp(tz->nodes[i]->name, name, nameLength) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+int searchInput (TzNode* node, const char* name) {
+    int i = 0;
+    int nameLength = strlen(name);
+    for (i = 0; i < node->numInputs; ++i) {
+        if (nameLength == strlen(node->inputsNames[i])) {
+            if (strncmp(node->inputsNames[i], name, nameLength) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+int searchOutput (TzNode* node, const char* name) {
+    int i = 0;
+    int nameLength = strlen(name);
+    for (i = 0; i < node->numOutputs; ++i) {
+        if (nameLength == strlen(node->outputsNames[i])) {
+            if (strncmp(node->outputsNames[i], name, nameLength) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
+    char token[TZNODE_NAME_SIZE];
+    int i = 0;
+    int offset = 0;
+
+    memset(token, '\0', TZNODE_NAME_SIZE);
+
+    while(str[i] != '@' && str[i] != '\0') {
+        token[i]  = str[i];
+        ++i;
+    }
+
+    if (strncmp(token, "out", 3) == 0) {
+        *node = TZARA_OUTPUT_NODE_INDEX;
+    }
+    else {
+        *node = searchNode(tz, token);
+    }
+    
+    if (str[i] == '\0') {
+        fprintf(stderr, "Incorrect argument : %s\n", str);
+        return;
+    }
+
+    ++i;
+    offset = i;
+    memset(token, '\0', TZNODE_NAME_SIZE);
+
+    while (str[i] != '\0') {
+        token[i -  offset] = str[i];
+        ++i;
+    }
+
+    if (*node == TZARA_OUTPUT_NODE_INDEX) {
+        if (token[0] == 'l') {
+            *input = TZARA_OUTPUT_LEFT_INDEX;
+        }
+        else if (token[0] == 'r') {
+            *input = TZARA_OUTPUT_RIGHT_INDEX;
+        }
+        else {
+            *input = -1;
+        }
+    }
+    else {
+        *input = (*node >= 0) ? searchInput(tz->nodes[*node], token) : -1;
+    }
+}
+
+void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
+    char token[TZNODE_NAME_SIZE];
+    int i = 0;
+    int offset = 0;
+
+    memset(token, '\0', TZNODE_NAME_SIZE);
+
+    while(str[i] != '@' && str[i] != '\0') {
+        token[i]  = str[i];
+        ++i;
+    }
+
+    *node = searchNode(tz, token);
+
+    if (str[i] == '\0') {
+        fprintf(stderr, "Incorrect argument : %s\n", str);
+        return;
+    }
+
+    ++i;
+    offset = i;
+    memset(token, '\0', TZNODE_NAME_SIZE);
+
+    while (str[i] != '\0') {
+        token[i -  offset] = str[i];
+        ++i;
+    }
+
+    *output = (*node >= 0) ? searchOutput(tz->nodes[*node], token) : -1;
+}
+
+
+
+void parseCreateConstantInstruction (Tzara* tz, char* instr) {
+    char* token;
+    float val = 0.f;
+    int node = -1;
+    int input = -1;
+    int ic = 0;
+
+    token = strtok(instr, " ");
+
+    while (token != NULL) {
+        /* drop first token (operator) */
+        switch (ic) {
+            case 1:
+                val = atof(token);
+                break;
+            case 2:
+                trimNewLine(token);
+                parseNodeInputString(tz, token, &node, &input);
+                break;
+            default:
+                break;
+        }
+        token = strtok(NULL, " ");
+        ++ic;
+    }
+
+    if (ic < 3) {
+        fprintf(stderr, "Not enough arguments...\n");
+        /*TODO: abort */
+        return;
+    }
+
+    if (node == TZARA_OUTPUT_NODE_INDEX) {
+        if (input == TZARA_OUTPUT_LEFT_INDEX) {
+            printf("Map constant with value %f to out[L]\n", val);
+            addNode(tz, createConstantNode(val), "\0");
+            connectModuleToOutput(tz, tz->numNodes - 1, 0, 0);
+        }
+        else if (input == TZARA_OUTPUT_RIGHT_INDEX) {
+            printf("Map constant with value %f to out[R]\n", val);
+            addNode(tz, createConstantNode(val), "\0");
+            connectModuleToOutput(tz, tz->numNodes - 1, 0, 1);
+        }
+        else {
+            fprintf(stderr, "Invalid Input...\n");
+        }
+        return;
+    }
+
+    if (node < 0 || input < 0) {
+        fprintf(stderr, "Invalid node input...\n");
+        /* TODO: abort */
+        return;
+    }
+
+    printf("Map constant with value %f to %s[%s]\n", val, tz->nodes[node]->name, tz->nodes[node]->inputsNames[input]);
+    addNode(tz, createConstantNode(val), "\0");
+    connectModules(tz, tz->numNodes - 1, 0, node, input); 
+}
+
+void parseConnectInstruction (Tzara* tz, char* instr) {
+    char* token;
+    int srcNode = -1;
+    int srcOutput = -1;
+    int destNode = -1;
+    int destInput = -1;
+    int ic = 0;
+
+    token = strtok(instr, " ");
+
+    while (token != NULL) {
+        /* drop first token (operator) */
+        switch (ic) {
+            case 1:
+                parseNodeOutputString(tz, token, &srcNode, &srcOutput);
+                break;
+            case 2:
+                trimNewLine(token);
+                parseNodeInputString(tz, token, &destNode, &destInput);
+                break;
+            default:
+                break;
+        }
+        token = strtok(NULL, " ");
+        ++ic;
+    }
+
+    if (ic < 2) {
+        fprintf(stderr, "Not enough arguments...\n");
+        /*TODO: abort */
+        return;
+    }
+
+    if (destNode == TZARA_OUTPUT_NODE_INDEX) {
+        if (srcNode < 0 || srcOutput < 0) {
+            fprintf(stderr, "Invalid connection...\n");
+            /* TODO: abort */
+            return;
+        }
+        if (destInput == TZARA_OUTPUT_LEFT_INDEX) {
+            printf("Connect %s[%s] to out[L]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput]);
+            connectModuleToOutput(tz, srcNode, srcOutput, 0);
+        }
+        else if (destInput == TZARA_OUTPUT_RIGHT_INDEX) {
+            printf("Connect %s[%s] to out[R]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput]);
+            connectModuleToOutput(tz, srcNode, srcOutput, 1);
+        }
+        else {
+            fprintf(stderr, "Invalid Input...\n");
+        }
+        return;
+    }
+
+    if (srcNode < 0 || srcOutput < 0 || destNode < 0 || destInput < 0) {
+        fprintf(stderr, "Invalid connection...\n");
+        /* TODO: abort */
+        return;
+    }
+
+    printf("Connect %s[%s] to %s[%s]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput], tz->nodes[destNode]->name, tz->nodes[destNode]->inputsNames[destInput]);
+    connectModules(tz, srcNode, srcOutput, destNode, destInput); 
+}
+
+void parseInstruction (Tzara* tz, char*  instr) {
+    const int op = parseOperator(instr[0]);
+    switch (op) {
+        case COMMENT_OP:
+            parseCommentInstruction(instr);
+            break;
+
+        case CREATE_NODE_OP:
+            parseCreateNodeInstruction(tz, instr);
+            break;
+
+        case CREATE_CONSTANT_OP:
+            parseCreateConstantInstruction(tz, instr);
+            break;
+
+        case CONNECT_OP:
+            parseConnectInstruction(tz, instr);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void parsePatch (Tzara* tz, FILE* patch) {
+    char cache[PARSER_CACHE_SIZE];
+    int i;
+    for (i = 0; i < PARSER_CACHE_SIZE; ++i) {
+        cache[i] = 0;
+    }
+    while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
+        parseInstruction(tz, cache);
+    }
+}
+
+
+
+int main (int argc, char** argv) {
+    const int numChans = TZARA_MAX_OUTPUT_CHANS;
+    float* data[TZARA_MAX_OUTPUT_CHANS];
+    FILE* patch = NULL;
+    Tzara tz;
+    int error = NO_ERROR;
+    int i = 0;
+
+    init(&tz, numChans);
+
+    patch = fopen("test.tzara", "r");
+    if (patch == NULL) {
+        fprintf(stderr, "Could not open patch file...\n");
+        release(&tz);
+        return 1;
+    }
+
+    parsePatch (&tz, patch);
+
+    fclose(patch);
+
+    for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
+        data[i] = (float*)malloc(TESTBUFLENGTH * sizeof(float));
+    }
+
+
+    process (&tz, data, numChans, TESTBUFLENGTH);
+
+    for (i = 0; i < TESTBUFLENGTH; ++i) {
+        printf("%f ", data[0][i]);
+    }
+    printf("\n\n");
+
+
+    release(&tz);
+
+    return 0;
+}
+
