@@ -2,6 +2,8 @@
 
 Text based modular synthesizer.
 
+*Work in progress...*
+
 ## Syntax
 
 ```
