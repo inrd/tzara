@@ -1,4 +1,5 @@
 tzara
+*.wav
 *.o
 
 .DS_Store

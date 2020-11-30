@@ -19,3 +19,7 @@ Text based modular synthesizer.
 
 ```
 
+----
+
+Using [dr_wav](https://github.com/mackron/dr_libs) to write wave files.
+

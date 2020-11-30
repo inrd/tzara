@@ -1,17 +1,11 @@
 # Test patch
-#
-#                    [8]--/in1/--[add1]--/l/--[out]
-#                               |
-# [300]--/freq/--[phase]--/in2/-|
-#
 
++ phasor osc1
++ phasor osc2
 
-+ add add1
-= 8 add1@in1
+= 120 osc1@freq
+= 166 osc2@freq
 
-+ phasor phase
-= 300 phase@freq
-
-> phase@out add1@in2
-> add1@out out@l
+> osc1@out out@l 
+> osc2@out out@r 
 

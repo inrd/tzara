@@ -4,6 +4,10 @@
 
 #include "nodes.h"
 
+#define DR_WAV_IMPLEMENTATION
+#include "dr_wav.h"
+
+
 /*
  * TODO
  * ====
@@ -19,7 +23,7 @@
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
 #define TZARA_OUTPUT_RIGHT_INDEX -0xcc
 
-#define TESTBUFLENGTH 256 
+#define TESTBUFLENGTH 88200 
 
 
 enum TzErrors {
@@ -502,8 +506,10 @@ int main (int argc, char** argv) {
     FILE* patch = NULL;
     Tzara tz;
     const float samplerate = 44100.f;
+    drwav wav;
+    float* outData;
     int error = NO_ERROR;
-    int i = 0;
+    int i, j = 0;
 
     if (argc < 2) {
         fprintf(stderr, "Usage:\ntzara [patchfile]\n\n");
@@ -529,11 +535,24 @@ int main (int argc, char** argv) {
 
     process (&tz, data, numChans, TESTBUFLENGTH, samplerate);
 
-    for (i = 0; i < TESTBUFLENGTH; ++i) {
-        printf("%f ", data[0][i]);
-    }
-    printf("\n\n");
+    drwav_data_format format;
+    format.container = drwav_container_riff;     
+    format.format = DR_WAVE_FORMAT_IEEE_FLOAT;
+    format.channels = 2;
+    format.sampleRate = (int)samplerate;
+    format.bitsPerSample = 32;
+    drwav_init_file_write(&wav, "out.wav", &format, NULL);
 
+    outData = (float*)malloc(TESTBUFLENGTH * 2 * sizeof(float));
+
+    for (i = 0, j = 0; j < TESTBUFLENGTH; i += 2, ++j) {
+        outData[i] = data[0][j];
+        outData[i+1] = data[1][j];
+    }
+    
+    drwav_write_pcm_frames(&wav, TESTBUFLENGTH, outData);
+
+    drwav_uninit(&wav);
 
     release(&tz);
 
