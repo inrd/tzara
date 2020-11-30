@@ -505,10 +505,14 @@ int main (int argc, char** argv) {
     int error = NO_ERROR;
     int i = 0;
 
+    if (argc < 2) {
+        fprintf(stderr, "Usage:\ntzara [patchfile]\n\n");
+        return 1;
+    }
 
-    patch = fopen("test.tzara", "r");
+    patch = fopen(argv[1], "r");
     if (patch == NULL) {
-        fprintf(stderr, "Could not open patch file...\n");
+        fprintf(stderr, "Could not open %s...\n", argv[1]);
         return 1;
     }
 
