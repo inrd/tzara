@@ -21,6 +21,15 @@ Text based modular synthesizer.
 
 ```
 
+## Nodes
+
+- `add` : outputs the sum of its inputs
+    - inputs : `in1` `in2`
+    - outputs : `out`
+- `phasor` : generates a ramp in the range [0..1]
+    - inputs : `freq` (frequency in hertz)
+    - outputs : `out`
+
 ----
 
 Using [dr_wav](https://github.com/mackron/dr_libs) to write wave files.
