@@ -8,12 +8,6 @@
 #include "dr_wav.h"
 
 
-/*
- * TODO
- * ====
- * - output to file
- */
-
 #define TZARA_MAX_OUTPUT_CHANS 2
 #define TZARA_MAX_NODES 4096
 
