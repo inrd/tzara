@@ -505,14 +505,14 @@ int main (int argc, char** argv) {
     int error = NO_ERROR;
     int i = 0;
 
-    init(&tz, numChans);
 
     patch = fopen("test.tzara", "r");
     if (patch == NULL) {
         fprintf(stderr, "Could not open patch file...\n");
-        release(&tz);
         return 1;
     }
+
+    init(&tz, numChans);
 
     parsePatch (&tz, patch);
 
