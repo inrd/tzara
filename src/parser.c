@@ -53,7 +53,7 @@ void trimNewLine (char* str) {
     }
 }
 
-void parseCreateNodeInstruction (Tzara* tz, char* instr) {
+int parseCreateNodeInstruction (Tzara* tz, char* instr) {
     char* token;
     int nodeType = INVALID_NODE_TYPE;
     char name [TZNODE_NAME_SIZE];
@@ -80,8 +80,7 @@ void parseCreateNodeInstruction (Tzara* tz, char* instr) {
 
     if (ic < 3) {
         fprintf(stderr, "Not enough arguments...\n");
-        /*TODO: abort */
-        return;
+        return 1;
     }
 
     switch(nodeType) {
@@ -95,10 +94,12 @@ void parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createPhasorNode(), name);
             break;
         default:
-            /* TODO: abort*/
             fprintf(stderr, "Could not create node : invalid node type...\n");
+            return 1;
             break;
     }
+
+    return 0;
 }
 
 
@@ -221,7 +222,7 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
     *output = (*node >= 0) ? searchOutput(tz->nodes[*node], token) : -1;
 }
 
-void parseCreateConstantInstruction (Tzara* tz, char* instr) {
+int parseCreateConstantInstruction (Tzara* tz, char* instr) {
     char* token;
     float val = 0.f;
     int node = -1;
@@ -249,8 +250,7 @@ void parseCreateConstantInstruction (Tzara* tz, char* instr) {
 
     if (ic < 3) {
         fprintf(stderr, "Not enough arguments...\n");
-        /*TODO: abort */
-        return;
+        return 1;
     }
 
     if (node == TZARA_OUTPUT_NODE_INDEX) {
@@ -266,24 +266,26 @@ void parseCreateConstantInstruction (Tzara* tz, char* instr) {
         }
         else {
             fprintf(stderr, "Invalid Input...\n");
+            return 1;
         }
-        return;
+        return 0;
     }
 
     if (node < 0 || input < 0) {
         fprintf(stderr, "Invalid node input...\n");
-        /* TODO: abort */
-        return;
+        return 1; 
     }
 
     printf("Map constant with value %f to %s[%s]\n", val, tz->nodes[node]->name, tz->nodes[node]->inputsNames[input]);
     addNode(tz, createConstantNode(val), "\0");
     connectModules(tz, tz->numNodes - 1, 0, node, input); 
+
+    return 0;
 }
 
 
 
-void parseConnectInstruction (Tzara* tz, char* instr) {
+int parseConnectInstruction (Tzara* tz, char* instr) {
     char* token;
     int srcNode = -1;
     int srcOutput = -1;
@@ -312,15 +314,13 @@ void parseConnectInstruction (Tzara* tz, char* instr) {
 
     if (ic < 2) {
         fprintf(stderr, "Not enough arguments...\n");
-        /*TODO: abort */
-        return;
+        return 1;
     }
 
     if (destNode == TZARA_OUTPUT_NODE_INDEX) {
         if (srcNode < 0 || srcOutput < 0) {
             fprintf(stderr, "Invalid connection...\n");
-            /* TODO: abort */
-            return;
+            return 1;
         }
         if (destInput == TZARA_OUTPUT_LEFT_INDEX) {
             printf("Connect %s[%s] to out[L]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput]);
@@ -332,56 +332,68 @@ void parseConnectInstruction (Tzara* tz, char* instr) {
         }
         else {
             fprintf(stderr, "Invalid Input...\n");
+            return 1;
         }
-        return;
+        return 0;
     }
 
     if (srcNode < 0 || srcOutput < 0 || destNode < 0 || destInput < 0) {
         fprintf(stderr, "Invalid connection...\n");
-        /* TODO: abort */
-        return;
+        return  1;
     }
 
     printf("Connect %s[%s] to %s[%s]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput], tz->nodes[destNode]->name, tz->nodes[destNode]->inputsNames[destInput]);
     connectModules(tz, srcNode, srcOutput, destNode, destInput); 
+
+    return 0;
 }
 
 
 
-void parseInstruction (Tzara* tz, char*  instr) {
+int parseInstruction (Tzara* tz, char*  instr) {
     const int op = parseOperator(instr[0]);
+    int err = 0;
+
     switch (op) {
         case COMMENT_OP:
             parseCommentInstruction(instr);
             break;
 
         case CREATE_NODE_OP:
-            parseCreateNodeInstruction(tz, instr);
+            err = parseCreateNodeInstruction(tz, instr);
             break;
 
         case CREATE_CONSTANT_OP:
-            parseCreateConstantInstruction(tz, instr);
+            err = parseCreateConstantInstruction(tz, instr);
             break;
 
         case CONNECT_OP:
-            parseConnectInstruction(tz, instr);
+            err = parseConnectInstruction(tz, instr);
             break;
 
         default:
             break;
     }
+
+    return err;
 }
 
 
 
-void parsePatch (Tzara* tz, FILE* patch) {
+int parsePatch (Tzara* tz, FILE* patch) {
     char cache[PARSER_CACHE_SIZE];
     int i;
+    int err  = 0;
+
     for (i = 0; i < PARSER_CACHE_SIZE; ++i) {
         cache[i] = 0;
     }
     while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
-        parseInstruction(tz, cache);
+        err = parseInstruction(tz, cache);
+        if (err != 0) {
+            break;
+        }
     }
+    return err;
 }
 

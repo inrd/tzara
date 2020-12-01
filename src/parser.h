@@ -24,7 +24,7 @@ int parseNodeType (const char* name);
 
 void trimNewLine (char* str);
 
-void parseCreateNodeInstruction (Tzara* tz, char* instr);
+int parseCreateNodeInstruction (Tzara* tz, char* instr);
 
 int searchNode (Tzara* tz, const char* name);
 
@@ -36,12 +36,12 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input);
 
 void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output);
 
-void parseCreateConstantInstruction (Tzara* tz, char* instr);
+int parseCreateConstantInstruction (Tzara* tz, char* instr);
 
-void parseConnectInstruction (Tzara* tz, char* instr);
+int parseConnectInstruction (Tzara* tz, char* instr);
 
-void parseInstruction (Tzara* tz, char*  instr);
+int parseInstruction (Tzara* tz, char*  instr);
 
-void parsePatch (Tzara* tz, FILE* patch);
+int parsePatch (Tzara* tz, FILE* patch);
 
 #endif
