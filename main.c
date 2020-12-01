@@ -32,7 +32,7 @@ struct Tzara {
     float* outputs[TZARA_MAX_OUTPUT_CHANS];
 };
 
-void init(Tzara* t, const int numChans) {
+void init(Tzara* t) {
     int i = 0;
     for (i = 0; i < TZARA_MAX_NODES; ++i) {
         t->nodes[i] = NULL;
@@ -46,7 +46,7 @@ void init(Tzara* t, const int numChans) {
 
 int addNode (Tzara* tz, TzNode* n, const char* name) {
     if (tz->numNodes < (TZARA_MAX_NODES - 1)) {
-        strncpy(n->name, name, sizeof(n->name));
+        strncpy(n->name, name, sizeof(n->name) - 1);
         tz->nodes[tz->numNodes] = n;
         ++tz->numNodes;
         return NO_ERROR;
@@ -181,7 +181,7 @@ void parseCreateNodeInstruction (Tzara* tz, char* instr) {
                 break;
             case 2:
                 trimNewLine(token);
-                strncpy(name, token, sizeof(name));
+                strncpy(name, token, sizeof(name) - 1);
                 break;
             default:
                 break;
@@ -217,7 +217,7 @@ int searchNode (Tzara* tz, const char* name) {
     int i = 0;
     int nameLength = strlen(name);
     for (i = 0; i < tz->numNodes; ++i) {
-        if (nameLength == strlen(tz->nodes[i]->name)) {
+        if (nameLength == (int)strlen(tz->nodes[i]->name)) {
             if (strncmp(tz->nodes[i]->name, name, nameLength) == 0) {
                 return i;
             }
@@ -230,7 +230,7 @@ int searchInput (TzNode* node, const char* name) {
     int i = 0;
     int nameLength = strlen(name);
     for (i = 0; i < node->numInputs; ++i) {
-        if (nameLength == strlen(node->inputsNames[i])) {
+        if (nameLength == (int)strlen(node->inputsNames[i])) {
             if (strncmp(node->inputsNames[i], name, nameLength) == 0) {
                 return i;
             }
@@ -243,7 +243,7 @@ int searchOutput (TzNode* node, const char* name) {
     int i = 0;
     int nameLength = strlen(name);
     for (i = 0; i < node->numOutputs; ++i) {
-        if (nameLength == strlen(node->outputsNames[i])) {
+        if (nameLength == (int)strlen(node->outputsNames[i])) {
             if (strncmp(node->outputsNames[i], name, nameLength) == 0) {
                 return i;
             }
@@ -495,7 +495,6 @@ void parsePatch (Tzara* tz, FILE* patch) {
 
 
 int main (int argc, char** argv) {
-    const int numChans = TZARA_MAX_OUTPUT_CHANS;
     float* data[TZARA_MAX_OUTPUT_CHANS];
     FILE* patch = NULL;
     Tzara tz;
@@ -518,7 +517,7 @@ int main (int argc, char** argv) {
         return 1;
     }
 
-    init(&tz, numChans);
+    init(&tz);
 
     parsePatch (&tz, patch);
 
@@ -541,7 +540,7 @@ int main (int argc, char** argv) {
     outData = (float*)malloc(TZARA_BUFFER_SIZE * 2 * sizeof(float));
 
     while (framesCount < numFrames) {
-        process (&tz, data, numChans, TZARA_BUFFER_SIZE, samplerate);
+        process (&tz, data, TZARA_MAX_OUTPUT_CHANS, TZARA_BUFFER_SIZE, samplerate);
 
         for (i = 0, j = 0; j < TZARA_BUFFER_SIZE; i += 2, ++j) {
             outData[i] = data[0][j];

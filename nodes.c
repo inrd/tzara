@@ -1,5 +1,7 @@
 #include "nodes.h"
 
+#define TZ_UNUSED(x) (void)(x)
+
 
 void flush (TzNode* n) {
     int i = 0;
@@ -35,6 +37,8 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
 /* =========================== */
 
 void performAdder (TzNode* n, float samplerate) {
+    TZ_UNUSED(samplerate);
+
     const float in1 = getNodeInput(n, 0, 0.f);
     const float in2 = getNodeInput(n, 1, 0.f);
     n->outputs[0] = in1 + in2;
@@ -52,6 +56,8 @@ TzNode* createAdderNode () {
 }
 
 void performConstant (TzNode* n, float samplerate) {
+    TZ_UNUSED(samplerate);
+
     n->outputs[0] = n->memory[0];
 }
 
