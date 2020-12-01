@@ -17,7 +17,7 @@ Text based modular synthesizer.
 = 440 osc@freq
 
 # make a connection
-> phasor@out out@l
+> osc@out out@l
 
 ```
 
