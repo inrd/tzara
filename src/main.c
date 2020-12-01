@@ -28,6 +28,14 @@ int main (int argc, char** argv) {
         return 1;
     }
 
+    if (strncmp(argv[1], "--nodes", strlen(argv[1])) == 0) {
+        for (i = 1; i < NUM_NODE_TYPES; ++i) {
+            printf("* %s : %s\n\t<IN>[%s] <OUT>[%s]\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
+        }
+        printf("\n");
+        return 0;
+    }
+
     patch = fopen(argv[1], "r");
     if (patch == NULL) {
         fprintf(stderr, "Could not open %s...\n", argv[1]);

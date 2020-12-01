@@ -9,6 +9,30 @@
 #define TZNODE_MEMORY_SIZE 32
 #define TZNODE_NAME_SIZE 256
 
+
+enum NodeTypes {
+    INVALID_NODE_TYPE = 0,
+    ADDER_NODE,
+    PHASOR_NODE,
+    NUM_NODE_TYPES
+};
+
+
+
+typedef struct TzNodeDoc TzNodeDoc;
+struct TzNodeDoc {
+    const char* name;
+    const char* summary;
+    const char* inputs;
+    const char* outputs;
+};
+
+TzNodeDoc nodesDoc [] = {
+    {"-", "-", "-", "-"},
+    {"add", "Outputs the sum of its inputs.", "in1, in2", "out"},
+    {"phasor", "Generates a ramp in the range [0..1].", "freq(Hz)", "out"}
+};
+
 typedef struct TzProcessInfo TzProcessInfo;
 struct TzProcessInfo {
     float samplerate;
@@ -34,13 +58,6 @@ TzNode* allocateNewNode ();
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 
 /* =========================================== */
-
-enum NodeTypes {
-    INVALID_NODE_TYPE = 0,
-    ADDER_NODE,
-    PHASOR_NODE
-};
-
 
 
 void performAdder (TzNode* n, TzProcessInfo* info);
