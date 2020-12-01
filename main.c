@@ -524,6 +524,8 @@ int main (int argc, char** argv) {
 
     fclose(patch);
 
+    printf("Rendering output...\n");
+
     for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
         data[i] = (float*)malloc(TZARA_BUFFER_SIZE * sizeof(float));
     }
@@ -552,6 +554,8 @@ int main (int argc, char** argv) {
     }
 
     drwav_uninit(&wav);
+
+    printf("Rendered to out.wav\n\n");
 
     release(&tz);
 
