@@ -36,8 +36,8 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
 
 /* =========================== */
 
-void performAdder (TzNode* n, float samplerate) {
-    TZ_UNUSED(samplerate);
+void performAdder (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
 
     const float in1 = getNodeInput(n, 0, 0.f);
     const float in2 = getNodeInput(n, 1, 0.f);
@@ -55,8 +55,8 @@ TzNode* createAdderNode () {
     return n;
 }
 
-void performConstant (TzNode* n, float samplerate) {
-    TZ_UNUSED(samplerate);
+void performConstant (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
 
     n->outputs[0] = n->memory[0];
 }
@@ -71,7 +71,8 @@ TzNode* createConstantNode (float val) {
     return n;
 }
 
-void performPhasor (TzNode* n, float samplerate) {
+void performPhasor (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
     const float freq = getNodeInput(n, 0, 440.f);
     const float incr = freq / samplerate;
     float* phase = n->memory;

@@ -86,9 +86,12 @@ void process (Tzara* tz, float** out, int numChans, int numSamps, float samplera
     int c = 0;
 
     for (i = 0; i < numSamps; ++i) {
-        /* naive implementation */
+        
+        TzProcessInfo info;
+        info.samplerate = samplerate;
+
         for (n = 0; n < tz->numNodes; ++n) {
-            tz->nodes[n]->perform(tz->nodes[n], samplerate);
+            tz->nodes[n]->perform(tz->nodes[n], &info);
         }
 
         for (c = 0; c < numChans; ++c) {

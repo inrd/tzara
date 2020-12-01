@@ -9,13 +9,18 @@
 #define TZNODE_MEMORY_SIZE 32
 #define TZNODE_NAME_SIZE 256
 
+typedef struct TzProcessInfo TzProcessInfo;
+struct TzProcessInfo {
+    float samplerate;
+};
+
 typedef struct TzNode TzNode;
 struct TzNode {
     float* inputs[TZNODE_MAX_INPUTS];
     int numInputs;
     float outputs[TZNODE_MAX_OUTPUTS];
     int numOutputs;
-    void (*perform)(TzNode*, float);
+    void (*perform)(TzNode*, TzProcessInfo*);
     float memory[TZNODE_MEMORY_SIZE];
     char name[TZNODE_NAME_SIZE];
     char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
@@ -38,14 +43,14 @@ enum NodeTypes {
 
 
 
-void performAdder (TzNode* n, float samplerate);
+void performAdder (TzNode* n, TzProcessInfo* info);
 TzNode* createAdderNode ();
 
 
-void performConstant (TzNode* n, float samplerate);
+void performConstant (TzNode* n, TzProcessInfo* info);
 TzNode* createConstantNode (float val);
 
-void performPhasor (TzNode* n, float samplerate);
+void performPhasor (TzNode* n, TzProcessInfo* info);
 TzNode* createPhasorNode ();
 
 #endif
