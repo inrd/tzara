@@ -29,8 +29,8 @@ struct TzNodeDoc {
 
 TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
-    {"add", "Outputs the sum of its inputs.", "in1, in2", "out"},
-    {"phasor", "Generates a ramp in the range [0..1].", "freq(Hz)", "out"}
+    {"add", "outputs the sum of its inputs.", "in1, in2", "out"},
+    {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"}
 };
 
 typedef struct TzProcessInfo TzProcessInfo;

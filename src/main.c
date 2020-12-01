@@ -24,13 +24,13 @@ int main (int argc, char** argv) {
     unsigned long int framesCount = 0;
 
     if (argc < 2) {
-        fprintf(stderr, "Usage:\ntzara [patchfile]\n\n");
+        fprintf(stderr, "Usage:\ntzara [patchfile]\nor\ntzara --nodes\n\n");
         return 1;
     }
 
     if (strncmp(argv[1], "--nodes", strlen(argv[1])) == 0) {
         for (i = 1; i < NUM_NODE_TYPES; ++i) {
-            printf("* %s : %s\n\t<IN>[%s] <OUT>[%s]\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
+            printf("* [%s] : %s\n\tinputs: {%s} outputs: {%s}\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
         }
         printf("\n");
         return 0;
