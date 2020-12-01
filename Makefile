@@ -2,6 +2,8 @@ CC = gcc
 LINKER = gcc
 CFLAGS = -Wall -Wextra -O2
 OBJECTS = nodes.o \
+		  tzara.o \
+		  parser.o \
 		  main.o
 
 default: tzara
