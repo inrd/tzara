@@ -33,12 +33,11 @@ void parseCommentInstruction (const char* instr) {
 }
 
 int parseNodeType (const char* name) {
-    const char* adderID = "add";
-    const char* phasorID = "phasor";
     const int nameLength = strlen(name);
 
-    if (strncmp(name, adderID, nameLength) == 0) return ADDER_NODE;
-    if (strncmp(name, phasorID, nameLength) == 0) return PHASOR_NODE;
+    if (strncmp(name, "add", nameLength) == 0) return ADDER_NODE;
+    if (strncmp(name, "mult", nameLength) == 0) return MULT_NODE;
+    if (strncmp(name, "phasor", nameLength) == 0) return PHASOR_NODE;
 
     return INVALID_NODE_TYPE;
 }
@@ -87,6 +86,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
         case ADDER_NODE:
             printf("Creating adder : %s\n", name);
             addNode(tz, createAdderNode(), name);
+            break;
+        
+        case MULT_NODE:
+            printf("Creating multiplier : %s\n", name);
+            addNode(tz, createMultNode(), name);
             break;
         
         case PHASOR_NODE:

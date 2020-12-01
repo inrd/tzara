@@ -1,11 +1,29 @@
 # Test patch
 
-+ phasor osc1
-+ phasor osc2
+#primitive FM Oscillator
 
-= 120 osc1@freq
-= 244 osc2@freq
++ phasor carrier
++ phasor mod
++ mult fmdepth
++ add modadd
++ phasor pitcher
++ mult pitcherdepth
++ add pitchmod
 
-> osc1@out out@l 
-> osc2@out out@r 
+= 0.01 pitcher@freq
+> pitcher@out pitcherdepth@in1
+= 440 pitcherdepth@in2
+= 110 pitchmod@in1
+> pitcherdepth@out pitchmod@in2
+> pitchmod@out modadd@in1
+
+= 200 mod@freq
+
+> mod@out fmdepth@in1
+= 900 fmdepth@in2
+
+> fmdepth@out modadd@in2
+> modadd@out carrier@freq
+> carrier@out out@l
+> carrier@out out@r
 

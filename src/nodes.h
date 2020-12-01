@@ -13,6 +13,7 @@
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
     ADDER_NODE,
+    MULT_NODE,
     PHASOR_NODE,
     NUM_NODE_TYPES
 };
@@ -27,9 +28,10 @@ struct TzNodeDoc {
     const char* outputs;
 };
 
-TzNodeDoc nodesDoc [] = {
+static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
     {"add", "outputs the sum of its inputs.", "in1, in2", "out"},
+    {"mult", "outputs the product of its inputs.", "in1 in2", "out"},
     {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"}
 };
 
@@ -62,6 +64,9 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 
 void performAdder (TzNode* n, TzProcessInfo* info);
 TzNode* createAdderNode ();
+
+void performMult (TzNode* n, TzProcessInfo* info);
+TzNode* createMultNode ();
 
 
 void performConstant (TzNode* n, TzProcessInfo* info);
