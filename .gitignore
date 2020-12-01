@@ -1,6 +1,7 @@
 tzara
 *.wav
 *.o
+build
 
 .DS_Store
 .Trashes
