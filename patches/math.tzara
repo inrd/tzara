@@ -1,0 +1,18 @@
+# Arithmetic operations test
+# !!! generates garbage audio
+
++ phasor phase
+= 0.1 phase@freq
+
+> phase@out out@l
+
++ sub invert
+= 1 invert@in1
+> phase@out invert@in2
+
++ div scale
+> invert@out scale@in1
+= 2 scale@in2
+
+> scale@out out@r
+

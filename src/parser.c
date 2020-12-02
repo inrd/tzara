@@ -87,13 +87,23 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
 
     switch(nodeType) {
         case ADDER_NODE:
-            printf("Creating adder : %s\n", name);
+            printf("Creating add : %s\n", name);
             addNode(tz, createAdderNode(), name);
             break;
         
+        case SUB_NODE:
+            printf("Creating sub : %s\n", name);
+            addNode(tz, createSubNode(), name);
+            break;
+        
         case MULT_NODE:
-            printf("Creating multiplier : %s\n", name);
+            printf("Creating mult : %s\n", name);
             addNode(tz, createMultNode(), name);
+            break;
+        
+        case DIV_NODE:
+            printf("Creating div : %s\n", name);
+            addNode(tz, createDivNode(), name);
             break;
         
         case CLIP_NODE:

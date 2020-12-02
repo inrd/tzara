@@ -58,6 +58,25 @@ TzNode* createAdderNode () {
     return n;
 }
 
+void performSub (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in1 - in2;
+}
+
+TzNode* createSubNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performSub;
+    return n;
+}
+
 void performMult (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
@@ -74,6 +93,25 @@ TzNode* createMultNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMult;
+    return n;
+}
+
+void performDiv (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in2 != 0.f ? in1 / in2 : 0.f;
+}
+
+TzNode* createDivNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performDiv;
     return n;
 }
 

@@ -13,7 +13,9 @@
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
     ADDER_NODE,
+    SUB_NODE,
     MULT_NODE,
+    DIV_NODE,
     CLIP_NODE,
     MIX_NODE,
     MAP_NODE,
@@ -37,8 +39,10 @@ struct TzNodeDoc {
 
 static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
-    {"add", "outputs the sum of its inputs.", "in1, in2", "out"},
-    {"mult", "outputs the product of its inputs.", "in1, in2", "out"},
+    {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
+    {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
+    {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
+    {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
@@ -79,8 +83,14 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 void performAdder (TzNode* n, TzProcessInfo* info);
 TzNode* createAdderNode ();
 
+void performSub (TzNode* n, TzProcessInfo* info);
+TzNode* createSubNode ();
+
 void performMult (TzNode* n, TzProcessInfo* info);
 TzNode* createMultNode ();
+
+void performDiv (TzNode* n, TzProcessInfo* info);
+TzNode* createDivNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();
