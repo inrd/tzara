@@ -4,6 +4,16 @@ Text based modular synthesizer.
 
 *Work in progress...*
 
+## Install
+
+```bash
+
+$ make
+
+# make install
+
+```
+
 ## Syntax
 
 ```
@@ -11,14 +21,23 @@ Text based modular synthesizer.
 # Lines starting by "#" are comments
 
 # Create a node
+# + node_type node_name
+
 + sinosc osc
 
+
 # map a constant to a node input
+# = value node_name@input_name
+
 = 440 osc@freq
 
+
 # make a connection
-# -> the out module does not need to be declared
+# > src_node@output_name dest_node@input_name
+#
+# -> Note that the out module does not need to be declared
 #    as it is always instantiated
+
 > osc@out out@l
 
 ```
