@@ -17,6 +17,8 @@ Text based modular synthesizer.
 = 440 osc@freq
 
 # make a connection
+# -> the out module does not need to be declared
+#    as it is always instantiated
 > osc@out out@l
 
 ```
