@@ -1,29 +1,46 @@
 # Test patch
 
-#primitive FM Oscillator
+# Primitive FM Oscillator
 
-+ phasor carrier
-+ phasor mod
-+ mult fmdepth
-+ add modadd
+# Pitch modulator
 + phasor pitcher
-+ mult pitcherdepth
-+ add pitchmod
-
 = 0.01 pitcher@freq
+
++ mult pitcherdepth
 > pitcher@out pitcherdepth@in1
 = 440 pitcherdepth@in2
+
++ add pitchmod
 = 110 pitchmod@in1
 > pitcherdepth@out pitchmod@in2
+
++ add modadd
 > pitchmod@out modadd@in1
 
+# Mod Osc
++ phasor mod
 = 200 mod@freq
 
-> mod@out fmdepth@in1
++ mult fmdepth
 = 900 fmdepth@in2
-
+> mod@out fmdepth@in1
 > fmdepth@out modadd@in2
+
+# Carrier Osc
++ phasor carrier
 > modadd@out carrier@freq
-> carrier@out out@l
-> carrier@out out@r
+
+# Remove DC offset
++ add dc
+= -0.5 dc@in1
+> carrier@out dc@in2
+
+# scale level
++ mult amp
+= 0.8 amp@in1
+> dc@out amp@in2
+
+#  route to output
+> amp@out out@l
+> amp@out out@r
 
