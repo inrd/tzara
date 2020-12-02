@@ -15,6 +15,7 @@ enum NodeTypes {
     ADDER_NODE,
     MULT_NODE,
     CLIP_NODE,
+    MIX_NODE,
     MEM_NODE,
     PHASOR_NODE,
     SINOSC_NODE,
@@ -36,6 +37,7 @@ static TzNodeDoc nodesDoc [] = {
     {"add", "outputs the sum of its inputs.", "in1, in2", "out"},
     {"mult", "outputs the product of its inputs.", "in1 in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in min max", "out"},
+    {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1 in2 coeff", "out"},
     {"mem", "1 sample delay.", "in", "out"},
     {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
     {"sinosc", "generates a sine wave.", "freq(Hz)", "out"}
@@ -76,6 +78,9 @@ TzNode* createMultNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();
+
+void performMix (TzNode* n, TzProcessInfo* info);
+TzNode* createMixNode ();
 
 void performMem (TzNode* n, TzProcessInfo* info);
 TzNode* createMemNode ();

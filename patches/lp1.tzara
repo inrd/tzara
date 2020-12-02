@@ -13,27 +13,30 @@
 # filter
 + mem z1
 
-+ mult z1coeff
-> z1@out z1coeff@in1
-= 0.99 z1coeff@in2
+# filter cut modulation
++ sinosc lfo
+= 6.3 lfo@freq
++ mult lfoscale
+> lfo@out lfoscale@in1
+= 0.1 lfoscale@in2
++ add cut
+> lfoscale@out cut@in1
+= 0.15 cut@in2
 
-+ mult osccoeff
-> oscamp@out osccoeff@in1
-= 0.01 osccoeff@in2
-
-+ add mix
-> z1coeff@out mix@in1
-> osccoeff@out mix@in2
++ mix interp
+> cut@out interp@coeff
+> z1@out interp@in1
+> oscamp@out interp@in2
 
 # feedback loop
-> mix@out z1@in
+> interp@out z1@in
 
 # level
 + mult gain
-> mix@out gain@in1
+> interp@out gain@in1
 = 0.5 gain@in2
 
 # output
-> mix@out out@l
-> mix@out out@r
+> gain@out out@l
+> gain@out out@r
 

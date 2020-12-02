@@ -100,6 +100,30 @@ TzNode* createClipNode () {
     return n;
 }
 
+void performMix (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float a = getNodeInput(n, 0, 0.f);
+    const float b = getNodeInput(n, 1, 0.f);
+    float coeff = getNodeInput(n, 2, 0.f);
+    
+    if (coeff < 0.f) coeff = 0.f;
+    if (coeff > 1.f) coeff = 1.f;
+    n->outputs[0] = a + coeff * (b - a);
+}
+
+TzNode* createMixNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    strcpy(n->inputsNames[2], "coeff");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performMix;
+    return n;
+}
+
 
 void performMem (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
