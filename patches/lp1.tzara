@@ -1,0 +1,39 @@
+# Simple one pole lowpass filter
+
+# oscillator
++ phasor osc
+= 110 osc@freq
++ add oscdc
+> osc@out oscdc@in1
+= -0.5 oscdc@in2
++ mult oscamp
+> oscdc@out oscamp@in1
+= 2 oscamp@in2
+
+# filter
++ mem z1
+
++ mult z1coeff
+> z1@out z1coeff@in1
+= 0.99 z1coeff@in2
+
++ mult osccoeff
+> oscamp@out osccoeff@in1
+= 0.01 osccoeff@in2
+
++ add mix
+> z1coeff@out mix@in1
+> osccoeff@out mix@in2
+
+# feedback loop
+> mix@out z1@in
+
+# level
++ mult gain
+> mix@out gain@in1
+= 0.5 gain@in2
+
+# output
+> mix@out out@l
+> mix@out out@r
+

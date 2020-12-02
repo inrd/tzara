@@ -100,6 +100,27 @@ TzNode* createClipNode () {
     return n;
 }
 
+
+void performMem (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float z1 = n->memory[0];
+    n->memory[0] = getNodeInput(n, 0, 0.f);
+
+    n->outputs[0] = z1;
+}
+
+TzNode* createMemNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performMem;
+    return n;
+}
+
 void performConstant (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 

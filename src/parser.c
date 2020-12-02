@@ -38,6 +38,7 @@ int parseNodeType (const char* name) {
     if (strncmp(name, "add", nameLength) == 0) return ADDER_NODE;
     if (strncmp(name, "mult", nameLength) == 0) return MULT_NODE;
     if (strncmp(name, "clip", nameLength) == 0) return CLIP_NODE;
+    if (strncmp(name, "mem", nameLength) == 0) return MEM_NODE;
     if (strncmp(name, "phasor", nameLength) == 0) return PHASOR_NODE;
     if (strncmp(name, "sinosc", nameLength) == 0) return SINOSC_NODE;
 
@@ -100,14 +101,21 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createClipNode(), name);
             break;
         
+        case MEM_NODE:
+            printf("Creating single sample delay : %s\n", name);
+            addNode(tz, createMemNode(), name);
+            break;
+        
         case PHASOR_NODE:
             printf("Creating phasor : %s\n", name);
             addNode(tz, createPhasorNode(), name);
             break;
+
         case SINOSC_NODE:
             printf("Creating sinosc : %s\n", name);
             addNode(tz, createSinoscNode(), name);
             break;
+
         default:
             fprintf(stderr, "Could not create node : invalid node type...\n");
             return 1;
