@@ -11,7 +11,7 @@ Text based modular synthesizer.
 # Lines starting by "#" are comments
 
 # Create a node
-+ phasor osc
++ sinosc osc
 
 # map a constant to a node input
 = 440 osc@freq

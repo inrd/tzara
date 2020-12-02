@@ -1,5 +1,7 @@
 #include "nodes.h"
 
+#include <math.h>
+
 #define TZ_UNUSED(x) (void)(x)
 
 
@@ -110,4 +112,27 @@ TzNode* createPhasorNode () {
     n->perform = &performPhasor;
     return n;
 }
+
+void performSinosc (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float twopi = 2.f * M_PI;
+    const float freq = getNodeInput(n, 0, 440.f);
+    const float incr = freq * twopi / samplerate;
+    float* phase = n->memory;
+    n->outputs[0] = sin(*phase);
+    *phase += incr;
+    while (*phase > twopi) *phase -= twopi;
+}
+
+TzNode* createSinoscNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "freq");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performSinosc;
+    return n;
+}
+
 

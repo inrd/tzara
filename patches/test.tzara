@@ -18,27 +18,35 @@
 > pitchmod@out modadd@in1
 
 # Mod Osc
-+ phasor mod
++ sinosc mod
 = 200 mod@freq
 
 + mult fmdepth
-= 900 fmdepth@in2
+
+# LFO
++ sinosc lfo
+= 0.1 lfo@freq
++ mult lfoscale
+> lfo@out lfoscale@in1
+= 200 lfoscale@in2
+
++ add lforoute
+> lfoscale@out lforoute@in1
+= 200 lforoute@in2
+
+# FM depth modulation
 > mod@out fmdepth@in1
+> lforoute@out fmdepth@in2
 > fmdepth@out modadd@in2
 
 # Carrier Osc
-+ phasor carrier
++ sinosc carrier
 > modadd@out carrier@freq
-
-# Remove DC offset
-+ add dc
-= -0.5 dc@in1
-> carrier@out dc@in2
 
 # scale level
 + mult amp
 = 0.8 amp@in1
-> dc@out amp@in2
+> carrier@out amp@in2
 
 #  route to output
 > amp@out out@l

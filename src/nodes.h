@@ -15,6 +15,7 @@ enum NodeTypes {
     ADDER_NODE,
     MULT_NODE,
     PHASOR_NODE,
+    SINOSC_NODE,
     NUM_NODE_TYPES
 };
 
@@ -32,7 +33,8 @@ static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
     {"add", "outputs the sum of its inputs.", "in1, in2", "out"},
     {"mult", "outputs the product of its inputs.", "in1 in2", "out"},
-    {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"}
+    {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
+    {"sinosc", "generates a sine wave.", "freq(Hz)", "out"}
 };
 
 typedef struct TzProcessInfo TzProcessInfo;
@@ -74,5 +76,8 @@ TzNode* createConstantNode (float val);
 
 void performPhasor (TzNode* n, TzProcessInfo* info);
 TzNode* createPhasorNode ();
+
+void performSinosc (TzNode* n, TzProcessInfo* info);
+TzNode* createSinoscNode ();
 
 #endif
