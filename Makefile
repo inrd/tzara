@@ -18,7 +18,7 @@ OBJECTS = $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 default: tzara
 
 tzara: $(OBJECTS)
-	$(LINKER) -o $@ $^
+	$(LINKER) -o $@ $^ -lm
 
 $(OBJECTS): $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
