@@ -1,0 +1,11 @@
+# Pulse node tests
+
++ pulse p1
+= 100 p1@rate
+
++ pulse p2
+= 250 p2@rate
+
+> p1@out out@l
+> p2@out out@r
+

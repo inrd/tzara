@@ -121,6 +121,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createPhasorNode(), name);
             break;
 
+        case PULSE_NODE:
+            printf("Creating pulse : %s\n", name);
+            addNode(tz, createPulseNode(), name);
+            break;
+
         case SINOSC_NODE:
             printf("Creating sinosc : %s\n", name);
             addNode(tz, createSinoscNode(), name);

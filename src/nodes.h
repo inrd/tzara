@@ -19,6 +19,7 @@ enum NodeTypes {
     MAP_NODE,
     MEM_NODE,
     PHASOR_NODE,
+    PULSE_NODE,
     SINOSC_NODE,
     NUM_NODE_TYPES
 };
@@ -42,6 +43,7 @@ static TzNodeDoc nodesDoc [] = {
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"mem", "1 sample delay.", "in", "out"},
     {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
+    {"pulse", "outputs a pulse at a periodic rate.", "rate(Ms)", "out"},
     {"sinosc", "generates a sine wave.", "freq(Hz)", "out"}
 };
 
@@ -101,6 +103,9 @@ TzNode* createConstantNode (float val);
 
 void performPhasor (TzNode* n, TzProcessInfo* info);
 TzNode* createPhasorNode ();
+
+void performPulse (TzNode* n, TzProcessInfo* info);
+TzNode* createPulseNode ();
 
 void performSinosc (TzNode* n, TzProcessInfo* info);
 TzNode* createSinoscNode ();

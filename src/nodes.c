@@ -211,7 +211,7 @@ void performPhasor (TzNode* n, TzProcessInfo* info) {
     const float samplerate = info->samplerate;
     const float freq = getNodeInput(n, 0, 440.f);
     const float incr = freq / samplerate;
-    float* phase = n->memory;
+    float* phase = &(n->memory[0]);
     n->outputs[0] = *phase;
     *phase += incr;
     while (*phase > 1.f) *phase -= 1.f;
@@ -225,6 +225,27 @@ TzNode* createPhasorNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performPhasor;
+    return n;
+}
+
+void performPulse (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float rate = getNodeInput(n, 0, 100.f);
+    const float period = rate * 0.001f *samplerate;
+    float* count = &(n->memory[0]);
+    n->outputs[0] = (int)(*count) == 0 ? 1.f : 0.f;
+    *count += 1.f;
+    if (*count >= period) *count = 0.f;
+}
+
+TzNode* createPulseNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "rate");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performPulse;
     return n;
 }
 
