@@ -9,12 +9,15 @@
 + map scale
 = 0 scale@imin
 = 1 scale@imax
-= 100 scale@omin
-= 800 scale@omax
+= 48 scale@omin
+= 62 scale@omax
 > rnd@out scale@in
 
++ miditofreq mtof
+> scale@out mtof@in
+
 + sinosc osc
-> scale@out osc@freq
+> mtof@out osc@freq
 
 + mult amp
 > osc@out amp@in1

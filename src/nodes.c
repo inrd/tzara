@@ -209,6 +209,26 @@ TzNode* createMapNode () {
     return n;
 }
 
+void performMiditofreq (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    int midi = (int)getNodeInput(n, 0, 0.f);
+    if (midi < 0) midi = 0;
+    if (midi > 127) midi = 127;
+
+    n->outputs[0] = 440.f * pow(2.f, ((float)(midi - 69)) / 12.f);
+}
+
+TzNode* createMiditofreqNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performMiditofreq;
+    return n;
+}
+
 
 void performMem (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);

@@ -19,6 +19,7 @@ enum NodeTypes {
     CLIP_NODE,
     MIX_NODE,
     MAP_NODE,
+    MIDITOFREQ_NODE,
     MEM_NODE,
     PHASOR_NODE,
     PULSE_NODE,
@@ -47,6 +48,7 @@ static TzNodeDoc nodesDoc [] = {
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
+    {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"mem", "1 sample delay.", "in", "out"},
     {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
     {"pulse", "outputs a pulse at a periodic rate.", "rate(Ms)", "out"},
@@ -102,6 +104,9 @@ TzNode* createMixNode ();
 
 void performMap (TzNode* n, TzProcessInfo* info);
 TzNode* createMapNode ();
+
+void performMiditofreq (TzNode* n, TzProcessInfo* info);
+TzNode* createMiditofreqNode ();
 
 void performMem (TzNode* n, TzProcessInfo* info);
 TzNode* createMemNode ();

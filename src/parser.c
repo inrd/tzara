@@ -121,6 +121,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createMapNode(), name);
             break;
         
+        case MIDITOFREQ_NODE:
+            printf("Creating miditofreq : %s\n", name);
+            addNode(tz, createMiditofreqNode(), name);
+            break;
+        
         case MEM_NODE:
             printf("Creating single sample delay : %s\n", name);
             addNode(tz, createMemNode(), name);
