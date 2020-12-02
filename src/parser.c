@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 int parseOperator (char op) {
     switch (op) {
@@ -254,6 +255,18 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
     *output = (*node >= 0) ? searchOutput(tz->nodes[*node], token) : -1;
 }
 
+float getConstantValue (char* token) {
+    if (strncmp(token, "pi", strlen(token)) == 0) {
+        return M_PI;
+    }
+    else if (strncmp(token, "twopi", strlen(token)) == 0) {
+        return 2.f * M_PI;
+    }
+    else {
+        return atof(token);
+    }
+}
+
 int parseCreateConstantInstruction (Tzara* tz, char* instr) {
     char* token;
     float val = 0.f;
@@ -267,7 +280,7 @@ int parseCreateConstantInstruction (Tzara* tz, char* instr) {
         /* drop first token (operator) */
         switch (ic) {
             case 1:
-                val = atof(token);
+                val = getConstantValue(token);
                 break;
             case 2:
                 trimNewLine(token);

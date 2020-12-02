@@ -36,6 +36,8 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input);
 
 void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output);
 
+float getConstantValue (char* token);
+
 int parseCreateConstantInstruction (Tzara* tz, char* instr);
 
 int parseConnectInstruction (Tzara* tz, char* instr);

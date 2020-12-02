@@ -1,0 +1,15 @@
+# Special constants test 
+# !!! This example only generates a DC offset
+# check log to confirm constants values
+
++ add sum
+= pi sum@in1
+= twopi sum@in2
+
++ clip clp
+= 0 clp@min
+= 0.5 clp@max
+> sum@out clp@in
+
+> clp@out out@l
+
