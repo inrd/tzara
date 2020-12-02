@@ -23,7 +23,6 @@ TzNode* createMyNode () {
 ```
 
 - In `parser.c`
-    - complete the `parseNodeType` function
     - complete the `parseCreateNodeInstruction` function
 
 

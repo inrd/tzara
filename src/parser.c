@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 int parseOperator (char op) {
     switch (op) {
         case '#':
@@ -34,16 +33,13 @@ void parseCommentInstruction (const char* instr) {
 
 int parseNodeType (const char* name) {
     const int nameLength = strlen(name);
+    int i = 0;
 
-    /* TODO: loop around nodesDoc to retrieve the names */
-    if (strncmp(name, "add", nameLength) == 0) return ADDER_NODE;
-    if (strncmp(name, "mult", nameLength) == 0) return MULT_NODE;
-    if (strncmp(name, "clip", nameLength) == 0) return CLIP_NODE;
-    if (strncmp(name, "mix", nameLength) == 0) return MIX_NODE;
-    if (strncmp(name, "map", nameLength) == 0) return MAP_NODE;
-    if (strncmp(name, "mem", nameLength) == 0) return MEM_NODE;
-    if (strncmp(name, "phasor", nameLength) == 0) return PHASOR_NODE;
-    if (strncmp(name, "sinosc", nameLength) == 0) return SINOSC_NODE;
+    for (i = 1; i < NUM_NODE_TYPES; ++i) {
+        if (strncmp(name, nodesDoc[i].name, nameLength) == 0) {
+            return i;
+        }
+    }
 
     return INVALID_NODE_TYPE;
 }
