@@ -1,11 +1,23 @@
 # Pulse node tests
 
 + pulse p1
-= 100 p1@rate
+= 200 p1@rate
 
-+ pulse p2
-= 250 p2@rate
++ seq8 pattern
+= 220 pattern@step1
+= 440 pattern@step2
+= 880 pattern@step3
+= 440 pattern@step4
+= 4 pattern@length
+> p1@out pattern@clock
 
-> p1@out out@l
-> p2@out out@r
++ sinosc osc
+> pattern@out osc@freq
+
++ mult amp
+> osc@out amp@in1
+= 0.5 amp@in2
+
+> amp@out out@l
+> amp@out out@r
 

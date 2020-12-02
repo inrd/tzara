@@ -131,6 +131,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createSinoscNode(), name);
             break;
 
+        case SEQ8_NODE:
+            printf("Creating seq8 : %s\n", name);
+            addNode(tz, createSeq8Node(), name);
+            break;
+
         default:
             fprintf(stderr, "Could not create node : invalid node type...\n");
             return 1;

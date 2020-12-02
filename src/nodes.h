@@ -21,6 +21,7 @@ enum NodeTypes {
     PHASOR_NODE,
     PULSE_NODE,
     SINOSC_NODE,
+    SEQ8_NODE,
     NUM_NODE_TYPES
 };
 
@@ -44,7 +45,8 @@ static TzNodeDoc nodesDoc [] = {
     {"mem", "1 sample delay.", "in", "out"},
     {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
     {"pulse", "outputs a pulse at a periodic rate.", "rate(Ms)", "out"},
-    {"sinosc", "generates a sine wave.", "freq(Hz)", "out"}
+    {"sinosc", "generates a sine wave.", "freq(Hz)", "out"},
+    {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"}
 };
 
 typedef struct TzProcessInfo TzProcessInfo;
@@ -109,5 +111,8 @@ TzNode* createPulseNode ();
 
 void performSinosc (TzNode* n, TzProcessInfo* info);
 TzNode* createSinoscNode ();
+
+void performSeq8 (TzNode* n, TzProcessInfo* info);
+TzNode* createSeq8Node ();
 
 #endif

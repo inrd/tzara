@@ -254,7 +254,7 @@ void performSinosc (TzNode* n, TzProcessInfo* info) {
     const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float incr = freq * twopi / samplerate;
-    float* phase = n->memory;
+    float* phase = &(n->memory[0]);
     n->outputs[0] = sin(*phase);
     *phase += incr;
     while (*phase > twopi) *phase -= twopi;
@@ -268,6 +268,53 @@ TzNode* createSinoscNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performSinosc;
+    return n;
+}
+
+void performSeq8 (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float steps[8];
+    const int clock = (int)getNodeInput(n, 8, 0.f);
+    int length = (int)getNodeInput(n, 9, 8.f);
+    int i = 0;
+
+    for (i = 0; i < 8; ++i) {
+        steps[i] = getNodeInput(n, i, 0.f);
+    }
+    if (length < 1) length = 1;
+    if (length > 8) length = 8;
+
+    float* pos = &(n->memory[0]);
+
+    if (clock != 0) {
+        *pos += 1.f;
+        if ((int)(*pos) >= length) {
+            *pos = 0.f;
+        }
+    }
+
+    n->outputs[0] = steps[(int)(*pos)];
+    n->outputs[1] = *pos;
+}
+
+TzNode* createSeq8Node () {
+    int i = 0;
+    char stepname[32];
+
+    TzNode* n = allocateNewNode();
+    n->numInputs = 10;
+    for (i = 0; i < 8; ++i) {
+        sprintf(stepname, "step%d", i + 1);
+        strncpy(n->inputsNames[i], stepname, strlen(stepname));
+    }
+    strcpy(n->inputsNames[8], "clock");
+    strcpy(n->inputsNames[9], "length");
+    n->numOutputs = 2;
+    strcpy(n->outputsNames[0], "out");
+    strcpy(n->outputsNames[1], "pos");
+    n->memory[0] = 0.f;
+    n->perform = &performSeq8;
     return n;
 }
 
