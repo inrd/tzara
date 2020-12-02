@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "tzara.h"
 #include "parser.h"
@@ -22,6 +23,8 @@ int main (int argc, char** argv) {
     int i, j = 0;
     unsigned long int numFrames = (unsigned long int)samplerate * TZARA_WAV_DURATION_SEC;
     unsigned long int framesCount = 0;
+
+    srand((unsigned int)time(NULL));
 
     if (argc < 2) {
         fprintf(stderr, "Usage:\ntzara [patchfile]\nor\ntzara --nodes\n\n");

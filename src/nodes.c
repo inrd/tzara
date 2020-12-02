@@ -1,6 +1,7 @@
 #include "nodes.h"
 
 #include <math.h>
+#include <time.h>
 #include <stdio.h>
 
 #define TZ_UNUSED(x) (void)(x)
@@ -355,5 +356,30 @@ TzNode* createSeq8Node () {
     n->perform = &performSeq8;
     return n;
 }
+
+void performRandom (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const int clock = (int)getNodeInput(n, 0, 0.f);
+    float* out = &(n->memory[0]);
+
+    if (clock != 0) {
+        *out = (float)rand()/(float)(RAND_MAX);
+    }
+
+    n->outputs[0] = *out;
+}
+
+TzNode* createRandomNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "clock");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performRandom;
+    return n;
+}
+
 
 

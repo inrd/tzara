@@ -1,0 +1,25 @@
+# random number generation test
+
++ pulse clock
+= 250 clock@rate
+
++ random rnd
+> clock@out rnd@clock
+
++ map scale
+= 0 scale@imin
+= 1 scale@imax
+= 100 scale@omin
+= 800 scale@omax
+> rnd@out scale@in
+
++ sinosc osc
+> scale@out osc@freq
+
++ mult amp
+> osc@out amp@in1
+= 0.8 amp@in2
+
+> amp@out out@l
+> amp@out out@r
+
