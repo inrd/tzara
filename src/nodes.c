@@ -76,6 +76,30 @@ TzNode* createMultNode () {
     return n;
 }
 
+void performClip (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float in = getNodeInput(n, 0, 0.f);
+    const float min = getNodeInput(n, 1, -1.f);
+    const float max = getNodeInput(n, 2, 1.f);
+    
+    if (in < min) in = min;
+    if (in > max) in = max;
+    n->outputs[0] = in;
+}
+
+TzNode* createClipNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "min");
+    strcpy(n->inputsNames[2], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performClip;
+    return n;
+}
+
 void performConstant (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 

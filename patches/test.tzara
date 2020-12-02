@@ -43,12 +43,13 @@
 + sinosc carrier
 > modadd@out carrier@freq
 
-# scale level
-+ mult amp
-= 0.8 amp@in1
-> carrier@out amp@in2
+# clip level
++ clip limiter
+> carrier@out limiter@in
+= -0.5 limiter@min
+= 0.5 limiter@max
 
 #  route to output
-> amp@out out@l
-> amp@out out@r
+> limiter@out out@l
+> limiter@out out@r
 
