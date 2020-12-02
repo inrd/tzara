@@ -6,13 +6,13 @@
 + phasor pitcher
 = 0.01 pitcher@freq
 
-+ mult pitcherdepth
-> pitcher@out pitcherdepth@in1
-= 440 pitcherdepth@in2
-
-+ add pitchmod
-= 110 pitchmod@in1
-> pitcherdepth@out pitchmod@in2
+# scale pitch modulation output
++ map pitchmod
+= 0 pitchmod@imin
+= 1 pitchmod@imax
+= 110 pitchmod@omin
+= 440 pitchmod@omax
+> pitcher@out pitchmod@in
 
 + add modadd
 > pitchmod@out modadd@in1

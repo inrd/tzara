@@ -40,6 +40,7 @@ int parseNodeType (const char* name) {
     if (strncmp(name, "mult", nameLength) == 0) return MULT_NODE;
     if (strncmp(name, "clip", nameLength) == 0) return CLIP_NODE;
     if (strncmp(name, "mix", nameLength) == 0) return MIX_NODE;
+    if (strncmp(name, "map", nameLength) == 0) return MAP_NODE;
     if (strncmp(name, "mem", nameLength) == 0) return MEM_NODE;
     if (strncmp(name, "phasor", nameLength) == 0) return PHASOR_NODE;
     if (strncmp(name, "sinosc", nameLength) == 0) return SINOSC_NODE;
@@ -106,6 +107,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
         case MIX_NODE:
             printf("Creating mixer : %s\n", name);
             addNode(tz, createMixNode(), name);
+            break;
+
+        case MAP_NODE:
+            printf("Creating mapper : %s\n", name);
+            addNode(tz, createMapNode(), name);
             break;
         
         case MEM_NODE:

@@ -1,6 +1,7 @@
 #include "nodes.h"
 
 #include <math.h>
+#include <stdio.h>
 
 #define TZ_UNUSED(x) (void)(x)
 
@@ -121,6 +122,51 @@ TzNode* createMixNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMix;
+    return n;
+}
+
+void performMap (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in = getNodeInput(n, 0, 0.f);
+    const float imin = getNodeInput(n, 1, 0.f);
+    const float imax = getNodeInput(n, 2, 1.f);
+    const float omin = getNodeInput(n, 3, 0.f);
+    const float omax = getNodeInput(n, 4, 1.f);
+    float tmp = 0.f;
+
+    float* errCount = &(n->memory[0]);
+
+    if ((imin >= imax)||(omin >= omax)||(in<imin)||(in>omax)) {
+        /* invalid inputs */
+        n->outputs[0] = 0.f;
+        if ((int)(*errCount) < 10) {
+            fprintf(stderr, "Warning : [%s] => invalid inputs, output set to 0...\n", n->name); 
+            *errCount += 1;
+        }
+        else if ((int)(*errCount) == 10) {
+            fprintf(stderr, "[%s] => too many warnings, no longer printing them!\n", n->name); 
+            *errCount += 1;
+        }
+    }
+    else {
+        tmp = (in - imin) / (imax - imin);
+        n->outputs[0] = omin + (tmp * (omax - omin));
+    }
+}
+
+TzNode* createMapNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 5;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "imin");
+    strcpy(n->inputsNames[2], "imax");
+    strcpy(n->inputsNames[3], "omin");
+    strcpy(n->inputsNames[4], "omax");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performMap;
     return n;
 }
 
