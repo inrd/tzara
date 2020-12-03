@@ -50,6 +50,8 @@ To print a list of the available nodes, run :
 tzara --nodes
 ```
 
+You can also read a dump of the above command in `nodes_list.md`.
+
 ----
 
 Using [dr_wav](https://github.com/mackron/dr_libs) to write wave files.

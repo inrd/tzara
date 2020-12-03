@@ -1,0 +1,45 @@
+# Tzara Nodes
+ 
+- [add] : outputs {in1} + {in2}.
+	- inputs: {in1, in2}
+	- outputs: {out}
+- [sub] : outputs {in1} - {in2}.
+	- inputs: {in1, in2}
+	- outputs: {out}
+- [mult] : outputs {in1} * {in2}.
+	- inputs: {in1, in2}
+	- outputs: {out}
+- [div] : outputs {in1} / {in2}.
+	- inputs: {in1, in2}
+	- outputs: {out}
+- [clip] : clips {in} in range [{min}..{max}].
+	- inputs: {in, min, max}
+	- outputs: {out}
+- [mix] : interpolates between {in1} and {in2} according to {coeff} in range [0..1].
+	- inputs: {in1, in2, coeff}
+	- outputs: {out}
+- [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].
+	- inputs: {in, imin, imax, omin, omax}
+	- outputs: {out}
+- [miditofreq] : converts a MIDI note [0..127] to a frequency in Hertz.
+	- inputs: {in}
+	- outputs: {out}
+- [mem] : 1 sample delay.
+	- inputs: {in}
+	- outputs: {out}
+- [phasor] : generates a ramp in the range [0..1].
+	- inputs: {freq(Hz)}
+	- outputs: {out}
+- [pulse] : outputs a pulse at a periodic rate.
+	- inputs: {rate(Ms)}
+	- outputs: {out}
+- [sinosc] : generates a sine wave.
+	- inputs: {freq(Hz)}
+	- outputs: {out}
+- [seq8] : outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.
+	- inputs: {clock(pulse), length(1..8), step1, step2, ..., step8}
+	- outputs: {out, pos}
+- [random] : outputs a random value in the range [0..1] when receiving a pulse at {clock}.
+	- inputs: {clock}
+	- outputs: {out}
+

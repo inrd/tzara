@@ -18,7 +18,10 @@ OBJECTS = $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 default: tzara
 
 tzara: $(OBJECTS)
-	$(LINKER) -o $@ $^ -lm
+	@$(LINKER) -o $@ $^ -lm
+	@echo "# Tzara Nodes" > nodes_list.md
+	@echo " " >> nodes_list.md
+	@./tzara --nodes >> nodes_list.md
 
 $(OBJECTS): $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
