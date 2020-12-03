@@ -2,7 +2,7 @@
 
 # Timing
 + phasor drift
-= 0.1 drift@freq
+= 0.08 drift@freq
 
 + sub idrift
 = 1 idrift@in1
@@ -11,7 +11,7 @@
 + map clocker
 = 0 clocker@imin
 = 1 clocker@imax
-= 50 clocker@omin
+= 10 clocker@omin
 = 500 clocker@omax
 > idrift@out clocker@in
 
@@ -30,10 +30,32 @@
 > pattern@out mtof@in
 
 # Synth
-+ sinosc osc
-> mtof@out osc@freq
++ add fmoff
+> mtof@out fmoff@in1
+= 24 fmoff@in2
+
++ sinosc modosc
+> fmoff@out modosc@freq
+
++ random rnd
+> metro@out rnd@clock
+
++ mult rndscale
+> rnd@out rndscale@in1
+= 1000 rndscale@in2
+
++ mult fm
+> modosc@out fm@in1
+> rndscale@out fm@in2
+
++ add frq 
+> mtof@out frq@in1
+> fm@out frq@in2
+
++ sinosc carrier
+> frq@out carrier@freq
 # reset osc phase on trig
-> metro@out osc@reset
+> metro@out carrier@reset
 
 + segment env
 = 0.8 env@val1
@@ -42,7 +64,7 @@
 > metro@out env@clock
 
 + mult amp
-> osc@out amp@in1
+> carrier@out amp@in1
 > env@out amp@in2
 
 # DAC
