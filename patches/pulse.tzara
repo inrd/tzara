@@ -26,26 +26,40 @@
 = 3 pattern@length
 > metro@out pattern@clock
 
-+ miditofreq mtof
-> pattern@out mtof@in
++ var seq
+> pattern@out $seq
 
 # Synth
++ miditofreq mtof1
+> $seq mtof1@in
+
++ random rndnt
+> metro@out rndnt@clock
++ mult rntm
+> rndnt@out rntm@in1
+= 12 rntm@in2
++ round inote
+> rntm@out inote@in
+
 + add fmoff
-> mtof@out fmoff@in1
-= 24 fmoff@in2
+> $seq fmoff@in1
+> inote@out fmoff@in2
+
++ miditofreq mtof2
+> fmoff@out mtof2@in
 
 + sinosc modosc
-> fmoff@out modosc@freq
+> mtof2@out modosc@freq
 
 + random rnd
 > metro@out rnd@clock
 
 + mult rndscale
 > rnd@out rndscale@in1
-= 1000 rndscale@in2
+= 3000 rndscale@in2
 
 + sinosc carrier
-> mtof@out carrier@freq
+> mtof1@out carrier@freq
 > modosc@out carrier@fm
 > rndscale@out carrier@fmdepth
 # reset osc phase on trig
