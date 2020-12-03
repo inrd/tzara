@@ -1,6 +1,6 @@
 # Tzara Nodes
  
-- [var] : holds a variable.
+- [var] : holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.
 	- inputs: val
 	- outputs: val
 - [add] : outputs {in1} + {in2}.

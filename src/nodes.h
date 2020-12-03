@@ -45,7 +45,7 @@ struct TzNodeDoc {
 
 static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
-    {"var", "holds a variable.", "val", "val"},
+    {"var", "holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
     {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
