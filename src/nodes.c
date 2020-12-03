@@ -402,4 +402,41 @@ TzNode* createRandomNode () {
 }
 
 
+void performSegment (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float dur = getNodeInput(n, 3, 10.f);
+    const float length = (dur > 0 ? dur : 10.f) * 0.001f *samplerate;
+
+    const float v1 = getNodeInput(n, 1, 0.f);
+    const float v2 = getNodeInput(n, 2, 0.f);
+    const float delta = (v2 - v1) / length;
+
+    const int clock = (int)getNodeInput(n, 0, 0.f);
+
+    float* out = &(n->memory[0]);
+
+    if (clock != 0) {
+        *out = v1;
+    }
+
+    n->outputs[0] = *out;
+
+    *out += delta;
+    if ((delta > 0.f && *out > v2) || (delta < 0.f && *out < v2)) *out = v2;
+}
+
+TzNode* createSegmentNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 4;
+    strcpy(n->inputsNames[0], "clock");
+    strcpy(n->inputsNames[1], "val1");
+    strcpy(n->inputsNames[2], "val2");
+    strcpy(n->inputsNames[3], "dur");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performSegment;
+    return n;
+}
+
 

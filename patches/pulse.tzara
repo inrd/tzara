@@ -1,7 +1,17 @@
 # Pulse node tests
 
-+ pulse p1
-= 200 p1@rate
++ phasor drift
+= 0.1 drift@freq
+
++ map clocker
+= 0 clocker@imin
+= 1 clocker@imax
+= 150 clocker@omin
+= 500 clocker@omax
+> drift@out clocker@in
+
++ pulse metro
+> clocker@out metro@rate
 
 + seq8 pattern
 = 220 pattern@step1
@@ -9,14 +19,20 @@
 = 880 pattern@step3
 = 440 pattern@step4
 = 4 pattern@length
-> p1@out pattern@clock
+> metro@out pattern@clock
 
 + sinosc osc
 > pattern@out osc@freq
 
++ segment env
+= 0.8 env@val1
+= 0 env@val2
+= 150 env@dur
+> metro@out env@clock
+
 + mult amp
 > osc@out amp@in1
-= 0.5 amp@in2
+> env@out amp@in2
 
 > amp@out out@l
 > amp@out out@r
