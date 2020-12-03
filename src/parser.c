@@ -86,6 +86,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
     }
 
     switch(nodeType) {
+        case VAR_NODE:
+            printf("Creating var : %s\n", name);
+            addNode(tz, createVarNode(), name);
+            break;
+        
         case ADDER_NODE:
             printf("Creating add : %s\n", name);
             addNode(tz, createAdderNode(), name);
@@ -226,6 +231,22 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
     int offset = 0;
 
     memset(token, '\0', TZNODE_NAME_SIZE);
+    
+    if (str[0] == '$') {
+        /* var node */
+        /* skip '$' */
+        while(str[i] != '\0') {
+            if (i  > 0) {
+                token[i - 1]  = str[i];
+            }
+            ++i;
+        }
+        *node = searchNode(tz, token);
+        *input = (*node >= 0) ? 0 : -1;
+        return;
+    }
+
+
 
     while(str[i] != '@' && str[i] != '\0') {
         token[i]  = str[i];
@@ -275,6 +296,21 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
     int offset = 0;
 
     memset(token, '\0', TZNODE_NAME_SIZE);
+
+    if (str[0] == '$') {
+        /* var node */
+        /* skip '$' */
+        while(str[i] != '\0') {
+            if (i  > 0) {
+                token[i - 1]  = str[i];
+            }
+            ++i;
+        }
+        *node = searchNode(tz, token);
+        *output = (*node >= 0) ? 0 : -1;
+        return;
+    }
+
 
     while(str[i] != '@' && str[i] != '\0') {
         token[i]  = str[i];

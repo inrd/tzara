@@ -1,0 +1,51 @@
+# Example variable use
+# $myvar is syntactic sugar for calling a var object
+# the input or output is retrieved depending on the context
+
++ var note
+
+# set the value
+# equivalent to 
+# = 64 note@val
+
+= 64 $note
+
++ miditofreq mtof
+
+# get the value
+# equivalent to
+# > note@val mtof@in 
+
+> $note mtof@in
+
++ var freq
+> mtof@out $freq
+
++ sinosc oscl
+> $freq oscl@freq
+
++ mult ampl
+> oscl@out ampl@in1
+= 0.8 ampl@in2
+
+# WARNING! 
+# Don't change the var value or it would overwrite it for the whole patch
+# as connections are assigned  before any process takes place
+# Don't do this after using the var somewhere else=> = 110 $freq
+
+# vars are more a way to pass some kind of value (constant or signal) through the patch
+
++ mult f2
+> $freq f2@in1
+= 2 f2@in2
+
++ sinosc oscr
+> f2@out oscr@freq
+
++ mult ampr
+> oscr@out ampr@in1
+= 0.8 ampr@in2
+
+> ampl@out out@l
+> ampr@out out@r
+

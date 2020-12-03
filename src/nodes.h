@@ -12,6 +12,7 @@
 
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
+    VAR_NODE,
     ADDER_NODE,
     SUB_NODE,
     MULT_NODE,
@@ -44,6 +45,7 @@ struct TzNodeDoc {
 
 static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
+    {"var", "holds a variable.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
     {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
@@ -89,6 +91,8 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 
 /* =========================================== */
 
+void performVar (TzNode* n, TzProcessInfo* info);
+TzNode* createVarNode ();
 
 void performAdder (TzNode* n, TzProcessInfo* info);
 TzNode* createAdderNode ();

@@ -40,6 +40,24 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
 
 /* =========================== */
 
+void performVar (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = in;
+}
+
+TzNode* createVarNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "val");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "val");
+    n->perform = &performVar;
+    return n;
+}
+
+
 void performAdder (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 

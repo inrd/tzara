@@ -1,5 +1,8 @@
 # Tzara Nodes
  
+- [var] : holds a variable.
+	- inputs: val
+	- outputs: val
 - [add] : outputs {in1} + {in2}.
 	- inputs: in1, in2
 	- outputs: out
