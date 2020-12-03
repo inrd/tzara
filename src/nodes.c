@@ -270,7 +270,14 @@ void performPhasor (TzNode* n, TzProcessInfo* info) {
     const float samplerate = info->samplerate;
     const float freq = getNodeInput(n, 0, 440.f);
     const float incr = freq / samplerate;
+    const float reset = getNodeInput(n, 1, 0.f);
+
     float* phase = &(n->memory[0]);
+
+    if (reset > 0) {
+        *phase = 0.f;
+    }
+
     n->outputs[0] = *phase;
     *phase += incr;
     while (*phase > 1.f) *phase -= 1.f;
@@ -278,8 +285,9 @@ void performPhasor (TzNode* n, TzProcessInfo* info) {
 
 TzNode* createPhasorNode () {
     TzNode* n = allocateNewNode();
-    n->numInputs = 1;
+    n->numInputs = 2;
     strcpy(n->inputsNames[0], "freq");
+    strcpy(n->inputsNames[1], "reset");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
@@ -291,7 +299,14 @@ void performPulse (TzNode* n, TzProcessInfo* info) {
     const float samplerate = info->samplerate;
     const float rate = getNodeInput(n, 0, 100.f);
     const float period = rate * 0.001f *samplerate;
+    const float reset = getNodeInput(n, 1, 0.f);
+
     float* count = &(n->memory[0]);
+
+    if (reset > 0) {
+        *count = 0.f;
+    }
+
     n->outputs[0] = (int)(*count) == 0 ? 1.f : 0.f;
     *count += 1.f;
     if (*count >= period) *count = 0.f;
@@ -299,8 +314,9 @@ void performPulse (TzNode* n, TzProcessInfo* info) {
 
 TzNode* createPulseNode () {
     TzNode* n = allocateNewNode();
-    n->numInputs = 1;
+    n->numInputs = 2;
     strcpy(n->inputsNames[0], "rate");
+    strcpy(n->inputsNames[1], "reset");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
@@ -313,7 +329,14 @@ void performSinosc (TzNode* n, TzProcessInfo* info) {
     const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float incr = freq * twopi / samplerate;
+    const float reset = getNodeInput(n, 1, 0.f);
+
     float* phase = &(n->memory[0]);
+
+    if (reset > 0) {
+        *phase = 0.f;
+    }
+
     n->outputs[0] = sin(*phase);
     *phase += incr;
     while (*phase > twopi) *phase -= twopi;
@@ -321,8 +344,9 @@ void performSinosc (TzNode* n, TzProcessInfo* info) {
 
 TzNode* createSinoscNode () {
     TzNode* n = allocateNewNode();
-    n->numInputs = 1;
+    n->numInputs = 2;
     strcpy(n->inputsNames[0], "freq");
+    strcpy(n->inputsNames[1], "reset");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;

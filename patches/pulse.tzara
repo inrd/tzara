@@ -23,6 +23,8 @@
 
 + sinosc osc
 > pattern@out osc@freq
+# reset osc phase on trig
+> metro@out osc@reset
 
 + segment env
 = 0.8 env@val1

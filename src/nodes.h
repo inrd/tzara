@@ -51,9 +51,9 @@ static TzNodeDoc nodesDoc [] = {
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"mem", "1 sample delay.", "in", "out"},
-    {"phasor", "generates a ramp in the range [0..1].", "freq(Hz)", "out"},
-    {"pulse", "outputs a pulse at a periodic rate.", "rate(Ms)", "out"},
-    {"sinosc", "generates a sine wave.", "freq(Hz)", "out"},
+    {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz) reset(pulse)", "out"},
+    {"pulse", "outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms) reset(pulse)", "out"},
+    {"sinosc", "generates a sine wave. A pulse at {reset} resets the phase.", "freq(Hz) reset(pulse)", "out"},
     {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}.", "clock val1 val2 dur", "out"}
