@@ -1,28 +1,37 @@
 # Pulse node tests
 
+# Timing
 + phasor drift
 = 0.1 drift@freq
+
++ sub idrift
+= 1 idrift@in1
+> drift@out idrift@in2
 
 + map clocker
 = 0 clocker@imin
 = 1 clocker@imax
-= 150 clocker@omin
+= 50 clocker@omin
 = 500 clocker@omax
-> drift@out clocker@in
+> idrift@out clocker@in
 
 + pulse metro
 > clocker@out metro@rate
 
+# Notes
 + seq8 pattern
-= 220 pattern@step1
-= 440 pattern@step2
-= 880 pattern@step3
-= 440 pattern@step4
-= 4 pattern@length
+= 64 pattern@step1
+= 66 pattern@step2
+= 67 pattern@step3
+= 3 pattern@length
 > metro@out pattern@clock
 
++ miditofreq mtof
+> pattern@out mtof@in
+
+# Synth
 + sinosc osc
-> pattern@out osc@freq
+> mtof@out osc@freq
 # reset osc phase on trig
 > metro@out osc@reset
 
@@ -36,6 +45,7 @@
 > osc@out amp@in1
 > env@out amp@in2
 
+# DAC
 > amp@out out@l
 > amp@out out@r
 
