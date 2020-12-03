@@ -33,7 +33,7 @@ int main (int argc, char** argv) {
 
     if (strncmp(argv[1], "--nodes", strlen(argv[1])) == 0) {
         for (i = 1; i < NUM_NODE_TYPES; ++i) {
-            printf("- [%s] : %s\n\t- inputs: {%s}\n\t- outputs: {%s}\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
+            printf("- [%s] : %s\n\t- inputs: %s\n\t- outputs: %s\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
         }
         printf("\n");
         return 0;
