@@ -13,7 +13,7 @@ SRC_FILES = main.c \
 
 OBJECTS = $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 
-.PHONY: clean install
+.PHONY: clean install vimsyntax
 
 default: tzara
 
@@ -32,4 +32,11 @@ clean:
 
 install:
 	cp tzara /usr/local/bin/tzara
+
+vimsyntax:
+	@echo "Copying tzara syntax plugin to ~/.vim"
+	@test -d ~/.vim/syntax || mkdir ~/.vim/syntax
+	@test -d ~/.vim/ftdetect || mkdir ~/.vim/ftdetect
+	@cp vim/syntax/tzara.vim ~/.vim/syntax/tzara.vim
+	@cp vim/ftdetect/tzara.vim ~/.vim/ftdetect/tzara.vim
 

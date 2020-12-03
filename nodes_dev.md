@@ -25,4 +25,5 @@ TzNode* createMyNode () {
 - In `parser.c`
     - complete the `parseCreateNodeInstruction` function
 
+- Register the node name as a keyword in `vim/syntax/tzara.md`
 
