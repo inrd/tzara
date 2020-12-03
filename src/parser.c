@@ -463,6 +463,7 @@ int parseInstruction (Tzara* tz, char*  instr) {
 int parsePatch (Tzara* tz, FILE* patch) {
     char cache[PARSER_CACHE_SIZE];
     int i;
+    int lcount = 1;
     int err  = 0;
 
     for (i = 0; i < PARSER_CACHE_SIZE; ++i) {
@@ -471,8 +472,10 @@ int parsePatch (Tzara* tz, FILE* patch) {
     while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
         err = parseInstruction(tz, cache);
         if (err != 0) {
+            printf("Issue encountered while parsing line %d.\n", lcount);
             break;
         }
+        ++lcount;
     }
     return err;
 }
