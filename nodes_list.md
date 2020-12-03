@@ -36,8 +36,8 @@
 - [pulse] : outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.
 	- inputs: rate(Ms), reset(pulse)
 	- outputs: out
-- [sinosc] : generates a sine wave. A pulse at {reset} resets the phase.
-	- inputs: freq(Hz), reset(pulse)
+- [sinosc] : generates a sine wave. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.
+	- inputs: freq(Hz), reset(pulse), fm, fmdepth
 	- outputs: out
 - [seq8] : outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.
 	- inputs: clock(pulse), length(1..8), step1, step2, ..., step8

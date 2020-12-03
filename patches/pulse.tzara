@@ -44,16 +44,10 @@
 > rnd@out rndscale@in1
 = 1000 rndscale@in2
 
-+ mult fm
-> modosc@out fm@in1
-> rndscale@out fm@in2
-
-+ add frq 
-> mtof@out frq@in1
-> fm@out frq@in2
-
 + sinosc carrier
-> frq@out carrier@freq
+> mtof@out carrier@freq
+> modosc@out carrier@fm
+> rndscale@out carrier@fmdepth
 # reset osc phase on trig
 > metro@out carrier@reset
 

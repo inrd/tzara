@@ -352,8 +352,11 @@ void performSinosc (TzNode* n, TzProcessInfo* info) {
     const float samplerate = info->samplerate;
     const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
-    const float incr = freq * twopi / samplerate;
     const float reset = getNodeInput(n, 1, 0.f);
+    const float fm = getNodeInput(n, 2, 0.f);
+    const float fmdepth = getNodeInput(n, 3, 0.f);
+
+    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
 
     float* phase = &(n->memory[0]);
 
@@ -368,9 +371,11 @@ void performSinosc (TzNode* n, TzProcessInfo* info) {
 
 TzNode* createSinoscNode () {
     TzNode* n = allocateNewNode();
-    n->numInputs = 2;
+    n->numInputs = 4;
     strcpy(n->inputsNames[0], "freq");
     strcpy(n->inputsNames[1], "reset");
+    strcpy(n->inputsNames[2], "fm");
+    strcpy(n->inputsNames[3], "fmdepth");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
