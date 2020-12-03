@@ -9,12 +9,19 @@
 + map scale
 = 0 scale@imin
 = 1 scale@imax
-= 48 scale@omin
-= 62 scale@omax
+= 1 scale@omin
+= 4 scale@omax
 > rnd@out scale@in
 
++ select sel
+> scale@out sel@index
+= 48 sel@in1
+= 50 sel@in2
+= 51 sel@in3
+= 53 sel@in4
+
 + miditofreq mtof
-> scale@out mtof@in
+> sel@out mtof@in
 
 + sinosc osc
 > mtof@out osc@freq

@@ -464,3 +464,36 @@ TzNode* createSegmentNode () {
 }
 
 
+void performSelect (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float vals[8];
+    int idx = (int)getNodeInput(n, 0, 0.f);
+    int i = 0;
+
+    if (idx < 0 || idx > 8) idx = 0;
+
+    for (i = 1; i < 9; ++i) {
+        vals[i] = getNodeInput(n, i, 0.f);
+    }
+
+    n->outputs[0] = idx == 0 ? 0.f : vals[idx];
+}
+
+TzNode* createSelectNode () {
+    int i = 0;
+    char inName[32];
+
+    TzNode* n = allocateNewNode();
+    n->numInputs = 9;
+    strcpy(n->inputsNames[0], "index");
+    for (i = 1; i < 9; ++i) {
+        sprintf(inName, "in%d", i);
+        strncpy(n->inputsNames[i], inName, strlen(inName));
+    }
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performSelect;
+    return n;
+}
+

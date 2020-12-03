@@ -161,6 +161,11 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             addNode(tz, createSegmentNode(), name);
             break;
 
+        case SELECT_NODE:
+            printf("Creating select : %s\n", name);
+            addNode(tz, createSelectNode(), name);
+            break;
+
         default:
             fprintf(stderr, "Could not create node : invalid node type...\n");
             return 1;
