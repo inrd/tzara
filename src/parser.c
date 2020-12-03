@@ -107,12 +107,17 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
             break;
         
         case CLIP_NODE:
-            printf("Creating clipper : %s\n", name);
+            printf("Creating clip : %s\n", name);
             addNode(tz, createClipNode(), name);
+            break;
+
+        case ROUND_NODE:
+            printf("Creating round : %s\n", name);
+            addNode(tz, createRoundNode(), name);
             break;
         
         case MIX_NODE:
-            printf("Creating mixer : %s\n", name);
+            printf("Creating mix : %s\n", name);
             addNode(tz, createMixNode(), name);
             break;
 

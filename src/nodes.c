@@ -140,6 +140,30 @@ TzNode* createClipNode () {
     return n;
 }
 
+void performRound (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    float in = getNodeInput(n, 0, 0.f);
+    float frac = 0.f;
+    if (in < 0.f) {
+        frac = in + (int)in;
+        n->outputs[0] = frac < 0.5f ? (float)((int)in) : (float)((int)(in - 1)) ;
+    }
+    else {
+        frac = in - (int)in;
+        n->outputs[0] = frac < 0.5f ? (float)((int)in) : (float)((int)(in + 1)) ;
+    }
+}
+
+TzNode* createRoundNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performRound;
+    return n;
+}
+
 void performMix (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 

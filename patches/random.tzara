@@ -13,8 +13,11 @@
 = 4 scale@omax
 > rnd@out scale@in
 
++ round idx
+> scale@out idx@in
+
 + select sel
-> scale@out sel@index
+> idx@out sel@index
 = 48 sel@in1
 = 50 sel@in2
 = 51 sel@in3

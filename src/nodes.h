@@ -17,6 +17,7 @@ enum NodeTypes {
     MULT_NODE,
     DIV_NODE,
     CLIP_NODE,
+    ROUND_NODE,
     MIX_NODE,
     MAP_NODE,
     MIDITOFREQ_NODE,
@@ -48,6 +49,7 @@ static TzNodeDoc nodesDoc [] = {
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
     {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
+    {"round", "rounds {in} to the nearest integer value.", "in", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
@@ -102,6 +104,9 @@ TzNode* createDivNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();
+
+void performRound (TzNode* n, TzProcessInfo* info);
+TzNode* createRoundNode ();
 
 void performMix (TzNode* n, TzProcessInfo* info);
 TzNode* createMixNode ();

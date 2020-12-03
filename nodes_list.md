@@ -15,6 +15,9 @@
 - [clip] : clips {in} in range [{min}..{max}].
 	- inputs: in, min, max
 	- outputs: out
+- [round] : rounds {in} to the nearest integer value.
+	- inputs: in
+	- outputs: out
 - [mix] : interpolates between {in1} and {in2} according to {coeff} in range [0..1].
 	- inputs: in1, in2, coeff
 	- outputs: out
