@@ -1,18 +1,13 @@
 # Test!
-
-+ sinosc mainosc
-= 440 mainosc@freq
-
-+ var frq
-= 110 $frq
+# Using modules (and modules inside modules)
 
 + module synth <submod.tzara>
-> $frq synth@freq
+= 110 synth@freq
 
 + mult amp
-> mainosc@out amp@in1
+> synth@sig amp@in1
 = 0.5 amp@in2
 
 > amp@out out@l
-> synth@sig out@r
+> amp@out out@r
 

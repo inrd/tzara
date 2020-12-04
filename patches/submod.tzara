@@ -6,5 +6,8 @@
 + phasor submodosc
 > in@freq submodosc@freq
 
-> submodosc@out out@sig
++ module squarepusher <subsub.tzara>
+> submodosc@out squarepusher@sig
+
+> squarepusher@sig out@sig
 
