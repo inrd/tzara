@@ -112,6 +112,12 @@ int addModuleNode (TzModule* m, TzNode* n, const char* name);
 
 void connectModuleNodes (TzModule* m, int inModule, int inOutput, int outModule, int outInput);
 
+void createModuleInlet (TzModule* m, const char* name);
+void createModuleOutlet  (TzModule* m, const char* name);
+
+void connectModuleInlet (TzModule* m, int srcNode, int srcInput, int inletIndex);
+void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletIndex);
+
 /* =========================================== */
 
 void performModule (TzNode* n, TzProcessInfo* info);

@@ -78,6 +78,34 @@ void connectModuleNodes (TzModule* m, int inModule, int inOutput, int outModule,
     }
 }
 
+void createModuleInlet (TzModule* m, const char* name) {
+    if (m->numInputs < TZNODE_MAX_INPUTS) {
+        strncpy(m->inputsNames[m->numInputs], name, TZNODE_NAME_SIZE - 1);
+        ++(m->numInputs);
+    }
+    else {
+        printf("Too many module inputs!\n");
+    }
+}
+
+void createModuleOutlet  (TzModule* m, const char* name) {
+    if (m->numOutputs < TZNODE_MAX_OUTPUTS) {
+        strncpy(m->outputsNames[m->numOutputs], name, TZNODE_NAME_SIZE - 1);
+        ++(m->numOutputs);
+    }
+    else {
+        printf("Too many module outputs!\n");
+    }
+}
+
+void connectModuleInlet (TzModule* m, int srcNode, int srcInput, int inletIndex) {
+    m->inputs[inletIndex] = m->nodes[srcNode]->inputs[srcInput];
+}
+
+void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletIndex) {
+    m->outputs[outletIndex] = &(m->nodes[srcNode]->outputs[srcOutput]);
+}
+
 
 /* =========================== */
 
