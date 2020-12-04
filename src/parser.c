@@ -615,13 +615,21 @@ int parseConnectInstruction (void* tz, char* instr, int isModule) {
     }
 
     if (destNode == MODULE_OUTPUTS_NODE_INDEX) {
+        if (srcNode < 0 || srcOutput < 0) {
+            fprintf(stderr, "Invalid connection...\n");
+            return 1;
+        }
         printf("Connect %s[%s] to module out\n", ((TzModule*)tz)->nodes[srcNode]->name, ((TzModule*)tz)->nodes[srcNode]->outputsNames[srcOutput]);
         connectModuleOutlet((TzModule*)tz, srcNode, srcOutput, destInput);
         return 0;
     }
 
     if (srcNode == MODULE_INPUTS_NODE_INDEX) {
-        printf("Connect module in to %s[%s]\n", ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->outputsNames[destInput]);
+        if (destNode < 0 || destInput < 0) {
+            fprintf(stderr, "Invalid connection...\n");
+            return 1;
+        }
+        printf("Connect module in to %s[%s]\n", ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->inputsNames[destInput]);
         connectModuleInlet((TzModule*)tz, destNode, destInput, srcOutput);
         return 0;
     }

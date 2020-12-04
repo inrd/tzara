@@ -3,8 +3,11 @@
 + sinosc mainosc
 = 440 mainosc@freq
 
++ var frq
+= 110 $frq
+
 + module synth <submod.tzara>
-= 110 synth@freq
+> $frq synth@freq
 
 + mult amp
 > mainosc@out amp@in1

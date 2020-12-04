@@ -99,7 +99,7 @@ void createModuleOutlet  (TzModule* m, const char* name) {
 }
 
 void connectModuleInlet (TzModule* m, int srcNode, int srcInput, int inletIndex) {
-    m->inputs[inletIndex] = m->nodes[srcNode]->inputs[srcInput];
+    m->inputs[inletIndex] = &(m->nodes[srcNode]->inputs[srcInput]);
 }
 
 void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletIndex) {
@@ -113,7 +113,7 @@ void performModuleNode (TzNode* n, TzProcessInfo* info) {
     int i = 0;
         
     for (i = 0; i < n->numInputs; ++i) {
-        n->inputs[i] = n->submodule->inputs[i];
+        *(n->submodule->inputs[i]) = n->inputs[i];
     }
 
     for (i = 0; i < n->submodule->numNodes; ++i) {
@@ -130,18 +130,18 @@ TzNode* createModuleNode (const char* filename) {
     FILE* patch = NULL;
     TzNode* n = allocateNewNode();
 
-    fprintf(stderr, "Opening module file : %s\n", filename);
+    fprintf(stderr, "\n== Opening module file : %s ==\n\n", filename);
 
     patch = fopen(filename, "r");
     if (patch == NULL) {
-        fprintf(stderr, "Could not open %s...\n", filename);
+        fprintf(stderr, "Could not open %s...\n\n", filename);
         return n;
     }
 
     n->submodule = malloc(sizeof(TzModule));
 
     if (n->submodule == NULL) {
-        fprintf(stderr, "Failed to create module node...\n");
+        fprintf(stderr, "Failed to create module node...\n\n");
         return n;
     }
 
@@ -162,11 +162,13 @@ TzNode* createModuleNode (const char* filename) {
 
     if (parsePatch (n->submodule, patch, filename , 1) != 0) {
         fclose(patch);
-        fprintf(stderr, "Errors encountered while building module patch...\nAborting.\n\n");
+        fprintf(stderr, "Errors encountered while building module patch...\n\n");
         return n;
     }
 
     fclose(patch);
+
+    printf("\n== Module patch successfully built ==\n\n");
 
     n->numInputs = n->submodule->numInputs;
     for (i = 0; i < n->numInputs; ++i) {

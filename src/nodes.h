@@ -100,7 +100,7 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 struct TzModule {
     TzNode* nodes[TZMODULE_MAX_NODES];
     int numNodes;
-    float* inputs[TZNODE_MAX_INPUTS];
+    float** inputs[TZNODE_MAX_INPUTS];
     int numInputs;
     float* outputs[TZNODE_MAX_OUTPUTS];
     int numOutputs;
