@@ -25,6 +25,7 @@ void flush (TzNode* n) {
     for (i = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
         memset(n->outputsNames[i], '\0', TZNODE_NAME_SIZE);
     }
+    n->submodule = NULL;
 }
 
 TzNode* allocateNewNode () {
@@ -33,12 +34,66 @@ TzNode* allocateNewNode () {
     return n;
 }
 
+void releaseNode (TzNode* n) {
+    int i = 0;
+    if (n->submodule != NULL) {
+        for (i = 0; i < n->submodule->numNodes; ++i) {
+            releaseNode(n->submodule->nodes[i]);
+            free(n->submodule->nodes[i]);
+            n->submodule->nodes[i] = NULL;
+        }
+        free(n->submodule);
+        n->submodule = NULL;
+    }
+}
+
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
     return n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
 }
 
 
 /* =========================== */
+
+void performModuleNode (TzNode* n, TzProcessInfo* info) {
+    int i = 0;
+        
+    for (i = 0; i < n->numInputs; ++i) {
+        n->inputs[i] = n->submodule->inputs[i];
+    }
+
+    for (i = 0; i < n->submodule->numNodes; ++i) {
+        n->submodule->nodes[i]->perform(n->submodule->nodes[i], info);
+    }
+
+    for (i = 0; i < n->numOutputs; ++i) {
+        n->outputs[i] = n->submodule->outputs[i] != NULL ? *(n->submodule->outputs[i]) : 0.f;
+    }
+}
+
+TzNode* createModuleNode (const char* filename) {
+    int i = 0;
+    TzNode* n = allocateNewNode();
+
+    /* TODO : parse submodule */
+
+    if (n->submodule == NULL) {
+        return NULL;
+    }
+
+    n->numInputs = n->submodule->numInputs;
+    for (i = 0; i < n->numInputs; ++i) {
+        strcpy(n->inputsNames[i], n->submodule->inputsNames[i]);
+    }
+    n->numOutputs = n->submodule->numOutputs;
+    for (i = 0; i < n->numOutputs; ++i) {
+        strcpy(n->outputsNames[i], n->submodule->outputsNames[i]);
+    }
+    n->perform = &performModuleNode;
+    return n;
+}
+
+
+
 
 void performVar (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);

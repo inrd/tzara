@@ -1,5 +1,8 @@
 # Tzara Nodes
  
+- [module] : special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.
+	- inputs: user declared inputs
+	- outputs: user declared outputs
 - [var] : holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.
 	- inputs: val
 	- outputs: val

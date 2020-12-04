@@ -55,7 +55,16 @@ void trimNewLine (char* str) {
     }
 }
 
-int parseCreateNodeInstruction (Tzara* tz, char* instr) {
+void addEngineNode (void* engine, TzNode* n, char* name, int isModule) {
+    if (isModule == 0) {
+        addNode((Tzara*)engine, n, name);
+    }
+    else {
+        /* TODO : implement add node to module */
+    }
+}
+
+int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
     char* token;
     int nodeType = INVALID_NODE_TYPE;
     char name [TZNODE_NAME_SIZE];
@@ -86,94 +95,99 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
     }
 
     switch(nodeType) {
+        case MODULE_NODE:
+            printf("Creating module : %s\n", name);
+            /* TODO: addNode(tz, createModuleNode(filename), name);*/
+            break;
+        
         case VAR_NODE:
             printf("Creating var : %s\n", name);
-            addNode(tz, createVarNode(), name);
+            addEngineNode(tz, createVarNode(), name, isModule);
             break;
         
         case ADDER_NODE:
             printf("Creating add : %s\n", name);
-            addNode(tz, createAdderNode(), name);
+            addEngineNode(tz, createAdderNode(), name, isModule);
             break;
         
         case SUB_NODE:
             printf("Creating sub : %s\n", name);
-            addNode(tz, createSubNode(), name);
+            addEngineNode(tz, createSubNode(), name, isModule);
             break;
         
         case MULT_NODE:
             printf("Creating mult : %s\n", name);
-            addNode(tz, createMultNode(), name);
+            addEngineNode(tz, createMultNode(), name, isModule);
             break;
         
         case DIV_NODE:
             printf("Creating div : %s\n", name);
-            addNode(tz, createDivNode(), name);
+            addEngineNode(tz, createDivNode(), name, isModule);
             break;
         
         case CLIP_NODE:
             printf("Creating clip : %s\n", name);
-            addNode(tz, createClipNode(), name);
+            addEngineNode(tz, createClipNode(), name, isModule);
             break;
 
         case ROUND_NODE:
             printf("Creating round : %s\n", name);
-            addNode(tz, createRoundNode(), name);
+            addEngineNode(tz, createRoundNode(), name, isModule);
             break;
         
         case MIX_NODE:
             printf("Creating mix : %s\n", name);
-            addNode(tz, createMixNode(), name);
+            addEngineNode(tz, createMixNode(), name, isModule);
             break;
 
         case MAP_NODE:
             printf("Creating mapper : %s\n", name);
-            addNode(tz, createMapNode(), name);
+            addEngineNode(tz, createMapNode(), name, isModule);
             break;
         
         case MIDITOFREQ_NODE:
             printf("Creating miditofreq : %s\n", name);
-            addNode(tz, createMiditofreqNode(), name);
+            addEngineNode(tz, createMiditofreqNode(), name, isModule);
             break;
         
         case MEM_NODE:
             printf("Creating single sample delay : %s\n", name);
-            addNode(tz, createMemNode(), name);
+            addEngineNode(tz, createMemNode(), name, isModule);
             break;
         
         case PHASOR_NODE:
             printf("Creating phasor : %s\n", name);
-            addNode(tz, createPhasorNode(), name);
+            addEngineNode(tz, createPhasorNode(), name, isModule);
             break;
 
         case PULSE_NODE:
             printf("Creating pulse : %s\n", name);
-            addNode(tz, createPulseNode(), name);
+            addEngineNode(tz, createPulseNode(), name, isModule);
             break;
 
         case SINOSC_NODE:
             printf("Creating sinosc : %s\n", name);
-            addNode(tz, createSinoscNode(), name);
+            addEngineNode(tz, createSinoscNode(), name, isModule);
             break;
 
         case SEQ8_NODE:
             printf("Creating seq8 : %s\n", name);
-            addNode(tz, createSeq8Node(), name);
+            addEngineNode(tz, createSeq8Node(), name, isModule);
             break;
 
         case RANDOM_NODE:
             printf("Creating random : %s\n", name);
-            addNode(tz, createRandomNode(), name);
+            addEngineNode(tz, createRandomNode(), name, isModule);
             break;
 
         case SEGMENT_NODE:
             printf("Creating segment : %s\n", name);
-            addNode(tz, createSegmentNode(), name);
+            addEngineNode(tz, createSegmentNode(), name, isModule);
             break;
 
         case SELECT_NODE:
             printf("Creating select : %s\n", name);
-            addNode(tz, createSelectNode(), name);
+            addEngineNode(tz, createSelectNode(), name, isModule);
             break;
 
         default:
@@ -186,13 +200,25 @@ int parseCreateNodeInstruction (Tzara* tz, char* instr) {
 }
 
 
-int searchNode (Tzara* tz, const char* name) {
+int searchNode (void* tz, const char* name, int isModule) {
     int i = 0;
     int nameLength = strlen(name);
-    for (i = 0; i < tz->numNodes; ++i) {
-        if (nameLength == (int)strlen(tz->nodes[i]->name)) {
-            if (strncmp(tz->nodes[i]->name, name, nameLength) == 0) {
-                return i;
+
+    if (isModule == 0) {
+        for (i = 0; i < ((Tzara*)tz)->numNodes; ++i) {
+            if (nameLength == (int)strlen(((Tzara*)tz)->nodes[i]->name)) {
+                if (strncmp(((Tzara*)tz)->nodes[i]->name, name, nameLength) == 0) {
+                    return i;
+                }
+            }
+        }
+    }
+    else {
+        for (i = 0; i < ((TzModule*)tz)->numNodes; ++i) {
+            if (nameLength == (int)strlen(((TzModule*)tz)->nodes[i]->name)) {
+                if (strncmp(((TzModule*)tz)->nodes[i]->name, name, nameLength) == 0) {
+                    return i;
+                }
             }
         }
     }
@@ -225,7 +251,7 @@ int searchOutput (TzNode* node, const char* name) {
     return -1;
 }
 
-void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
+void parseNodeInputString (void* tz, char* str, int* node, int* input, int isModule) {
     char token[TZNODE_NAME_SIZE];
     int i = 0;
     int offset = 0;
@@ -241,7 +267,7 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
             }
             ++i;
         }
-        *node = searchNode(tz, token);
+        *node = searchNode(tz, token, isModule);
         *input = (*node >= 0) ? 0 : -1;
         return;
     }
@@ -257,7 +283,7 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
         *node = TZARA_OUTPUT_NODE_INDEX;
     }
     else {
-        *node = searchNode(tz, token);
+        *node = searchNode(tz, token, isModule);
     }
     
     if (str[i] == '\0') {
@@ -286,11 +312,16 @@ void parseNodeInputString (Tzara* tz, char* str, int* node, int* input) {
         }
     }
     else {
-        *input = (*node >= 0) ? searchInput(tz->nodes[*node], token) : -1;
+        if (isModule == 0) {
+            *input = (*node >= 0) ? searchInput(((Tzara*)tz)->nodes[*node], token) : -1;
+        }
+        else {
+            *input = (*node >= 0) ? searchInput(((TzModule*)tz)->nodes[*node], token) : -1;
+        }
     }
 }
 
-void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
+void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isModule) {
     char token[TZNODE_NAME_SIZE];
     int i = 0;
     int offset = 0;
@@ -306,7 +337,7 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
             }
             ++i;
         }
-        *node = searchNode(tz, token);
+        *node = searchNode(tz, token, isModule);
         *output = (*node >= 0) ? 0 : -1;
         return;
     }
@@ -317,7 +348,7 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
         ++i;
     }
 
-    *node = searchNode(tz, token);
+    *node = searchNode(tz, token, isModule);
 
     if (str[i] == '\0') {
         fprintf(stderr, "Incorrect argument : %s\n", str);
@@ -333,7 +364,12 @@ void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output) {
         ++i;
     }
 
-    *output = (*node >= 0) ? searchOutput(tz->nodes[*node], token) : -1;
+    if (isModule == 0) {
+        *output = (*node >= 0) ? searchOutput(((Tzara*)tz)->nodes[*node], token) : -1;
+    }
+    else {
+        *output = (*node >= 0) ? searchOutput(((TzModule*)tz)->nodes[*node], token) : -1;
+    }
 }
 
 float getConstantValue (char* token) {
@@ -348,7 +384,9 @@ float getConstantValue (char* token) {
     }
 }
 
-int parseCreateConstantInstruction (Tzara* tz, char* instr) {
+
+
+int parseCreateConstantInstruction (void* tz, char* instr, int isModule) {
     char* token;
     float val = 0.f;
     int node = -1;
@@ -365,7 +403,7 @@ int parseCreateConstantInstruction (Tzara* tz, char* instr) {
                 break;
             case 2:
                 trimNewLine(token);
-                parseNodeInputString(tz, token, &node, &input);
+                parseNodeInputString(tz, token, &node, &input, isModule);
                 break;
             default:
                 break;
@@ -380,21 +418,27 @@ int parseCreateConstantInstruction (Tzara* tz, char* instr) {
     }
 
     if (node == TZARA_OUTPUT_NODE_INDEX) {
-        if (input == TZARA_OUTPUT_LEFT_INDEX) {
-            printf("Map constant with value %f to out[L]\n", val);
-            addNode(tz, createConstantNode(val), "\0");
-            connectModuleToOutput(tz, tz->numNodes - 1, 0, 0);
-        }
-        else if (input == TZARA_OUTPUT_RIGHT_INDEX) {
-            printf("Map constant with value %f to out[R]\n", val);
-            addNode(tz, createConstantNode(val), "\0");
-            connectModuleToOutput(tz, tz->numNodes - 1, 0, 1);
+        if (isModule == 0) {
+            if (input == TZARA_OUTPUT_LEFT_INDEX) {
+                printf("Map constant with value %f to out[L]\n", val);
+                addNode((Tzara*)tz, createConstantNode(val), "\0");
+                connectNodeToOutput((Tzara*)tz, ((Tzara*)tz)->numNodes - 1, 0, 0);
+            }
+            else if (input == TZARA_OUTPUT_RIGHT_INDEX) {
+                printf("Map constant with value %f to out[R]\n", val);
+                addNode((Tzara*)tz, createConstantNode(val), "\0");
+                connectNodeToOutput((Tzara*)tz, ((Tzara*)tz)->numNodes - 1, 0, 1);
+            }
+            else {
+                fprintf(stderr, "Invalid Input...\n");
+                return 1;
+            }
+            return 0;
         }
         else {
-            fprintf(stderr, "Invalid Input...\n");
+            fprintf(stderr, "Cannot route module node to main out...\n");
             return 1;
         }
-        return 0;
     }
 
     if (node < 0 || input < 0) {
@@ -402,16 +446,21 @@ int parseCreateConstantInstruction (Tzara* tz, char* instr) {
         return 1; 
     }
 
-    printf("Map constant with value %f to %s[%s]\n", val, tz->nodes[node]->name, tz->nodes[node]->inputsNames[input]);
-    addNode(tz, createConstantNode(val), "\0");
-    connectModules(tz, tz->numNodes - 1, 0, node, input); 
+    if (isModule == 0) {
+        printf("Map constant with value %f to %s[%s]\n", val, ((Tzara*)tz)->nodes[node]->name, ((Tzara*)tz)->nodes[node]->inputsNames[input]);
+        addNode((Tzara*)tz, createConstantNode(val), "\0");
+        connectNodes((Tzara*)tz, ((Tzara*)tz)->numNodes - 1, 0, node, input); 
+    }
+    else {
+        /* TODO: implement for modules */
+    }
 
     return 0;
 }
 
 
 
-int parseConnectInstruction (Tzara* tz, char* instr) {
+int parseConnectInstruction (void* tz, char* instr, int isModule) {
     char* token;
     int srcNode = -1;
     int srcOutput = -1;
@@ -425,11 +474,11 @@ int parseConnectInstruction (Tzara* tz, char* instr) {
         /* drop first token (operator) */
         switch (ic) {
             case 1:
-                parseNodeOutputString(tz, token, &srcNode, &srcOutput);
+                parseNodeOutputString(tz, token, &srcNode, &srcOutput, isModule);
                 break;
             case 2:
                 trimNewLine(token);
-                parseNodeInputString(tz, token, &destNode, &destInput);
+                parseNodeInputString(tz, token, &destNode, &destInput, isModule);
                 break;
             default:
                 break;
@@ -444,23 +493,29 @@ int parseConnectInstruction (Tzara* tz, char* instr) {
     }
 
     if (destNode == TZARA_OUTPUT_NODE_INDEX) {
-        if (srcNode < 0 || srcOutput < 0) {
-            fprintf(stderr, "Invalid connection...\n");
-            return 1;
-        }
-        if (destInput == TZARA_OUTPUT_LEFT_INDEX) {
-            printf("Connect %s[%s] to out[L]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput]);
-            connectModuleToOutput(tz, srcNode, srcOutput, 0);
-        }
-        else if (destInput == TZARA_OUTPUT_RIGHT_INDEX) {
-            printf("Connect %s[%s] to out[R]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput]);
-            connectModuleToOutput(tz, srcNode, srcOutput, 1);
+        if (isModule == 0) {
+            if (srcNode < 0 || srcOutput < 0) {
+                fprintf(stderr, "Invalid connection...\n");
+                return 1;
+            }
+            if (destInput == TZARA_OUTPUT_LEFT_INDEX) {
+                printf("Connect %s[%s] to out[L]\n", ((Tzara*)tz)->nodes[srcNode]->name, ((Tzara*)tz)->nodes[srcNode]->outputsNames[srcOutput]);
+                connectNodeToOutput((Tzara*)tz, srcNode, srcOutput, 0);
+            }
+            else if (destInput == TZARA_OUTPUT_RIGHT_INDEX) {
+                printf("Connect %s[%s] to out[R]\n", ((Tzara*)tz)->nodes[srcNode]->name, ((Tzara*)tz)->nodes[srcNode]->outputsNames[srcOutput]);
+                connectNodeToOutput((Tzara*)tz, srcNode, srcOutput, 1);
+            }
+            else {
+                fprintf(stderr, "Invalid Input...\n");
+                return 1;
+            }
+            return 0;
         }
         else {
-            fprintf(stderr, "Invalid Input...\n");
+            fprintf(stderr, "Cannot route module node to main out...\n");
             return 1;
         }
-        return 0;
     }
 
     if (srcNode < 0 || srcOutput < 0 || destNode < 0 || destInput < 0) {
@@ -468,15 +523,20 @@ int parseConnectInstruction (Tzara* tz, char* instr) {
         return  1;
     }
 
-    printf("Connect %s[%s] to %s[%s]\n", tz->nodes[srcNode]->name, tz->nodes[srcNode]->outputsNames[srcOutput], tz->nodes[destNode]->name, tz->nodes[destNode]->inputsNames[destInput]);
-    connectModules(tz, srcNode, srcOutput, destNode, destInput); 
+    if (isModule == 0) {
+        printf("Connect %s[%s] to %s[%s]\n", ((Tzara*)tz)->nodes[srcNode]->name, ((Tzara*)tz)->nodes[srcNode]->outputsNames[srcOutput], ((Tzara*)tz)->nodes[destNode]->name, ((Tzara*)tz)->nodes[destNode]->inputsNames[destInput]);
+        connectNodes((Tzara*)tz, srcNode, srcOutput, destNode, destInput); 
+    }
+    else {
+        /* TODO: connect module nodes */
+    }
 
     return 0;
 }
 
 
 
-int parseInstruction (Tzara* tz, char*  instr) {
+int parseInstruction (void* tz, char*  instr, int isModule) {
     const int op = parseOperator(instr[0]);
     int err = 0;
 
@@ -486,15 +546,15 @@ int parseInstruction (Tzara* tz, char*  instr) {
             break;
 
         case CREATE_NODE_OP:
-            err = parseCreateNodeInstruction(tz, instr);
+            err = parseCreateNodeInstruction(tz, instr, isModule);
             break;
 
         case CREATE_CONSTANT_OP:
-            err = parseCreateConstantInstruction(tz, instr);
+            err = parseCreateConstantInstruction(tz, instr, isModule);
             break;
 
         case CONNECT_OP:
-            err = parseConnectInstruction(tz, instr);
+            err = parseConnectInstruction(tz, instr, isModule);
             break;
 
         default:
@@ -506,7 +566,7 @@ int parseInstruction (Tzara* tz, char*  instr) {
 
 
 
-int parsePatch (Tzara* tz, FILE* patch) {
+int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
     char cache[PARSER_CACHE_SIZE];
     int i;
     int lcount = 1;
@@ -516,9 +576,9 @@ int parsePatch (Tzara* tz, FILE* patch) {
         cache[i] = 0;
     }
     while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
-        err = parseInstruction(tz, cache);
+        err = parseInstruction(engine, cache, isModule);
         if (err != 0) {
-            printf("Issue encountered while parsing line %d.\n", lcount);
+            printf("Issue encountered while parsing %s, line %d.\n", filename, lcount);
             break;
         }
         ++lcount;

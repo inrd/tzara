@@ -47,7 +47,7 @@ int main (int argc, char** argv) {
 
     init(&tz);
 
-    if (parsePatch (&tz, patch) != 0) {
+    if (parsePatch (&tz, patch, argv[1], 0) != 0) {
         fclose(patch);
         release(&tz);
         fprintf(stderr, "Errors encountered while building patch...\nAborting.\n\n");

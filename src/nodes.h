@@ -9,9 +9,11 @@
 #define TZNODE_MEMORY_SIZE 32
 #define TZNODE_NAME_SIZE 256
 
+#define TZMODULE_MAX_NODES 1024
 
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
+    MODULE_NODE,
     VAR_NODE,
     ADDER_NODE,
     SUB_NODE,
@@ -45,6 +47,7 @@ struct TzNodeDoc {
 
 static TzNodeDoc nodesDoc [] = {
     {"-", "-", "-", "-"},
+    {"module", "special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.", "user declared inputs", "user declared outputs"},
     {"var", "holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
     {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
@@ -65,7 +68,9 @@ static TzNodeDoc nodesDoc [] = {
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"}
 };
 
+typedef struct TzModule TzModule;
 typedef struct TzProcessInfo TzProcessInfo;
+
 struct TzProcessInfo {
     float samplerate;
 };
@@ -81,15 +86,32 @@ struct TzNode {
     char name[TZNODE_NAME_SIZE];
     char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
     char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+    TzModule* submodule;
 }; 
 
 void flush (TzNode* n);
 
 TzNode* allocateNewNode ();
 
+void releaseNode (TzNode* n);
+
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
 
+struct TzModule {
+    TzNode* nodes[TZMODULE_MAX_NODES];
+    int numNodes;
+    float* inputs[TZNODE_MAX_INPUTS];
+    int numInputs;
+    float* outputs[TZNODE_MAX_OUTPUTS];
+    int numOutputs;
+    char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
+    char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+};
+
 /* =========================================== */
+
+void performModule (TzNode* n, TzProcessInfo* info);
+TzNode* createModuleNode (const char* filename);
 
 void performVar (TzNode* n, TzProcessInfo* info);
 TzNode* createVarNode ();

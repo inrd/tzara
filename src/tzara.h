@@ -27,9 +27,9 @@ void init(Tzara* t);
 
 int addNode (Tzara* tz, TzNode* n, const char* name);
 
-void connectModules (Tzara* tz, int inModule, int inOutput, int outModule, int outInput);
+void connectNodes (Tzara* tz, int inModule, int inOutput, int outModule, int outInput);
 
-void connectModuleToOutput (Tzara* tz, int inModule, int inOutput, int outInput);
+void connectNodeToOutput (Tzara* tz, int inModule, int inOutput, int outInput);
 
 void process (Tzara* tz, float** out, int numChans, int numSamps, float samplerate);
 

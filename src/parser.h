@@ -24,26 +24,28 @@ int parseNodeType (const char* name);
 
 void trimNewLine (char* str);
 
-int parseCreateNodeInstruction (Tzara* tz, char* instr);
+void addEngineNode (void* engine, TzNode* n, char* name, int isModule);
 
-int searchNode (Tzara* tz, const char* name);
+int parseCreateNodeInstruction (void* tz, char* instr, int isModule);
+
+int searchNode (void* tz, const char* name, int isModule);
 
 int searchInput (TzNode* node, const char* name);
 
 int searchOutput (TzNode* node, const char* name);
 
-void parseNodeInputString (Tzara* tz, char* str, int* node, int* input);
+void parseNodeInputString (void* tz, char* str, int* node, int* input, int isModule);
 
-void parseNodeOutputString (Tzara* tz, char* str, int* node, int* output);
+void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isModule);
 
 float getConstantValue (char* token);
 
-int parseCreateConstantInstruction (Tzara* tz, char* instr);
+int parseCreateConstantInstruction (void* tz, char* instr, int isModule);
 
-int parseConnectInstruction (Tzara* tz, char* instr);
+int parseConnectInstruction (void* tz, char* instr, int isModule);
 
-int parseInstruction (Tzara* tz, char*  instr);
+int parseInstruction (void* tz, char* instr, int isModule);
 
-int parsePatch (Tzara* tz, FILE* patch);
+int parsePatch (void* engine, FILE* patch, const char* filename, int isModule);
 
 #endif

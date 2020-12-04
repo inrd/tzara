@@ -24,7 +24,7 @@ int addNode (Tzara* tz, TzNode* n, const char* name) {
     return MAX_MEMORY;
 }
 
-void connectModules (Tzara* tz, int inModule, int inOutput, int outModule, int outInput) {
+void connectNodes (Tzara* tz, int inModule, int inOutput, int outModule, int outInput) {
     if ((outInput < tz->nodes[outModule]->numInputs) && (inOutput < tz->nodes[inModule]->numOutputs)) {
         if (tz->nodes[outModule]->inputs[outInput] != NULL) {
             fprintf(stdout, "Warning : node input was already connected. Replacing connection.\n");
@@ -37,7 +37,7 @@ void connectModules (Tzara* tz, int inModule, int inOutput, int outModule, int o
     }
 }
 
-void connectModuleToOutput (Tzara* tz, int inModule, int inOutput, int outInput) {
+void connectNodeToOutput (Tzara* tz, int inModule, int inOutput, int outInput) {
     if ((outInput < TZARA_MAX_OUTPUT_CHANS) && (inOutput < tz->nodes[inModule]->numOutputs)) {
         if (tz->outputs[outInput] != NULL) {
             fprintf(stdout, "Warning : out channel %d was already connected. Replacing connection.\n", outInput);
@@ -73,6 +73,7 @@ void process (Tzara* tz, float** out, int numChans, int numSamps, float samplera
 void release (Tzara* tz) {
     int i = 0;
     for (i = 0; i < tz->numNodes; ++i) {
+        releaseNode(tz->nodes[i]);
         free(tz->nodes[i]);
         tz->nodes[i] = NULL;
     }
