@@ -287,6 +287,32 @@ int searchOutput (TzNode* node, const char* name) {
     return -1;
 }
 
+int searchModuleInput (TzModule* m, const char* name) {
+    int i = 0;
+    int nameLength = strlen(name);
+    for (i = 0; i < m->numInputs; ++i) {
+        if (nameLength == (int)strlen(m->inputsNames[i])) {
+            if (strncmp(m->inputsNames[i], name, nameLength) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+int searchModuleOutput (TzModule* m, const char* name) {
+    int i = 0;
+    int nameLength = strlen(name);
+    for (i = 0; i < m->numOutputs; ++i) {
+        if (nameLength == (int)strlen(m->outputsNames[i])) {
+            if (strncmp(m->outputsNames[i], name, nameLength) == 0) {
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
 void parseNodeInputString (void* tz, char* str, int* node, int* input, int isModule) {
     char token[TZNODE_NAME_SIZE];
     int i = 0;
@@ -316,7 +342,12 @@ void parseNodeInputString (void* tz, char* str, int* node, int* input, int isMod
     }
 
     if (strncmp(token, "out", 3) == 0) {
-        *node = TZARA_OUTPUT_NODE_INDEX;
+        if (isModule == 0) {
+            *node = TZARA_OUTPUT_NODE_INDEX;
+        }
+        else {
+            *node = MODULE_OUTPUTS_NODE_INDEX;
+        }
     }
     else {
         *node = searchNode(tz, token, isModule);
@@ -346,6 +377,9 @@ void parseNodeInputString (void* tz, char* str, int* node, int* input, int isMod
         else {
             *input = -1;
         }
+    }
+    else if (*node == MODULE_OUTPUTS_NODE_INDEX) {
+        *input = searchModuleOutput((TzModule*)tz, token);
     }
     else {
         if (isModule == 0) {
@@ -384,8 +418,15 @@ void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isM
         ++i;
     }
 
-    *node = searchNode(tz, token, isModule);
-
+    if (strncmp(token, "in", 2) == 0) {
+        if (isModule != 0) {
+            *node = MODULE_INPUTS_NODE_INDEX;
+        }
+    }
+    else {
+        *node = searchNode(tz, token, isModule);
+    }
+    
     if (str[i] == '\0') {
         fprintf(stderr, "Incorrect argument : %s\n", str);
         return;
@@ -400,11 +441,16 @@ void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isM
         ++i;
     }
 
-    if (isModule == 0) {
-        *output = (*node >= 0) ? searchOutput(((Tzara*)tz)->nodes[*node], token) : -1;
+    if (*node == MODULE_INPUTS_NODE_INDEX) {
+        *output = searchModuleInput((TzModule*)tz, token);
     }
     else {
-        *output = (*node >= 0) ? searchOutput(((TzModule*)tz)->nodes[*node], token) : -1;
+        if (isModule == 0) {
+            *output = (*node >= 0) ? searchOutput(((Tzara*)tz)->nodes[*node], token) : -1;
+        }
+        else {
+            *output = (*node >= 0) ? searchOutput(((TzModule*)tz)->nodes[*node], token) : -1;
+        }
     }
 }
 
@@ -475,6 +521,13 @@ int parseCreateConstantInstruction (void* tz, char* instr, int isModule) {
             fprintf(stderr, "Cannot route module node to main out...\n");
             return 1;
         }
+    }
+
+    if (node == MODULE_OUTPUTS_NODE_INDEX) {
+        printf("Map constant with value %f to module out\n", val);
+        addModuleNode((TzModule*)tz, createConstantNode(val), "\0");
+        connectModuleOutlet((TzModule*)tz, ((TzModule*)tz)->numNodes - 1, 0, input);
+        return 0;
     }
 
     if (node < 0 || input < 0) {
@@ -554,6 +607,23 @@ int parseConnectInstruction (void* tz, char* instr, int isModule) {
             fprintf(stderr, "Cannot route module node to main out...\n");
             return 1;
         }
+    }
+
+    if (destNode == MODULE_OUTPUTS_NODE_INDEX && srcNode == MODULE_INPUTS_NODE_INDEX) {
+        printf("Cannot connect module input straight to module output...\n");
+        return 1;
+    }
+
+    if (destNode == MODULE_OUTPUTS_NODE_INDEX) {
+        printf("Connect %s[%s] to module out\n", ((TzModule*)tz)->nodes[srcNode]->name, ((TzModule*)tz)->nodes[srcNode]->outputsNames[srcOutput]);
+        connectModuleOutlet((TzModule*)tz, srcNode, srcOutput, destInput);
+        return 0;
+    }
+
+    if (srcNode == MODULE_INPUTS_NODE_INDEX) {
+        printf("Connect module in to %s[%s]\n", ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->outputsNames[destInput]);
+        connectModuleInlet((TzModule*)tz, destNode, destInput, srcOutput);
+        return 0;
     }
 
     if (srcNode < 0 || srcOutput < 0 || destNode < 0 || destInput < 0) {

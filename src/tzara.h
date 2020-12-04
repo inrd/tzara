@@ -6,10 +6,6 @@
 #define TZARA_MAX_OUTPUT_CHANS 2
 #define TZARA_MAX_NODES 4096
 
-#define TZARA_OUTPUT_NODE_INDEX -0xaa
-#define TZARA_OUTPUT_LEFT_INDEX -0xbb
-#define TZARA_OUTPUT_RIGHT_INDEX -0xcc
-
 enum TzErrors {
     NO_ERROR = 0,
     MAX_MEMORY

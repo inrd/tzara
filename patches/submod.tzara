@@ -3,10 +3,8 @@
 : in freq
 : out sig 
 
-+ sinosc submodosc
-= 440 submodosc@freq
-+ phasor submodphasor
-= 880 submodphasor@freq
-> submodphasor@out submodosc@fm
-= 1000 submodosc@fmdepth
++ phasor submodosc
+> in@freq submodosc@freq
+
+> submodosc@out out@sig
 

@@ -8,6 +8,14 @@
 
 #define PARSER_CACHE_SIZE 1024
 
+#define TZARA_OUTPUT_NODE_INDEX -0xaa
+#define TZARA_OUTPUT_LEFT_INDEX -0xbb
+#define TZARA_OUTPUT_RIGHT_INDEX -0xcc
+
+
+#define MODULE_INPUTS_NODE_INDEX -0xdd
+#define MODULE_OUTPUTS_NODE_INDEX -0xee
+
 enum Operators {
     NO_OP = 0,
     COMMENT_OP,
@@ -36,6 +44,10 @@ int searchNode (void* tz, const char* name, int isModule);
 int searchInput (TzNode* node, const char* name);
 
 int searchOutput (TzNode* node, const char* name);
+
+int searchModuleInput (TzModule* m, const char* name);
+
+int searchModuleOutput (TzModule* m, const char* name);
 
 void parseNodeInputString (void* tz, char* str, int* node, int* input, int isModule);
 
