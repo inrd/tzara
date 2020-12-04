@@ -15,13 +15,16 @@ void init(Tzara* t) {
 }
 
 int addNode (Tzara* tz, TzNode* n, const char* name) {
-    if (tz->numNodes < (TZARA_MAX_NODES - 1)) {
-        strncpy(n->name, name, sizeof(n->name) - 1);
-        tz->nodes[tz->numNodes] = n;
-        ++tz->numNodes;
-        return NO_ERROR;
+    if (n != NULL) {
+        if (tz->numNodes < (TZARA_MAX_NODES - 1)) {
+            strncpy(n->name, name, sizeof(n->name) - 1);
+            tz->nodes[tz->numNodes] = n;
+            ++tz->numNodes;
+            return NO_ERROR;
+        }
+        return MAX_MEMORY;
     }
-    return MAX_MEMORY;
+    return 2;
 }
 
 void connectNodes (Tzara* tz, int inModule, int inOutput, int outModule, int outInput) {

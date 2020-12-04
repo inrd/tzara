@@ -55,12 +55,40 @@ void trimNewLine (char* str) {
     }
 }
 
+TzNode* parseAndCreateModule (char* instr) {
+    int i = 0;
+    int offset = 0;
+    char filename[512];
+
+    memset(filename, '\0', 512);
+
+    while (instr[i] != '<' && instr[i] != '\0') {
+        ++i;
+    }
+
+    if (instr[i] == '\0') {
+        fprintf(stderr, "Invalid syntax, cannot parse module file name...\n");
+        return NULL;
+    }
+
+    /* skip < */
+    ++i;
+    offset = i;
+
+    while (instr[i] != '>' && instr[i] != '\0') {
+        filename[i- offset] = instr[i];
+        ++i;
+    }
+
+    return createModuleNode(filename);
+}
+
 void addEngineNode (void* engine, TzNode* n, char* name, int isModule) {
     if (isModule == 0) {
         addNode((Tzara*)engine, n, name);
     }
     else {
-        /* TODO : implement add node to module */
+        addModuleNode((TzModule*)engine, n, name);
     }
 }
 
@@ -68,7 +96,11 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
     char* token;
     int nodeType = INVALID_NODE_TYPE;
     char name [TZNODE_NAME_SIZE];
+    char instrCopy[1024];
     int ic = 0;
+
+    memset(instrCopy, '\0', 1024);
+    strncpy(instrCopy, instr, strlen(instr));
 
     token = strtok(instr, " ");
 
@@ -97,7 +129,7 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
     switch(nodeType) {
         case MODULE_NODE:
             printf("Creating module : %s\n", name);
-            /* TODO: addNode(tz, createModuleNode(filename), name);*/
+            addEngineNode(tz, parseAndCreateModule(instrCopy), name, isModule);
             break;
         
         case VAR_NODE:
@@ -452,7 +484,9 @@ int parseCreateConstantInstruction (void* tz, char* instr, int isModule) {
         connectNodes((Tzara*)tz, ((Tzara*)tz)->numNodes - 1, 0, node, input); 
     }
     else {
-        /* TODO: implement for modules */
+        printf("Map constant with value %f to %s[%s]\n", val, ((TzModule*)tz)->nodes[node]->name, ((TzModule*)tz)->nodes[node]->inputsNames[input]);
+        addModuleNode((TzModule*)tz, createConstantNode(val), "\0");
+        connectModuleNodes((TzModule*)tz, ((TzModule*)tz)->numNodes - 1, 0, node, input); 
     }
 
     return 0;
@@ -528,7 +562,8 @@ int parseConnectInstruction (void* tz, char* instr, int isModule) {
         connectNodes((Tzara*)tz, srcNode, srcOutput, destNode, destInput); 
     }
     else {
-        /* TODO: connect module nodes */
+        printf("Connect %s[%s] to %s[%s]\n", ((TzModule*)tz)->nodes[srcNode]->name, ((TzModule*)tz)->nodes[srcNode]->outputsNames[srcOutput], ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->inputsNames[destInput]);
+        connectModuleNodes((TzModule*)tz, srcNode, srcOutput, destNode, destInput); 
     }
 
     return 0;

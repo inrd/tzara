@@ -1,0 +1,9 @@
+# test
+
++ sinosc submodosc
+= 440 submodosc@freq
++ phasor submodphasor
+= 880 submodphasor@freq
+> submodphasor@out submodosc@fm
+= 1000 submodosc@fmdepth
+

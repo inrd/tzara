@@ -4,6 +4,8 @@
 #include <time.h>
 #include <stdio.h>
 
+#include "parser.h"
+
 #define TZ_UNUSED(x) (void)(x)
 
 
@@ -52,6 +54,31 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
 }
 
 
+int addModuleNode (TzModule* m, TzNode* n, const char* name) {
+    if (m->numNodes < (TZMODULE_MAX_NODES - 1)) {
+        strncpy(n->name, name, sizeof(n->name) - 1);
+        m->nodes[m->numNodes] = n;
+        ++(m->numNodes);
+        return 0;
+    }
+    fprintf(stderr, "Too many nodes added!\n");
+    return 1;
+}
+
+void connectModuleNodes (TzModule* m, int inModule, int inOutput, int outModule, int outInput) {
+    if ((outInput < m->nodes[outModule]->numInputs) && (inOutput < m->nodes[inModule]->numOutputs)) {
+        if (m->nodes[outModule]->inputs[outInput] != NULL) {
+            fprintf(stdout, "Warning : node input was already connected. Replacing connection.\n");
+        }
+        m->nodes[outModule]->inputs[outInput] = &(m->nodes[inModule]->outputs[inOutput]);
+    }
+    else {
+        /* TODO : should abort */
+        fprintf(stderr, "Invalid routing...\n");
+    }
+}
+
+
 /* =========================== */
 
 void performModuleNode (TzNode* n, TzProcessInfo* info) {
@@ -72,13 +99,46 @@ void performModuleNode (TzNode* n, TzProcessInfo* info) {
 
 TzNode* createModuleNode (const char* filename) {
     int i = 0;
+    FILE* patch = NULL;
     TzNode* n = allocateNewNode();
 
-    /* TODO : parse submodule */
+    fprintf(stderr, "Opening module file : %s\n", filename);
+
+    patch = fopen(filename, "r");
+    if (patch == NULL) {
+        fprintf(stderr, "Could not open %s...\n", filename);
+        return n;
+    }
+
+    n->submodule = malloc(sizeof(TzModule));
 
     if (n->submodule == NULL) {
-        return NULL;
+        fprintf(stderr, "Failed to create module node...\n");
+        return n;
     }
+
+    for (i = 0; i < TZMODULE_MAX_NODES; ++i) {
+        n->submodule->nodes[i] = NULL;
+    }
+    n->submodule->numNodes = 0;
+
+    for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
+        n->submodule->inputs[i] = NULL;
+    }
+    n->submodule->numInputs = 0;
+
+    for (i = 0; i < TZNODE_MAX_OUTPUTS; ++i) {
+        n->submodule->outputs[i] = NULL;
+    }
+    n->submodule->numOutputs = 0;
+
+    if (parsePatch (n->submodule, patch, filename , 1) != 0) {
+        fclose(patch);
+        fprintf(stderr, "Errors encountered while building module patch...\nAborting.\n\n");
+        return n;
+    }
+
+    fclose(patch);
 
     n->numInputs = n->submodule->numInputs;
     for (i = 0; i < n->numInputs; ++i) {

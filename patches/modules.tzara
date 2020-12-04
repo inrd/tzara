@@ -1,0 +1,14 @@
+# Test!
+
++ sinosc mainosc
+= 440 mainosc@freq
+
++ module fmsynth <submod.tzara>
+
++ mult amp
+> mainosc@out amp@in1
+= 0.5 amp@in2
+
+> amp@out out@l
+> amp@out out@r
+

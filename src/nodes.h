@@ -108,6 +108,10 @@ struct TzModule {
     char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
 };
 
+int addModuleNode (TzModule* m, TzNode* n, const char* name);
+
+void connectModuleNodes (TzModule* m, int inModule, int inOutput, int outModule, int outInput);
+
 /* =========================================== */
 
 void performModule (TzNode* n, TzProcessInfo* info);
