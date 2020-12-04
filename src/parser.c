@@ -22,6 +22,10 @@ int parseOperator (char op) {
             return CONNECT_OP;
             break;
 
+        case  ':':
+            return MODULE_IO_OP;
+            break;
+
         default:
             return NO_OP;
             break;
@@ -569,6 +573,65 @@ int parseConnectInstruction (void* tz, char* instr, int isModule) {
     return 0;
 }
 
+int parseModuleIOInstruction (void* tz, char* instr, int isModule) {
+    char* token;
+    int ic = 0;
+    int isIn = 0;
+    int isOut = 0;
+    char name[TZNODE_NAME_SIZE];
+
+    memset(name, '\0', TZNODE_NAME_SIZE - 1);
+
+    if (isModule == 0) {
+        printf("IO connections are only valid in modules!\n");
+        return 1;
+    }
+
+    token = strtok(instr, " ");
+
+    while (token != NULL) {
+        /* drop first token (operator) */
+        switch (ic) {
+            case 1:
+                isIn = strncmp(token, "in", strlen(token)) == 0 ? 1 : 0;
+                isOut = strncmp(token, "out", strlen(token)) == 0 ? 1 : 0;
+                break;
+            case 2:
+                trimNewLine(token);
+                strcpy(name, token);
+                break;
+            default:
+                break;
+        }
+        token = strtok(NULL, " ");
+        ++ic;
+    }
+
+    if (ic < 3) {
+        fprintf(stderr, "Not enough arguments...\n");
+        return 1;
+    }
+
+    if (isIn == 0 && isOut == 0) {
+        printf("Invalid module IO instruction...\n");
+        return 1;
+    }
+
+    if (isIn != 0) {
+        printf("Creating module in : %s\n", name);
+        createModuleInlet ((TzModule*)tz, name);
+        return 0;
+    }
+
+    if (isOut != 0) {
+        printf("Creating module out : %s\n", name);
+        createModuleOutlet ((TzModule*)tz, name);
+        return 0;
+    }
+
+    return 1;
+}
+
 
 
 int parseInstruction (void* tz, char*  instr, int isModule) {
@@ -590,6 +653,10 @@ int parseInstruction (void* tz, char*  instr, int isModule) {
 
         case CONNECT_OP:
             err = parseConnectInstruction(tz, instr, isModule);
+            break;
+
+        case MODULE_IO_OP:
+            err = parseModuleIOInstruction(tz, instr, isModule);
             break;
 
         default:

@@ -13,7 +13,8 @@ enum Operators {
     COMMENT_OP,
     CREATE_NODE_OP,
     CREATE_CONSTANT_OP,
-    CONNECT_OP
+    CONNECT_OP,
+    MODULE_IO_OP
 };
 
 int parseOperator (char op);
@@ -45,6 +46,8 @@ float getConstantValue (char* token);
 int parseCreateConstantInstruction (void* tz, char* instr, int isModule);
 
 int parseConnectInstruction (void* tz, char* instr, int isModule);
+
+int parseModuleIOInstruction (void* tz, char* instr, int isModule);
 
 int parseInstruction (void* tz, char* instr, int isModule);
 

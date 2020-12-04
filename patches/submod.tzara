@@ -1,5 +1,8 @@
 # test
 
+: in freq
+: out sig 
+
 + sinosc submodosc
 = 440 submodosc@freq
 + phasor submodphasor
