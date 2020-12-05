@@ -33,6 +33,6 @@
 > osc@out amp@in1
 = 0.8 amp@in2
 
-> amp@out out@l
-> amp@out out@r
+> amp@out _out_@l
+> amp@out _out_@r
 

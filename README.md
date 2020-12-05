@@ -35,10 +35,10 @@ $ make
 # make a connection
 # > src_node@output_name dest_node@input_name
 #
-# -> Note that the out module does not need to be declared
+# -> Note that the _out_ module does not need to be declared
 #    as it is always instantiated
 
-> osc@out out@l
+> osc@out _out_@l
 
 ```
 

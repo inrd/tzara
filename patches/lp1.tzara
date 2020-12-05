@@ -37,6 +37,6 @@
 = 0.5 gain@in2
 
 # output
-> gain@out out@l
-> gain@out out@r
+> gain@out _out_@l
+> gain@out _out_@r
 

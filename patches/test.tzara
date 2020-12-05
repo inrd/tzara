@@ -50,6 +50,6 @@
 = 0.5 limiter@max
 
 #  route to output
-> limiter@out out@l
-> limiter@out out@r
+> limiter@out _out_@l
+> limiter@out _out_@r
 

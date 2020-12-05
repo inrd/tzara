@@ -1,15 +1,15 @@
 # more modules tests
 
 # takes a phasor as input and outputs a square wave
-: in sig
-: out sig
+@ in sig
+@ out sig
 
 + round rnd
-> in@sig rnd@in
+> _in_@sig rnd@in
 
 + mult gain
 = 0.5 gain@in1
 > rnd@out gain@in2
 
-> gain@out out@sig
+> gain@out _out_@sig
 

@@ -8,6 +8,6 @@
 > synth@sig amp@in1
 = 0.5 amp@in2
 
-> amp@out out@l
-> amp@out out@r
+> amp@out _out_@l
+> amp@out _out_@r
 

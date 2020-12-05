@@ -76,6 +76,6 @@
 > env@out amp@in2
 
 # DAC
-> amp@out out@l
-> amp@out out@r
+> amp@out _out_@l
+> amp@out _out_@r
 

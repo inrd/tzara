@@ -14,5 +14,5 @@
 > invert@out scale@in1
 = 2 scale@in2
 
-> scale@out out@r
+> scale@out _out_@r
 

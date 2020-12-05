@@ -1,13 +1,13 @@
 # test
 
-: in freq
-: out sig 
+@ in freq
+@ out sig 
 
 + phasor submodosc
-> in@freq submodosc@freq
+> _in_@freq submodosc@freq
 
 + module squarepusher <subsub.tzara>
 > submodosc@out squarepusher@sig
 
-> squarepusher@sig out@sig
+> squarepusher@sig _out_@sig
 

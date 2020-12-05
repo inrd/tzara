@@ -46,6 +46,6 @@
 > oscr@out ampr@in1
 = 0.8 ampr@in2
 
-> ampl@out out@l
-> ampr@out out@r
+> ampl@out _out_@l
+> ampr@out _out_@r
 

@@ -22,7 +22,7 @@ int parseOperator (char op) {
             return CONNECT_OP;
             break;
 
-        case  ':':
+        case  '@':
             return MODULE_IO_OP;
             break;
 
@@ -341,7 +341,7 @@ void parseNodeInputString (void* tz, char* str, int* node, int* input, int isMod
         ++i;
     }
 
-    if (strncmp(token, "out", 3) == 0) {
+    if (strncmp(token, "_out_", 5) == 0) {
         if (isModule == 0) {
             *node = TZARA_OUTPUT_NODE_INDEX;
         }
@@ -418,7 +418,7 @@ void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isM
         ++i;
     }
 
-    if (strncmp(token, "in", 2) == 0) {
+    if (strncmp(token, "_in_", 4) == 0) {
         if (isModule != 0) {
             *node = MODULE_INPUTS_NODE_INDEX;
         }
