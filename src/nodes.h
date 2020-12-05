@@ -37,6 +37,7 @@ enum NodeTypes {
     SEGMENT_NODE,
     SELECT_NODE,
     DELAY_NODE,
+    FDELAY_NODE,
     NUM_NODE_TYPES
 };
 
@@ -74,7 +75,8 @@ static TzNodeDoc nodesDoc [] = {
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}.", "clock, val1, val2, dur", "out"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
-    {"delay", "a basic delay line (up to 2 seconds).", "in time(Ms)", "out"}
+    {"delay", "a basic delay line (up to 2 seconds).", "in time(Ms)", "out"},
+    {"fdelay", "a delay line with feedback (up to 2 seconds).", "in time(Ms) feed([0..1])", "out"}
 };
 
 typedef struct TzModule TzModule;
@@ -207,5 +209,8 @@ TzNode* createSelectNode ();
 
 void performDelay (TzNode* n, TzProcessInfo* info);
 TzNode* createDelayNode ();
+
+void performFdelay (TzNode* n, TzProcessInfo* info);
+TzNode* createFdelayNode ();
 
 #endif

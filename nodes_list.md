@@ -69,4 +69,7 @@
 - [delay] : a basic delay line (up to 2 seconds).
 	- inputs: in time(Ms)
 	- outputs: out
+- [fdelay] : a delay line with feedback (up to 2 seconds).
+	- inputs: in time(Ms) feed([0..1])
+	- outputs: out
 

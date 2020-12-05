@@ -1,5 +1,7 @@
 # operations on pulse signals
 
+# [BUG] the clock seems to start late
+
 + pulse clock
 = 200 clock@rate
 
@@ -20,8 +22,19 @@
 > clock@out trigs@in1
 > seq@out trigs@in2
 
++ seq8 nseq
+= 3 nseq@length
+= 66 nseq@step1
+= 68 nseq@step2
+= 69 nseq@step3
+
+> clock@out nseq@clock
+
++ miditofreq mtof
+> nseq@out mtof@in
+
 + sinosc osc
-= 220 osc@freq
+> mtof@out osc@freq
 > trigs@out osc@reset
 
 + segment env
@@ -34,11 +47,28 @@
 > osc@out vca@in1
 > env@out vca@in2
 
-+ delay dl
-= 150 dl@time
-> vca@out dl@in
++ var dlmix
+= 0.4 $dlmix
 
-> vca@out _out_@l
-> dl@out _out_@r
++ fdelay dl
+= 300 dl@time
+= 0.7 dl@feed
+> vca@out dl@in
++ mix dml
+> $dlmix dml@coeff
+> vca@out dml@in1
+> dl@out dml@in2
+
++ fdelay dr
+= 400 dr@time
+= 0.7 dr@feed
+> vca@out dr@in
++ mix dmr
+> $dlmix dmr@coeff
+> vca@out dmr@in1
+> dr@out dmr@in2
+
+> dml@out _out_@l
+> dmr@out _out_@r
 
 
