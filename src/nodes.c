@@ -396,7 +396,7 @@ TzNode* createMapNode () {
 void performMiditofreq (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
-    int midi = (int)getNodeInput(n, 0, 0.f);
+    float midi = getNodeInput(n, 0, 0.f);
     if (midi < 0) midi = 0;
     if (midi > 127) midi = 127;
 

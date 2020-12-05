@@ -1,0 +1,16 @@
+# A pulse that outputs on each beat according to input bpm
+
+@ in bpm
+@ out out
+
++ var beatms
++ div bdiv
+= 60000 bdiv@in1
+> _in_@bpm bdiv@in2
+> bdiv@out $beatms
+
++ pulse metro
+> $beatms metro@rate
+
+> metro@out _out_@out
+

@@ -1,0 +1,33 @@
+# a basic fm oscillator
+
+@ in note
+@ in modoffset
+@ in fmdepth
+@ in reset
+
+@ out out
+
+
++ miditofreq mtof1
+> _in_@note mtof1@in
+
++ add fmoff
+> _in_@note fmoff@in1
+> _in_@modoffset fmoff@in2
+
++ miditofreq mtof2
+> fmoff@out mtof2@in
+
++ sinosc modosc
+> mtof2@out modosc@freq
+# uncomment to reset mod osc phase too
+# > _in_@reset modosc@reset
+
++ sinosc carrier
+> mtof1@out carrier@freq
+> modosc@out carrier@fm
+> _in_@fmdepth carrier@fmdepth
+> _in_@reset carrier@reset
+
+> carrier@out _out_@out
+

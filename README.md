@@ -98,6 +98,8 @@ Here is how to declare inputs and outputs in module files :
 
 ```
 
+A module can be included in another module.
+
 ----
 
 Using [dr_wav](https://github.com/mackron/dr_libs) to write wave files.

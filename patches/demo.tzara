@@ -1,0 +1,76 @@
+# Demo of various nodes and constructs
+
++ var minbpm
+= 60 $minbpm
+
++ var maxbpm
+= 300 $maxbpm
+
+# Timing
++ phasor drift
+= 0.08 drift@freq
+
+# invert phasor output
++ sub idrift
+= 1 idrift@in1
+> drift@out idrift@in2
+
+# convert phasor to bpm
++ map clocker
+= 0 clocker@imin
+= 1 clocker@imax
+> $minbpm clocker@omin
+> $maxbpm clocker@omax
+> idrift@out clocker@in
+
++ module metro <modules/bpmpulse.tzara>
+> clocker@out metro@bpm
+
+# Notes
++ seq8 pattern
+= 34 pattern@step1
+= 36 pattern@step2
+= 37 pattern@step3
+= 3 pattern@length
+> metro@out pattern@clock
+
++ var seq
+> pattern@out $seq
+
+# Synth
+
+# fm depth randomizer
++ random rnd
+> metro@out rnd@clock
++ mult rndscale
+> rnd@out rndscale@in1
+= 2000 rndscale@in2
+
+# mod osc offset randomizer
++ random rndnt
+> metro@out rndnt@clock
++ mult rntm
+> rndnt@out rntm@in1
+= 22 rntm@in2
+
++ module synth <modules/fmosc.tzara>
+> $seq synth@note
+> rndnt@out synth@modoffset
+> rndscale@out synth@fmdepth
+# reset osc phase on trig
+> metro@out synth@reset
+
++ segment env
+= 0.8 env@val1
+= 0 env@val2
+= 150 env@dur
+> metro@out env@clock
+
++ mult amp
+> synth@out amp@in1
+> env@out amp@in2
+
+# DAC
+> amp@out _out_@l
+> amp@out _out_@r
+
