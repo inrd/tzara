@@ -306,14 +306,11 @@ TzNode* createClipNode () {
 void performRound (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
     float in = getNodeInput(n, 0, 0.f);
-    float frac = 0.f;
     if (in < 0.f) {
-        frac = in + (int)in;
-        n->outputs[0] = frac < 0.5f ? (float)((int)in) : (float)((int)(in - 1)) ;
+        n->outputs[0] = (int)(in - 0.5);
     }
     else {
-        frac = in - (int)in;
-        n->outputs[0] = frac < 0.5f ? (float)((int)in) : (float)((int)(in + 1)) ;
+        n->outputs[0] = (int)(in + 0.5);
     }
 }
 
@@ -363,7 +360,7 @@ void performMap (TzNode* n, TzProcessInfo* info) {
 
     float* errCount = &(n->memory[0]);
 
-    if ((imin >= imax)||(omin >= omax)||(in<imin)||(in>omax)) {
+    if ((imin >= imax)||(omin >= omax)||(in<imin)||(in>imax)) {
         /* invalid inputs */
         n->outputs[0] = 0.f;
         if ((int)(*errCount) < 10) {
