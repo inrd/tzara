@@ -1,0 +1,22 @@
+# Count node test
+
++ pulse metro
+= 200 metro@rate
+
++ count pos
+= 4 pos@max
+> metro@out pos@clock
+
++ select steps
+= 110 steps@in1
+= 220 steps@in2
+= 440 steps@in3
+= 880 steps@in4
+> pos@out steps@index
+
++ sinosc osc
+> steps@out osc@freq
+
+> osc@out _out_@l
+> osc@out _out_@r
+

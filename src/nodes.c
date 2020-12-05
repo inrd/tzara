@@ -516,6 +516,33 @@ TzNode* createMemNode () {
     return n;
 }
 
+void performCount (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float* cnt = &(n->memory[0]);
+    const float clock = getNodeInput(n, 0, 0.f);
+    const int max = (int)getNodeInput(n, 1, 16.f);
+
+    if (clock != 0.f) {
+        *cnt += 1.f;
+        if ((int)*cnt > max) *cnt = 1.f;
+    }
+
+    n->outputs[0] = *cnt;
+}
+
+TzNode* createCountNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "clock");
+    strcpy(n->inputsNames[1], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performCount;
+    return n;
+}
+
 void performConstant (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 

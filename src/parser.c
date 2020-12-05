@@ -207,8 +207,13 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             break;
         
         case MEM_NODE:
-            printf("Creating single sample delay : %s\n", name);
+            printf("Creating mem : %s\n", name);
             addEngineNode(tz, createMemNode(), name, isModule);
+            break;
+        
+        case COUNT_NODE:
+            printf("Creating count : %s\n", name);
+            addEngineNode(tz, createCountNode(), name, isModule);
             break;
         
         case PHASOR_NODE:

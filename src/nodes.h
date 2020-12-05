@@ -30,6 +30,7 @@ enum NodeTypes {
     MAP_NODE,
     MIDITOFREQ_NODE,
     MEM_NODE,
+    COUNT_NODE,
     PHASOR_NODE,
     PULSE_NODE,
     SINOSC_NODE,
@@ -70,6 +71,7 @@ static TzNodeDoc nodesDoc [] = {
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"mem", "1 sample delay.", "in", "out"},
+    {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
     {"pulse", "outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms), reset(pulse)", "out"},
     {"sinosc", "generates a sine wave. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.", "freq(Hz), reset(pulse), fm, fmdepth", "out"},
@@ -181,6 +183,9 @@ TzNode* createMiditofreqNode ();
 
 void performMem (TzNode* n, TzProcessInfo* info);
 TzNode* createMemNode ();
+
+void performCount (TzNode* n, TzProcessInfo* info);
+TzNode* createCountNode ();
 
 
 /* =========================================== */
