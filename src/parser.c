@@ -241,6 +241,11 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             addEngineNode(tz, createSelectNode(), name, isModule);
             break;
 
+        case DELAY_NODE:
+            printf("Creating delay : %s\n", name);
+            addEngineNode(tz, createDelayNode(), name, isModule);
+            break;
+
         default:
             fprintf(stderr, "Could not create node : invalid node type...\n");
             return 1;

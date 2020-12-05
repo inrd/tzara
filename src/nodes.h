@@ -36,6 +36,7 @@ enum NodeTypes {
     RANDOM_NODE,
     SEGMENT_NODE,
     SELECT_NODE,
+    DELAY_NODE,
     NUM_NODE_TYPES
 };
 
@@ -72,7 +73,8 @@ static TzNodeDoc nodesDoc [] = {
     {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}.", "clock, val1, val2, dur", "out"},
-    {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"}
+    {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
+    {"delay", "a basic delay line (up to 2 seconds).", "in time(Ms)", "out"}
 };
 
 typedef struct TzModule TzModule;
@@ -202,5 +204,8 @@ TzNode* createSegmentNode ();
 
 void performSelect (TzNode* n, TzProcessInfo* info);
 TzNode* createSelectNode ();
+
+void performDelay (TzNode* n, TzProcessInfo* info);
+TzNode* createDelayNode ();
 
 #endif

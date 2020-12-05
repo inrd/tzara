@@ -34,7 +34,11 @@
 > osc@out vca@in1
 > env@out vca@in2
 
++ delay dl
+= 150 dl@time
+> vca@out dl@in
+
 > vca@out _out_@l
-> vca@out _out_@r
+> dl@out _out_@r
 
 
