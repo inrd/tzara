@@ -367,7 +367,7 @@ void performMap (TzNode* n, TzProcessInfo* info) {
         /* invalid inputs */
         n->outputs[0] = 0.f;
         if ((int)(*errCount) < 10) {
-            fprintf(stderr, "Warning : [%s] => invalid inputs, output set to 0...\n", n->name); 
+            fprintf(stderr, "Warning : [%s] => invalid inputs, output set to 0...\n%f : [%f..%f] -> [%f..%f]\n", n->name, in, imin, imax, omin, omax); 
             *errCount += 1;
         }
         else if ((int)(*errCount) == 10) {
