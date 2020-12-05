@@ -1,0 +1,23 @@
+# Merge up to 4 signals to a single output
+
+@ in in1
+@ in in2
+@ in in3
+@ in in4
+
+@ out out
+
++ add a1
+> _in_@in1 a1@in1
+> _in_@in2 a1@in2
+
++ add a2
+> a1@out a2@in1
+> _in_@in3 a2@in2
+
++ add a3
+> a2@out a3@in1
+> _in_@in4 a3@in2
+
+> a3@out _out_@out
+
