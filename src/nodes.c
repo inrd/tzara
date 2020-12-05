@@ -446,6 +446,7 @@ TzNode* createConstantNode (float val) {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = val;
+    n->outputs[0] = val;
     n->perform = &performConstant;
     return n;
 }
