@@ -1,0 +1,23 @@
+# random integer generator
+
+@ in clock
+@ in min
+@ in max
+
+@ out out
+
++ random rnd
+> _in_@clock rnd@clock
+
++ map scale
+= 0 scale@imin
+= 1 scale@imax
+> _in_@min scale@omin
+> _in_@max scale@omax
+> rnd@out scale@in
+
++ round rti
+> scale@out rti@in
+
+> rti@out _out_@out
+

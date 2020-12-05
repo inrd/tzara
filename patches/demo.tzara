@@ -40,23 +40,21 @@
 # Synth
 
 # fm depth randomizer
-+ random rnd
-> metro@out rnd@clock
-+ mult rndscale
-> rnd@out rndscale@in1
-= 2000 rndscale@in2
++ module rndfm <modules/irandom.tzara>
+= 0 rndfm@min
+= 2000 rndfm@max
+> metro@out rndfm@clock
 
 # mod osc offset randomizer
-+ random rndnt
-> metro@out rndnt@clock
-+ mult rntm
-> rndnt@out rntm@in1
-= 22 rntm@in2
++ module rndnote <modules/irandom.tzara>
+= 1 rndnote@min
+= 24 rndnote@max
+> metro@out rndnote@clock
 
 + module synth <modules/fmosc.tzara>
 > $seq synth@note
-> rndnt@out synth@modoffset
-> rndscale@out synth@fmdepth
+> rndnote@out synth@modoffset
+> rndfm@out synth@fmdepth
 # reset osc phase on trig
 > metro@out synth@reset
 
