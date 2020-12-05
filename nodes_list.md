@@ -24,6 +24,15 @@
 - [round] : rounds {in} to the nearest integer value.
 	- inputs: in
 	- outputs: out
+- [and] : outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.
+	- inputs: in1 in2
+	- outputs: out
+- [or] : outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.
+	- inputs: in1 in2
+	- outputs: out
+- [xor] : outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.
+	- inputs: in1 in2
+	- outputs: out
 - [mix] : interpolates between {in1} and {in2} according to {coeff} in range [0..1].
 	- inputs: in1, in2, coeff
 	- outputs: out

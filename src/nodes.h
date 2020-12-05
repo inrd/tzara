@@ -21,6 +21,9 @@ enum NodeTypes {
     DIV_NODE,
     CLIP_NODE,
     ROUND_NODE,
+    AND_NODE,
+    OR_NODE,
+    XOR_NODE,
     MIX_NODE,
     MAP_NODE,
     MIDITOFREQ_NODE,
@@ -55,6 +58,9 @@ static TzNodeDoc nodesDoc [] = {
     {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"round", "rounds {in} to the nearest integer value.", "in", "out"},
+    {"and", "outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
+    {"or", "outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
+    {"xor", "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.", "in1 in2", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
@@ -143,6 +149,15 @@ TzNode* createClipNode ();
 
 void performRound (TzNode* n, TzProcessInfo* info);
 TzNode* createRoundNode ();
+
+void performAnd (TzNode* n, TzProcessInfo* info);
+TzNode* createAndNode ();
+
+void performOr (TzNode* n, TzProcessInfo* info);
+TzNode* createOrNode ();
+
+void performXor (TzNode* n, TzProcessInfo* info);
+TzNode* createXorNode ();
 
 void performMix (TzNode* n, TzProcessInfo* info);
 TzNode* createMixNode ();

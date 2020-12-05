@@ -171,6 +171,21 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             addEngineNode(tz, createRoundNode(), name, isModule);
             break;
         
+        case AND_NODE:
+            printf("Creating and : %s\n", name);
+            addEngineNode(tz, createAndNode(), name, isModule);
+            break;
+        
+        case OR_NODE:
+            printf("Creating or : %s\n", name);
+            addEngineNode(tz, createOrNode(), name, isModule);
+            break;
+        
+        case XOR_NODE:
+            printf("Creating xor : %s\n", name);
+            addEngineNode(tz, createXorNode(), name, isModule);
+            break;
+        
         case MIX_NODE:
             printf("Creating mix : %s\n", name);
             addEngineNode(tz, createMixNode(), name, isModule);

@@ -324,6 +324,60 @@ TzNode* createRoundNode () {
     return n;
 }
 
+void performAnd (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    float in1 = getNodeInput(n, 0, 0.f);
+    float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = (in1 != 0.f && in2 != 0.f) ? 1.f : 0.f;
+}
+
+TzNode* createAndNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performAnd;
+    return n;
+}
+
+void performOr (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    float in1 = getNodeInput(n, 0, 0.f);
+    float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = (in1 != 0.f || in2 != 0.f) ? 1.f : 0.f;
+}
+
+TzNode* createOrNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performOr;
+    return n;
+}
+
+void performXor (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    float in1 = getNodeInput(n, 0, 0.f);
+    float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = (in1 != 0.f && in2 == 0.f) || (in1 == 0.f && in2 != 0.f) ? 1.f : 0.f;
+}
+
+TzNode* createXorNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performXor;
+    return n;
+}
+
 void performMix (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
