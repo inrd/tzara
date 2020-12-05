@@ -161,6 +161,11 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             addEngineNode(tz, createDivNode(), name, isModule);
             break;
         
+        case MODULO_NODE:
+            printf("Creating modulo : %s\n", name);
+            addEngineNode(tz, createModuloNode(), name, isModule);
+            break;
+        
         case CLIP_NODE:
             printf("Creating clip : %s\n", name);
             addEngineNode(tz, createClipNode(), name, isModule);

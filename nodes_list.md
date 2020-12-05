@@ -18,6 +18,9 @@
 - [div] : outputs {in1} / {in2}.
 	- inputs: in1, in2
 	- outputs: out
+- [modulo] : outputs {in1} % {in2}.
+	- inputs: in1, in2
+	- outputs: out
 - [clip] : clips {in} in range [{min}..{max}].
 	- inputs: in, min, max
 	- outputs: out

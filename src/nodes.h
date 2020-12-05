@@ -20,6 +20,7 @@ enum NodeTypes {
     SUB_NODE,
     MULT_NODE,
     DIV_NODE,
+    MODULO_NODE,
     CLIP_NODE,
     ROUND_NODE,
     AND_NODE,
@@ -59,6 +60,7 @@ static TzNodeDoc nodesDoc [] = {
     {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
     {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
+    {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"round", "rounds {in} to the nearest integer value.", "in", "out"},
     {"and", "outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
@@ -149,6 +151,9 @@ TzNode* createMultNode ();
 
 void performDiv (TzNode* n, TzProcessInfo* info);
 TzNode* createDivNode ();
+
+void performModulo (TzNode* n, TzProcessInfo* info);
+TzNode* createModuloNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();

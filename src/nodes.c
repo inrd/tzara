@@ -288,6 +288,25 @@ TzNode* createDivNode () {
     return n;
 }
 
+void performModulo (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const int in1 = (int)getNodeInput(n, 0, 0.f);
+    const int in2 = (int)getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in2 != 0 ? (float)(in1 % in2) : 0.f;
+}
+
+TzNode* createModuloNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performModulo;
+    return n;
+}
+
 void performClip (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
