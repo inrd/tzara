@@ -1,0 +1,29 @@
+# example tempo handling
+
++ var bpm
+= 90 $bpm
+
++ var beatsperbar
+= 4 $beatsperbar
+
++ var beatms
++ div bdiv
+= 60000 bdiv@in1
+> $bpm bdiv@in2
+> bdiv@out $beatms
+
++ pulse metro1
+> $beatms metro1@rate
+
++ var barms
++ mult barm
+> $beatms barm@in1
+> $beatsperbar barm@in2
+> barm@out $barms
+
++ pulse metro2
+> $barms metro2@rate
+
+> metro1@out _out_@l
+> metro2@out _out_@r
+
