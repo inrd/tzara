@@ -7,6 +7,7 @@
 #define TZNODE_MAX_INPUTS 16 
 #define TZNODE_MAX_OUTPUTS 16
 #define TZNODE_MEMORY_SIZE 32
+#define TZNODE_NUM_BUFFERS 16
 #define TZNODE_NAME_SIZE 256
 
 #define TZMODULE_MAX_NODES 1024
@@ -89,6 +90,7 @@ struct TzNode {
     int numOutputs;
     void (*perform)(TzNode*, TzProcessInfo*);
     float memory[TZNODE_MEMORY_SIZE];
+    float* buffers[TZNODE_NUM_BUFFERS];
     char name[TZNODE_NAME_SIZE];
     char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
     char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];

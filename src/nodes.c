@@ -20,6 +20,9 @@ void flush (TzNode* n) {
     for (i = 0; i < TZNODE_MEMORY_SIZE; ++i) {
         n->memory[i] = 0.f;
     }
+    for (i = 0; i < TZNODE_NUM_BUFFERS; ++i) {
+        n->buffers[i] = NULL;
+    }
     memset(n->name, '\0', TZNODE_NAME_SIZE);
     for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
         memset(n->inputsNames[i], '\0', TZNODE_NAME_SIZE);
@@ -38,6 +41,12 @@ TzNode* allocateNewNode () {
 
 void releaseNode (TzNode* n) {
     int i = 0;
+    for (i = 0; i < TZNODE_NUM_BUFFERS; ++i) {
+        if (n->buffers[i] != NULL) {
+            free(n->buffers[i]);
+        }
+        n->buffers[i] = NULL;
+    }
     if (n->submodule != NULL) {
         for (i = 0; i < n->submodule->numNodes; ++i) {
             releaseNode(n->submodule->nodes[i]);
