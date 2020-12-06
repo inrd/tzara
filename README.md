@@ -20,27 +20,55 @@ $ make
 
 # Lines starting by "#" are comments
 
+# All patch instructions start by an operator
+
 # Create a node
-# + node_type node_name
+# + [node_type] [node_name]
 
 + sinosc osc
 
 
-# map a constant to a node input
-# = value node_name@input_name
+# Map a constant to a node input
+# = [value] [node_name@input_name]
 
 = 440 osc@freq
 
+# Create another node
 
-# make a connection
-# > src_node@output_name dest_node@input_name
-#
++ mult amp
+
+# Make a connection
+# > [src_node@output_name] [dest_node@input_name]
+
+> osc@out amp@in1
+
+# Map a constant to scale down the level of the oscillator
+
+= 0.5 amp@in2
+
+# Connect the amp node to the main output
 # -> Note that the _out_ module does not need to be declared
 #    as it is always instantiated
 
-> osc@out _out_@l
+> amp@out _out_@l
+> amp@out _out_@r
+
+# The signal flow of the patch is :
+#
+# [osc] ---> [amp] ---> (l)[_out_]
+#              |
+#              |------> (r)[_out_]
+#
 
 ```
+To run the patch, if you saved the file as `synth.tzara`, run the following from the patch directory (it would work with relative paths from another directory but would break if the patch uses modules) :
+
+```
+tzara synth.patch
+```
+
+Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output a 1 minute audio file called `out.wav` (more options regarding the file rendering are going to be implemented).
+
 
 ## Nodes
 
