@@ -155,6 +155,21 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createEqualNode(), name, isModule);
             break;
 
+        case NEQUAL_NODE:
+            printf("Creating nequal : %s\n", name);
+            addEngineNode(tz, createNequalNode(), name, isModule);
+            break;
+
+        case LOWER_NODE:
+            printf("Creating lower : %s\n", name);
+            addEngineNode(tz, createLowerNode(), name, isModule);
+            break;
+
+        case GREATER_NODE:
+            printf("Creating greater : %s\n", name);
+            addEngineNode(tz, createGreaterNode(), name, isModule);
+            break;
+
         case MIN_NODE:
             printf("Creating min : %s\n", name);
             addEngineNode(tz, createMinNode(), name, isModule);

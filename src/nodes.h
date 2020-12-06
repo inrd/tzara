@@ -23,6 +23,9 @@ enum NodeTypes {
     MODULO_NODE,
     CLIP_NODE,
     EQUAL_NODE,
+    NEQUAL_NODE,
+    LOWER_NODE,
+    GREATER_NODE,
     MIN_NODE,
     MAX_NODE,
     ROUND_NODE,
@@ -138,6 +141,15 @@ TzNode* createClipNode ();
 
 void performEqual (TzNode* n, TzProcessInfo* info);
 TzNode* createEqualNode ();
+
+void performNequal (TzNode* n, TzProcessInfo* info);
+TzNode* createNequalNode ();
+
+void performLower (TzNode* n, TzProcessInfo* info);
+TzNode* createLowerNode ();
+
+void performGreater (TzNode* n, TzProcessInfo* info);
+TzNode* createGreaterNode ();
 
 void performMin (TzNode* n, TzProcessInfo* info);
 TzNode* createMinNode ();

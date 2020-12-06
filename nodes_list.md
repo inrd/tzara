@@ -27,6 +27,15 @@
 - [equal] : outputs 1 if {in1} and {in2} are equal, 0 otherwise.
 	- inputs: in1, in2
 	- outputs: out
+- [nequal] : outputs 1 if {in1} and {in2} are not equal, 0 otherwise.
+	- inputs: in1, in2
+	- outputs: out
+- [lower] : outputs 1 if {in1} < {in2}, 0 otherwise.
+	- inputs: in1, in2
+	- outputs: out
+- [greater] : outputs 1 if {in1} > {in2}, 0 otherwise.
+	- inputs: in1, in2
+	- outputs: out
 - [min] : outputs the lowest value between {in1} and {in2}.
 	- inputs: in1, in2
 	- outputs: out

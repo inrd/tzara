@@ -19,6 +19,9 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"equal", "outputs 1 if {in1} and {in2} are equal, 0 otherwise.", "in1, in2", "out"},
+    {"nequal", "outputs 1 if {in1} and {in2} are not equal, 0 otherwise.", "in1, in2", "out"},
+    {"lower", "outputs 1 if {in1} < {in2}, 0 otherwise.", "in1, in2", "out"},
+    {"greater", "outputs 1 if {in1} > {in2}, 0 otherwise.", "in1, in2", "out"},
     {"min", "outputs the lowest value between {in1} and {in2}.", "in1, in2", "out"},
     {"max", "outputs the highest value between {in1} and {in2}.", "in1, in2", "out"},
     {"round", "rounds {in} to the nearest integer value.", "in", "out"},
@@ -381,6 +384,63 @@ TzNode* createEqualNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performEqual;
+    return n;
+}
+
+void performNequal (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in1 == in2 ? 0.f : 1.f;
+}
+
+TzNode* createNequalNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performNequal;
+    return n;
+}
+
+void performLower (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in1 < in2 ? 1.f : 0.f;
+}
+
+TzNode* createLowerNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performLower;
+    return n;
+}
+
+void performGreater (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in1 = getNodeInput(n, 0, 0.f);
+    const float in2 = getNodeInput(n, 1, 0.f);
+    n->outputs[0] = in1 > in2 ? 1.f : 0.f;
+}
+
+TzNode* createGreaterNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in1");
+    strcpy(n->inputsNames[1], "in2");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performGreater;
     return n;
 }
 
