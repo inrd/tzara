@@ -171,6 +171,21 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             addEngineNode(tz, createClipNode(), name, isModule);
             break;
 
+        case EQUAL_NODE:
+            printf("Creating equal : %s\n", name);
+            addEngineNode(tz, createEqualNode(), name, isModule);
+            break;
+
+        case MIN_NODE:
+            printf("Creating min : %s\n", name);
+            addEngineNode(tz, createMinNode(), name, isModule);
+            break;
+
+        case MAX_NODE:
+            printf("Creating max : %s\n", name);
+            addEngineNode(tz, createMaxNode(), name, isModule);
+            break;
+
         case ROUND_NODE:
             printf("Creating round : %s\n", name);
             addEngineNode(tz, createRoundNode(), name, isModule);
