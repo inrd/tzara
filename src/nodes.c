@@ -41,8 +41,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
-    {"delay", "a basic delay line (up to 2 seconds).", "in time(Ms)", "out"},
-    {"fdelay", "a delay line with feedback (up to 2 seconds).", "in time(Ms) feed([0..1])", "out"}
+    {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
+    {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"}
 };
 
 
