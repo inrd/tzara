@@ -688,7 +688,7 @@ TzNode* createSeq8Node () {
     n->numInputs = 10;
     for (i = 0; i < 8; ++i) {
         sprintf(stepname, "step%d", i + 1);
-        strncpy(n->inputsNames[i], stepname, strlen(stepname));
+        strcpy(n->inputsNames[i], stepname);
     }
     strcpy(n->inputsNames[8], "clock");
     strcpy(n->inputsNames[9], "length");
@@ -767,13 +767,13 @@ void performSelect (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
     float vals[8];
-    int idx = (int)getNodeInput(n, 0, 0.f);
+    int idx = (int)getNodeInput(n, 0, 0.f) - 1;
     int i = 0;
 
     if (idx < 0 || idx > 8) idx = 0;
 
     for (i = 1; i < 9; ++i) {
-        vals[i] = getNodeInput(n, i, 0.f);
+        vals[i-1] = getNodeInput(n, i, 0.f);
     }
 
     n->outputs[0] = idx == 0 ? 0.f : vals[idx];
@@ -788,7 +788,7 @@ TzNode* createSelectNode () {
     strcpy(n->inputsNames[0], "index");
     for (i = 1; i < 9; ++i) {
         sprintf(inName, "in%d", i);
-        strncpy(n->inputsNames[i], inName, strlen(inName));
+        strcpy(n->inputsNames[i], inName);
     }
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");

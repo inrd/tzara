@@ -104,7 +104,7 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
     int ic = 0;
 
     memset(instrCopy, '\0', 1024);
-    strncpy(instrCopy, instr, strlen(instr));
+    strncpy(instrCopy, instr, 1023);
 
     token = strtok(instr, " ");
 
