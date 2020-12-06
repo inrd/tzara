@@ -1,0 +1,17 @@
+# white noise
+
+@ out out
+
++ random rnd
+= 1 rnd@clock
+
++ map scl
+= 0 scl@imin
+= 1 scl@imax
+= -1 scl@omin
+= 1 scl@omax
+
+> rnd@out scl@in
+
+> scl@out _out_@out
+
