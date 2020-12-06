@@ -766,7 +766,7 @@ void performSeq8 (TzNode* n, TzProcessInfo* info) {
         }
     }
 
-    n->outputs[0] = steps[(int)(*pos)];
+    n->outputs[0] = steps[(int)(*pos)] >= 0.f ? steps[(int)(*pos)] : 0.f;
     n->outputs[1] = *pos;
 }
 
@@ -785,7 +785,7 @@ TzNode* createSeq8Node () {
     n->numOutputs = 2;
     strcpy(n->outputsNames[0], "out");
     strcpy(n->outputsNames[1], "pos");
-    n->memory[0] = 0.f;
+    n->memory[0] = -1.f;
     n->perform = &performSeq8;
     return n;
 }
