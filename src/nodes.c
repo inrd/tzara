@@ -17,6 +17,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
     {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
     {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
+    {"pow", "outputs {base} raised to the power of {exp}.", "base, exp", "out"},
+    {"sqrt", "outputs the square root of {in}.", "in", "out"},
     {"sin", "outputs the sine of {in}.", "in", "out"},
     {"cos", "outputs the cosine of {in}.", "in", "out"},
     {"tan", "outputs the tangent of {in}.", "in", "out"},
@@ -346,6 +348,50 @@ TzNode* createModuloNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performModulo;
+    return n;
+}
+
+void performPow (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float base = getNodeInput(n, 0, 0.f);
+    const float exp = (float)((int)getNodeInput(n, 1, 0.f));
+
+    if ((base == 0.f && exp == 0.f) || (base == 0.f && exp < 0.f)) {
+        n->outputs[0] = 0.f;
+    }
+    else {
+        n->outputs[0] = pow(base, exp);
+    }
+}
+
+TzNode* createPowNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "base");
+    strcpy(n->inputsNames[1], "exp");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performPow;
+    return n;
+}
+
+void performSqrt (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    if (in < 0.f) {
+        n->outputs[0] = 0.f;
+    }
+    n->outputs[0] = sqrt(in);
+}
+
+TzNode* createSqrtNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performSqrt;
     return n;
 }
 

@@ -21,6 +21,8 @@ enum NodeTypes {
     MULT_NODE,
     DIV_NODE,
     MODULO_NODE,
+    POW_NODE,
+    SQRT_NODE,
     SIN_NODE,
     COS_NODE,
     TAN_NODE,
@@ -140,6 +142,12 @@ TzNode* createDivNode ();
 
 void performModulo (TzNode* n, TzProcessInfo* info);
 TzNode* createModuloNode ();
+
+void performPow (TzNode* n, TzProcessInfo* info);
+TzNode* createPowNode ();
+
+void performSqrt (TzNode* n, TzProcessInfo* info);
+TzNode* createSqrtNode ();
 
 void performSin (TzNode* n, TzProcessInfo* info);
 TzNode* createSinNode ();

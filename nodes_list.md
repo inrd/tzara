@@ -21,6 +21,12 @@
 - [modulo] : outputs {in1} % {in2}.
 	- inputs: in1, in2
 	- outputs: out
+- [pow] : outputs {base} raised to the power of {exp}.
+	- inputs: base, exp
+	- outputs: out
+- [sqrt] : outputs the square root of {in}.
+	- inputs: in
+	- outputs: out
 - [sin] : outputs the sine of {in}.
 	- inputs: in
 	- outputs: out
