@@ -1,0 +1,53 @@
+# Testing value smoothing
+
++ pulse metro
+= 400 metro@rate
+
++ seq8 notes
+= 3 notes@length
+= 54 notes@step1
+= 56 notes@step2
+= 57 notes@step3
+> metro@out notes@clock
+
++ seq8 times
+= 4 times@length
+= 60 times@step1
+= 10 times@step2
+= 120 times@step3
+= 40 times@step4
+> metro@out times@clock
+
++ miditofreq mtof
+> notes@out mtof@in
+
++ sinosc osc
+> mtof@out osc@freq
+> metro@out osc@reset
+
++ segment env
+= 1 env@val1
+= 0 env@val2
+= 200 env@dur
+> metro@out env@clock
+
++ mult vca
+> osc@out vca@in1
+> env@out vca@in2
+
++ smooth sm
+= 30 sm@dur
+> times@out sm@in
+
++ fdelay dl
+> sm@out dl@time
+= 0.9 dl@feed
+> vca@out dl@in
+
++ mix dw
+= 0.5 dw@coeff
+> vca@out dw@in1
+> dl@out dw@in2
+
+> dw@out _out_@l
+> dw@out _out_@r

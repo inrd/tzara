@@ -30,6 +30,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"xor", "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.", "in1 in2", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
+    {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
     {"mem", "1 sample delay.", "in", "out"},
@@ -623,6 +624,53 @@ TzNode* createMapNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performMap;
+    return n;
+}
+
+void performSmooth (TzNode* n, TzProcessInfo* info) {
+    const float in = getNodeInput(n, 0, 0.f); 
+    float dur = getNodeInput(n, 1, 1.f);
+    float* val = &(n->memory[0]);
+    float delta = 0.f;
+    float* startFlag = &(n->memory[1]);
+
+    if (*startFlag == 0.f) {
+        /* jump straight to input value on startup */
+        *val = in;
+        *startFlag = 1.f;
+    }
+    else {
+        dur = dur * 0.001f * info->samplerate;
+
+        delta = (in - *val) / dur;
+
+        if (delta >= 0.f) {
+            *val += delta;
+            if (*val > in) {
+                *val = in;
+            }
+        }
+        else {
+            *val += delta;
+            if (*val < in) {
+                *val = in;
+            }
+        }
+    }
+    
+    n->outputs[0] = *val;
+}
+
+TzNode* createSmoothNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "dur");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->perform = &performSmooth;
     return n;
 }
 

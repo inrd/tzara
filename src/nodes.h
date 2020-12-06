@@ -34,6 +34,7 @@ enum NodeTypes {
     XOR_NODE,
     MIX_NODE,
     MAP_NODE,
+    SMOOTH_NODE,
     MIDITOFREQ_NODE,
     SAMPLERATE_NODE,
     MEM_NODE,
@@ -174,6 +175,9 @@ TzNode* createMixNode ();
 
 void performMap (TzNode* n, TzProcessInfo* info);
 TzNode* createMapNode ();
+
+void performSmooth (TzNode* n, TzProcessInfo* info);
+TzNode* createSmoothNode ();
 
 void performMiditofreq (TzNode* n, TzProcessInfo* info);
 TzNode* createMiditofreqNode ();

@@ -60,6 +60,9 @@
 - [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].
 	- inputs: in, imin, imax, omin, omax
 	- outputs: out
+- [smooth] : smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.
+	- inputs: in, dur
+	- outputs: out
 - [miditofreq] : converts a MIDI note [0..127] to a frequency in Hertz.
 	- inputs: in
 	- outputs: out

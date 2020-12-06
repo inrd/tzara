@@ -207,6 +207,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createMapNode(), name, isModule);
             break;
         
+        case SMOOTH_NODE:
+            printf("Creating smooth : %s\n", name);
+            addEngineNode(tz, createSmoothNode(), name, isModule);
+            break;
+        
         case MIDITOFREQ_NODE:
             printf("Creating miditofreq : %s\n", name);
             addEngineNode(tz, createMiditofreqNode(), name, isModule);
