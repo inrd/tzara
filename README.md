@@ -64,7 +64,7 @@ $ make
 To run the patch, if you saved the file as `synth.tzara`, run the following from the patch directory (it would work with relative paths from another directory but would break if the patch uses modules) :
 
 ```
-tzara synth.patch
+tzara synth.tzara
 ```
 
 Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output a 1 minute audio file called `out.wav` (more options regarding the file rendering are going to be implemented).
