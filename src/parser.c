@@ -32,11 +32,8 @@ int parseOperator (char op) {
     }
 }
 
-void parseCommentInstruction (char** tokens, int numTokens) {
-    int i = 0;
-    for (i = 0; i < numTokens; ++i) {
-        fprintf(stdout, "%s", tokens[i]);
-    }
+void parseCommentInstruction (char* instr) {
+    printf("%s", instr);
 }
 
 int parseNodeType (const char* name) {
@@ -720,13 +717,13 @@ int parseModuleIOInstruction (void* tz, char** tokens, int numTokens, int isModu
 
 
 
-int parseInstruction (void* tz, char** tokens, int numTokens, int isModule) {
+int parseInstruction (void* tz, char* instr, char** tokens, int numTokens, int isModule) {
     const int op = parseOperator(tokens[0][0]);
     int err = 0;
 
     switch (op) {
         case COMMENT_OP:
-            parseCommentInstruction(tokens, numTokens);
+            parseCommentInstruction(instr);
             break;
 
         case CREATE_NODE_OP:
@@ -756,6 +753,7 @@ int parseInstruction (void* tz, char** tokens, int numTokens, int isModule) {
 
 int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
     char cache[PARSER_CACHE_SIZE];
+    char instr[PARSER_CACHE_SIZE];
     int i;
     int lcount = 1;
     int err  = 0;
@@ -765,6 +763,7 @@ int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
 
 
     memset(cache, 0, PARSER_CACHE_SIZE);
+    memset(instr, 0, PARSER_CACHE_SIZE);
 
     for (i = 0; i < PARSER_MAX_TOKENS; ++i) {
         tokens[i] = malloc(PARSER_TOKEN_LENGTH * sizeof(char));
@@ -773,6 +772,8 @@ int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
 
 
     while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
+
+        strcpy(instr, cache);
 
         for (i = 0; i < numTokens; ++i) {
             memset(tokens[i], '\0', PARSER_TOKEN_LENGTH);
@@ -788,7 +789,7 @@ int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
         }
 
         if (numTokens > 0) {
-            err = parseInstruction(engine, tokens, numTokens, isModule);
+            err = parseInstruction(engine, instr, tokens, numTokens, isModule);
         }
 
         if (err != 0) {

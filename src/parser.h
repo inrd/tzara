@@ -30,7 +30,7 @@ enum Operators {
 
 int parseOperator (char op);
 
-void parseCommentInstruction (char** tokens, int numTokens);
+void parseCommentInstruction (char* instr);
 
 int parseNodeType (const char* name);
 
@@ -64,7 +64,7 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
 
 int parseModuleIOInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
-int parseInstruction (void* tz, char** tokens, int numTokens, int isModule);
+int parseInstruction (void* tz, char* instr,  char** tokens, int numTokens, int isModule);
 
 int parsePatch (void* engine, FILE* patch, const char* filename, int isModule);
 
