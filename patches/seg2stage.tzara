@@ -1,0 +1,39 @@
+# Combine 2 segments to make an AD envelope
+
++ sinosc osc
+= 440 osc@freq
+
++ pulse metro
+= 200 metro@rate
+
++ segment att
+= 100 att@dur
+= 0 att@val1
+= 1 att@val2
+> metro@out att@clock
+
++ segment dec
+= 75 dec@dur
+= 1 dec@val1
+= 0 dec@val2
+> att@end dec@clock
+
++ or merge
+> metro@out merge@in1
+> att@end merge@in2
+
++ count stage
+= 2 stage@max
+> merge@out stage@clock
+
++ select sel
+> att@out sel@in1
+> dec@out sel@in2
+> stage@out sel@index
+
++ mult vca
+> osc@out vca@in1
+> sel@out vca@in2
+
+> vca@out _out_@l
+> vca@out _out_@r
