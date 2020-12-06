@@ -1,0 +1,19 @@
+# Generating a sine wave from scratch
+# Just an example, use sinosc for this...
+
++ phasor phase
+= 440 phase@freq
+
++ mult rad
+> phase@out rad@in1
+= twopi rad@in2
+
++ sin s
+> rad@out s@in
+
++ mult amp
+> s@out amp@in1
+= 0.8 amp@in2
+
+> amp@out _out_@l
+> amp@out _out_@r

@@ -142,6 +142,26 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createModuloNode(), name, isModule);
             break;
         
+        case SIN_NODE:
+            printf("Creating sin : %s\n", name);
+            addEngineNode(tz, createSinNode(), name, isModule);
+            break;
+        
+        case COS_NODE:
+            printf("Creating cos : %s\n", name);
+            addEngineNode(tz, createCosNode(), name, isModule);
+            break;
+        
+        case TAN_NODE:
+            printf("Creating tan : %s\n", name);
+            addEngineNode(tz, createTanNode(), name, isModule);
+            break;
+        
+        case TANH_NODE:
+            printf("Creating tanh : %s\n", name);
+            addEngineNode(tz, createTanhNode(), name, isModule);
+            break;
+        
         case CLIP_NODE:
             printf("Creating clip : %s\n", name);
             addEngineNode(tz, createClipNode(), name, isModule);

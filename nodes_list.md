@@ -21,6 +21,18 @@
 - [modulo] : outputs {in1} % {in2}.
 	- inputs: in1, in2
 	- outputs: out
+- [sin] : outputs the sine of {in}.
+	- inputs: in
+	- outputs: out
+- [cos] : outputs the cosine of {in}.
+	- inputs: in
+	- outputs: out
+- [tan] : outputs the tangent of {in}.
+	- inputs: in
+	- outputs: out
+- [tanh] : outputs the hyperbolic tangent of {in}.
+	- inputs: in
+	- outputs: out
 - [clip] : clips {in} in range [{min}..{max}].
 	- inputs: in, min, max
 	- outputs: out

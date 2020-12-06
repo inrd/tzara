@@ -21,6 +21,10 @@ enum NodeTypes {
     MULT_NODE,
     DIV_NODE,
     MODULO_NODE,
+    SIN_NODE,
+    COS_NODE,
+    TAN_NODE,
+    TANH_NODE,
     CLIP_NODE,
     EQUAL_NODE,
     NEQUAL_NODE,
@@ -136,6 +140,18 @@ TzNode* createDivNode ();
 
 void performModulo (TzNode* n, TzProcessInfo* info);
 TzNode* createModuloNode ();
+
+void performSin (TzNode* n, TzProcessInfo* info);
+TzNode* createSinNode ();
+
+void performCos (TzNode* n, TzProcessInfo* info);
+TzNode* createCosNode ();
+
+void performTan (TzNode* n, TzProcessInfo* info);
+TzNode* createTanNode ();
+
+void performTanh (TzNode* n, TzProcessInfo* info);
+TzNode* createTanhNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();

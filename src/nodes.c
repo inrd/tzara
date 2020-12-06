@@ -17,6 +17,10 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
     {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
     {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
+    {"sin", "outputs the sine of {in}.", "in", "out"},
+    {"cos", "outputs the cosine of {in}.", "in", "out"},
+    {"tan", "outputs the tangent of {in}.", "in", "out"},
+    {"tanh", "outputs the hyperbolic tangent of {in}.", "in", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"equal", "outputs 1 if {in1} and {in2} are equal, 0 otherwise.", "in1, in2", "out"},
     {"nequal", "outputs 1 if {in1} and {in2} are not equal, 0 otherwise.", "in1, in2", "out"},
@@ -342,6 +346,70 @@ TzNode* createModuloNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performModulo;
+    return n;
+}
+
+void performSin (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = sin(in);
+}
+
+TzNode* createSinNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performSin;
+    return n;
+}
+
+void performCos (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = cos(in);
+}
+
+TzNode* createCosNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performCos;
+    return n;
+}
+
+void performTan (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = tan(in);
+}
+
+TzNode* createTanNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performTan;
+    return n;
+}
+
+void performTanh (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = tanh(in);
+}
+
+TzNode* createTanhNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performTanh;
     return n;
 }
 

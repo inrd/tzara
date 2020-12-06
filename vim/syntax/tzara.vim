@@ -4,15 +4,17 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn match tzKeyword '[=+<>]'
+syn match tzKeyword '[+<>]'
 syn region tzKeyword start='@\w*' end='\w*[ \n]'
 "syn match tzConstant '='
+syn region tzConstant start='= pi' end=' '
+syn region tzConstant start='= twopi' end=' '
 syn region tzConstant start='= \d\+' end=' '
 syn region tzConstant start='= \d\+\.\d*' end=' '
 syn region tzConstant start='= [-+]\d\+' end=' '
 syn region tzConstant start='= [-+]\d\+\.\d*' end=' '
 syn region tzConstant start='$\w*' end='\w*[ \n]'
-syn keyword tzNode module var add sub mult div modulo clip equal nequal lower greater min max round and or xor mix map smooth miditofreq samplerate mem count phasor pulse sinosc seq8 random segment select delay fdelay
+syn keyword tzNode module var add sub mult div modulo sin cos tan tanh clip equal nequal lower greater min max round and or xor mix map smooth miditofreq samplerate mem count phasor pulse sinosc seq8 random segment select delay fdelay
 syn keyword tzIONode _out_ _in_
 
 syn match tzComment "#.*$"
