@@ -23,6 +23,7 @@ enum NodeTypes {
     MODULO_NODE,
     POW_NODE,
     SQRT_NODE,
+    ABS_NODE,
     SIN_NODE,
     COS_NODE,
     TAN_NODE,
@@ -148,6 +149,9 @@ TzNode* createPowNode ();
 
 void performSqrt (TzNode* n, TzProcessInfo* info);
 TzNode* createSqrtNode ();
+
+void performAbs (TzNode* n, TzProcessInfo* info);
+TzNode* createAbsNode ();
 
 void performSin (TzNode* n, TzProcessInfo* info);
 TzNode* createSinNode ();

@@ -19,6 +19,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
     {"pow", "outputs {base} raised to the power of {exp}.", "base, exp", "out"},
     {"sqrt", "outputs the square root of {in}.", "in", "out"},
+    {"abs", "outputs the absolute value of {in}.", "in", "out"},
     {"sin", "outputs the sine of {in}.", "in", "out"},
     {"cos", "outputs the cosine of {in}.", "in", "out"},
     {"tan", "outputs the tangent of {in}.", "in", "out"},
@@ -392,6 +393,22 @@ TzNode* createSqrtNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performSqrt;
+    return n;
+}
+
+void performAbs (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = fabs(in);
+}
+
+TzNode* createAbsNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performAbs;
     return n;
 }
 

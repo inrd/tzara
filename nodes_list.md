@@ -27,6 +27,9 @@
 - [sqrt] : outputs the square root of {in}.
 	- inputs: in
 	- outputs: out
+- [abs] : outputs the absolute value of {in}.
+	- inputs: in
+	- outputs: out
 - [sin] : outputs the sine of {in}.
 	- inputs: in
 	- outputs: out
