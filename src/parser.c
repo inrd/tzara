@@ -32,8 +32,11 @@ int parseOperator (char op) {
     }
 }
 
-void parseCommentInstruction (const char* instr) {
-    fprintf(stdout, "%s", instr);
+void parseCommentInstruction (char** tokens, int numTokens) {
+    int i = 0;
+    for (i = 0; i < numTokens; ++i) {
+        fprintf(stdout, "%s", tokens[i]);
+    }
 }
 
 int parseNodeType (const char* name) {
@@ -59,32 +62,28 @@ void trimNewLine (char* str) {
     }
 }
 
-TzNode* parseAndCreateModule (char* instr) {
+TzNode* parseAndCreateModule (char** tokens, int numTokens) {
     int i = 0;
-    int offset = 0;
+    int j = 1;
     char filename[512];
 
     memset(filename, '\0', 512);
 
-    while (instr[i] != '<' && instr[i] != '\0') {
-        ++i;
+    for (i = 0; i < numTokens; ++i) {
+        if (tokens[i][0] == '<') {
+
+            while (tokens[i][j] != '>' && tokens[i][j] != '\0') {
+                filename[j-1] = tokens[i][j];
+                ++j;
+            }
+
+            return createModuleNode(filename);
+        }
     }
 
-    if (instr[i] == '\0') {
-        fprintf(stderr, "Invalid syntax, cannot parse module file name...\n");
-        return NULL;
-    }
+    printf("Invalid syntax, cannot parse module file name...\n");
+    return NULL;
 
-    /* skip < */
-    ++i;
-    offset = i;
-
-    while (instr[i] != '>' && instr[i] != '\0') {
-        filename[i- offset] = instr[i];
-        ++i;
-    }
-
-    return createModuleNode(filename);
 }
 
 void addEngineNode (void* engine, TzNode* n, char* name, int isModule) {
@@ -96,44 +95,24 @@ void addEngineNode (void* engine, TzNode* n, char* name, int isModule) {
     }
 }
 
-int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
-    char* token;
+int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isModule) {
     int nodeType = INVALID_NODE_TYPE;
     char name [TZNODE_NAME_SIZE];
-    char instrCopy[1024];
-    int ic = 0;
 
-    memset(instrCopy, '\0', 1024);
-    strncpy(instrCopy, instr, 1023);
-
-    token = strtok(instr, " ");
-
-    while (token != NULL) {
-        /* drop first token (operator) */
-        switch (ic) {
-            case 1:
-                nodeType = parseNodeType(token);
-                break;
-            case 2:
-                trimNewLine(token);
-                strncpy(name, token, sizeof(name) - 1);
-                break;
-            default:
-                break;
-        }
-        token = strtok(NULL, " ");
-        ++ic;
-    }
-
-    if (ic < 3) {
+    if (numTokens < 3) {
         fprintf(stderr, "Not enough arguments...\n");
         return 1;
     }
 
+    nodeType = parseNodeType(tokens[1]);
+
+    strncpy(name, tokens[2], sizeof(name) - 1);
+    trimNewLine(name);
+
     switch(nodeType) {
         case MODULE_NODE:
             printf("Creating module : %s\n", name);
-            addEngineNode(tz, parseAndCreateModule(instrCopy), name, isModule);
+            addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name, isModule);
             break;
         
         case VAR_NODE:
@@ -523,36 +502,24 @@ float getConstantValue (char* token) {
 
 
 
-int parseCreateConstantInstruction (void* tz, char* instr, int isModule) {
-    char* token;
+int parseCreateConstantInstruction (void* tz, char** tokens, int numTokens, int isModule) {
     float val = 0.f;
     int node = -1;
     int input = -1;
-    int ic = 0;
+    char destString[512];
 
-    token = strtok(instr, " ");
+    memset(destString, '\0', 512);
 
-    while (token != NULL) {
-        /* drop first token (operator) */
-        switch (ic) {
-            case 1:
-                val = getConstantValue(token);
-                break;
-            case 2:
-                trimNewLine(token);
-                parseNodeInputString(tz, token, &node, &input, isModule);
-                break;
-            default:
-                break;
-        }
-        token = strtok(NULL, " ");
-        ++ic;
-    }
-
-    if (ic < 3) {
-        fprintf(stderr, "Not enough arguments...\n");
+    if (numTokens < 3) {
+        printf("Not enough arguments...\n");
         return 1;
     }
+
+    val = getConstantValue(tokens[1]);
+
+    strncpy(destString, tokens[2], 511);
+    trimNewLine(destString);
+    parseNodeInputString(tz, destString, &node, &input, isModule);
 
     if (node == TZARA_OUTPUT_NODE_INDEX) {
         if (isModule == 0) {
@@ -606,37 +573,25 @@ int parseCreateConstantInstruction (void* tz, char* instr, int isModule) {
 
 
 
-int parseConnectInstruction (void* tz, char* instr, int isModule) {
-    char* token;
+int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModule) {
     int srcNode = -1;
     int srcOutput = -1;
     int destNode = -1;
     int destInput = -1;
-    int ic = 0;
+    char destString[512];
 
-    token = strtok(instr, " ");
+    memset(destString, '\0', 512);
 
-    while (token != NULL) {
-        /* drop first token (operator) */
-        switch (ic) {
-            case 1:
-                parseNodeOutputString(tz, token, &srcNode, &srcOutput, isModule);
-                break;
-            case 2:
-                trimNewLine(token);
-                parseNodeInputString(tz, token, &destNode, &destInput, isModule);
-                break;
-            default:
-                break;
-        }
-        token = strtok(NULL, " ");
-        ++ic;
-    }
-
-    if (ic < 2) {
-        fprintf(stderr, "Not enough arguments...\n");
+    if (numTokens < 3) {
+        printf("Not enough arguments...\n");
         return 1;
     }
+
+    parseNodeOutputString(tz, tokens[1], &srcNode, &srcOutput, isModule);
+
+    strncpy(destString, tokens[2], 511);
+    trimNewLine(destString);
+    parseNodeInputString(tz, destString, &destNode, &destInput, isModule);
 
     if (destNode == TZARA_OUTPUT_NODE_INDEX) {
         if (isModule == 0) {
@@ -706,9 +661,7 @@ int parseConnectInstruction (void* tz, char* instr, int isModule) {
     return 0;
 }
 
-int parseModuleIOInstruction (void* tz, char* instr, int isModule) {
-    char* token;
-    int ic = 0;
+int parseModuleIOInstruction (void* tz, char** tokens, int numTokens, int isModule) {
     int isIn = 0;
     int isOut = 0;
     char name[TZNODE_NAME_SIZE];
@@ -720,30 +673,15 @@ int parseModuleIOInstruction (void* tz, char* instr, int isModule) {
         return 1;
     }
 
-    token = strtok(instr, " ");
-
-    while (token != NULL) {
-        /* drop first token (operator) */
-        switch (ic) {
-            case 1:
-                isIn = strncmp(token, "in", strlen(token)) == 0 ? 1 : 0;
-                isOut = strncmp(token, "out", strlen(token)) == 0 ? 1 : 0;
-                break;
-            case 2:
-                trimNewLine(token);
-                strcpy(name, token);
-                break;
-            default:
-                break;
-        }
-        token = strtok(NULL, " ");
-        ++ic;
-    }
-
-    if (ic < 3) {
-        fprintf(stderr, "Not enough arguments...\n");
+    if (numTokens < 3) {
+        printf("Not enough arguments...\n");
         return 1;
     }
+
+    isIn = strncmp(tokens[1], "in", strlen(tokens[1])) == 0 ? 1 : 0;
+    isOut = strncmp(tokens[1], "out", strlen(tokens[1])) == 0 ? 1 : 0;
+    strcpy(name, tokens[2]);
+    trimNewLine(name);
 
     if (isIn == 0 && isOut == 0) {
         printf("Invalid module IO instruction...\n");
@@ -767,29 +705,29 @@ int parseModuleIOInstruction (void* tz, char* instr, int isModule) {
 
 
 
-int parseInstruction (void* tz, char*  instr, int isModule) {
-    const int op = parseOperator(instr[0]);
+int parseInstruction (void* tz, char** tokens, int numTokens, int isModule) {
+    const int op = parseOperator(tokens[0][0]);
     int err = 0;
 
     switch (op) {
         case COMMENT_OP:
-            parseCommentInstruction(instr);
+            parseCommentInstruction(tokens, numTokens);
             break;
 
         case CREATE_NODE_OP:
-            err = parseCreateNodeInstruction(tz, instr, isModule);
+            err = parseCreateNodeInstruction(tz, tokens, numTokens, isModule);
             break;
 
         case CREATE_CONSTANT_OP:
-            err = parseCreateConstantInstruction(tz, instr, isModule);
+            err = parseCreateConstantInstruction(tz, tokens, numTokens, isModule);
             break;
 
         case CONNECT_OP:
-            err = parseConnectInstruction(tz, instr, isModule);
+            err = parseConnectInstruction(tz, tokens, numTokens, isModule);
             break;
 
         case MODULE_IO_OP:
-            err = parseModuleIOInstruction(tz, instr, isModule);
+            err = parseModuleIOInstruction(tz, tokens, numTokens, isModule);
             break;
 
         default:
@@ -806,18 +744,49 @@ int parsePatch (void* engine, FILE* patch, const char* filename, int isModule) {
     int i;
     int lcount = 1;
     int err  = 0;
+    char* tokens[PARSER_MAX_TOKENS];
+    char* tok;
+    int numTokens = 0;
 
-    for (i = 0; i < PARSER_CACHE_SIZE; ++i) {
-        cache[i] = 0;
+
+    memset(cache, 0, PARSER_CACHE_SIZE);
+
+    for (i = 0; i < PARSER_MAX_TOKENS; ++i) {
+        tokens[i] = malloc(PARSER_TOKEN_LENGTH * sizeof(char));
+        memset(tokens[i], '\0', PARSER_TOKEN_LENGTH);
     }
+
+
     while (fgets(cache, PARSER_CACHE_SIZE, patch) != NULL) {
-        err = parseInstruction(engine, cache, isModule);
+
+        for (i = 0; i < numTokens; ++i) {
+            memset(tokens[i], '\0', PARSER_TOKEN_LENGTH);
+        }
+
+        numTokens = 0;
+        tok = strtok(cache, " ");
+
+        while (tok != NULL) {
+            strncpy(tokens[numTokens], tok, PARSER_TOKEN_LENGTH - 1);
+            tok = strtok(NULL, " ");
+            ++numTokens;
+        }
+
+        if (numTokens > 0) {
+            err = parseInstruction(engine, tokens, numTokens, isModule);
+        }
+
         if (err != 0) {
             printf("Issue encountered while parsing %s, line %d.\n", filename, lcount);
             break;
         }
         ++lcount;
     }
+    
+    for (i = 0; i < PARSER_MAX_TOKENS; ++i) {
+        free(tokens[i]);
+    }
+
     return err;
 }
 

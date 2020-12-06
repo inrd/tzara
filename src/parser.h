@@ -8,6 +8,9 @@
 
 #define PARSER_CACHE_SIZE 1024
 
+#define PARSER_MAX_TOKENS 256
+#define PARSER_TOKEN_LENGTH 256
+
 #define TZARA_OUTPUT_NODE_INDEX -0xaa
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
 #define TZARA_OUTPUT_RIGHT_INDEX -0xcc
@@ -27,17 +30,17 @@ enum Operators {
 
 int parseOperator (char op);
 
-void parseCommentInstruction (const char* instr);
+void parseCommentInstruction (char** tokens, int numTokens);
 
 int parseNodeType (const char* name);
 
 void trimNewLine (char* str);
 
-TzNode* parseAndCreateModule (char* instr);
+TzNode* parseAndCreateModule (char** tokens, int numTokens);
 
 void addEngineNode (void* engine, TzNode* n, char* name, int isModule);
 
-int parseCreateNodeInstruction (void* tz, char* instr, int isModule);
+int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
 int searchNode (void* tz, const char* name, int isModule);
 
@@ -55,13 +58,13 @@ void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isM
 
 float getConstantValue (char* token);
 
-int parseCreateConstantInstruction (void* tz, char* instr, int isModule);
+int parseCreateConstantInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
-int parseConnectInstruction (void* tz, char* instr, int isModule);
+int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
-int parseModuleIOInstruction (void* tz, char* instr, int isModule);
+int parseModuleIOInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
-int parseInstruction (void* tz, char* instr, int isModule);
+int parseInstruction (void* tz, char** tokens, int numTokens, int isModule);
 
 int parsePatch (void* engine, FILE* patch, const char* filename, int isModule);
 
