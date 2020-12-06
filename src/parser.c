@@ -221,6 +221,11 @@ int parseCreateNodeInstruction (void* tz, char* instr, int isModule) {
             addEngineNode(tz, createMiditofreqNode(), name, isModule);
             break;
         
+        case SAMPLERATE_NODE:
+            printf("Creating samplerate : %s\n", name);
+            addEngineNode(tz, createSamplerateNode(), name, isModule);
+            break;
+        
         case MEM_NODE:
             printf("Creating mem : %s\n", name);
             addEngineNode(tz, createMemNode(), name, isModule);

@@ -28,6 +28,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
+    {"samplerate", "outputs the current samplerate.", "-", "out"},
     {"mem", "1 sample delay.", "in", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
@@ -582,6 +583,19 @@ TzNode* createMiditofreqNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMiditofreq;
+    return n;
+}
+
+void performSamplerate (TzNode* n, TzProcessInfo* info) {
+    n->outputs[0] = info->samplerate;
+}
+
+TzNode* createSamplerateNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 0;
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performSamplerate;
     return n;
 }
 

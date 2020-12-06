@@ -54,6 +54,9 @@
 - [miditofreq] : converts a MIDI note [0..127] to a frequency in Hertz.
 	- inputs: in
 	- outputs: out
+- [samplerate] : outputs the current samplerate.
+	- inputs: -
+	- outputs: out
 - [mem] : 1 sample delay.
 	- inputs: in
 	- outputs: out

@@ -32,6 +32,7 @@ enum NodeTypes {
     MIX_NODE,
     MAP_NODE,
     MIDITOFREQ_NODE,
+    SAMPLERATE_NODE,
     MEM_NODE,
     COUNT_NODE,
     PHASOR_NODE,
@@ -164,6 +165,9 @@ TzNode* createMapNode ();
 
 void performMiditofreq (TzNode* n, TzProcessInfo* info);
 TzNode* createMiditofreqNode ();
+
+void performSamplerate (TzNode* n, TzProcessInfo* info);
+TzNode* createSamplerateNode ();
 
 void performMem (TzNode* n, TzProcessInfo* info);
 TzNode* createMemNode ();
