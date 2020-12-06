@@ -869,7 +869,7 @@ void performSelect (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
     float vals[8];
-    int idx = (int)getNodeInput(n, 0, 0.f) - 1;
+    int idx = (int)getNodeInput(n, 0, 0.f);
     int i = 0;
 
     if (idx < 0 || idx > 8) idx = 0;
@@ -878,7 +878,7 @@ void performSelect (TzNode* n, TzProcessInfo* info) {
         vals[i-1] = getNodeInput(n, i, 0.f);
     }
 
-    n->outputs[0] = idx == 0 ? 0.f : vals[idx];
+    n->outputs[0] = idx == 0 ? 0.f : vals[idx - 1];
 }
 
 TzNode* createSelectNode () {
