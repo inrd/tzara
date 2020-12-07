@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <math.h>
 
 #include "tzara.h"
 #include "parser.h"
@@ -12,6 +13,34 @@
 
 #define TZARA_WAV_DURATION_SEC 60
 #define TZARA_BUFFER_SIZE 4096
+
+void normalize (float** buf, const unsigned long int numSamples, const int numChannels) {
+    float peak = 0.f;
+    float ratio = 1.f;
+    float in = 0.f;
+    unsigned long int i = 0;
+    int c = 0;
+
+    for (c = 0; c < numChannels; ++c) {
+        for (i = 0; i < numSamples; ++i) {
+            in = fabs(buf[c][i]);
+            peak = in > peak ? in : peak;
+        }
+    }
+
+    if (peak != 0.f) {
+        ratio = 1.f / peak;
+    }
+
+    printf("Peak : %0.2f\nNormalization factor : %0.2f\n", peak, ratio);
+
+    for (c = 0; c < numChannels; ++c) {
+        for (i = 0; i < numSamples; ++i) {
+            buf[c][i] *=  ratio;
+        }
+    }
+
+}
 
 int main (int argc, char** argv) {
     float* data[TZARA_MAX_OUTPUT_CHANS];
@@ -59,8 +88,16 @@ int main (int argc, char** argv) {
     printf("Rendering output...\n");
 
     for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
-        data[i] = (float*)malloc(TZARA_BUFFER_SIZE * sizeof(float));
+        data[i] = (float*)malloc(numFrames * sizeof(float));
     }
+
+    process (&tz, data, TZARA_MAX_OUTPUT_CHANS, numFrames, samplerate);
+
+    printf("Normalizing levels...\n");
+
+    normalize (data, numFrames, TZARA_MAX_OUTPUT_CHANS);
+
+    printf("Writing to file...\n");
 
     drwav_data_format format;
     format.container = drwav_container_riff;     
@@ -72,12 +109,12 @@ int main (int argc, char** argv) {
 
     outData = (float*)malloc(TZARA_BUFFER_SIZE * 2 * sizeof(float));
 
-    while (framesCount < numFrames) {
-        process (&tz, data, TZARA_MAX_OUTPUT_CHANS, TZARA_BUFFER_SIZE, samplerate);
+    framesCount = 0;
 
+    while (framesCount < numFrames) {
         for (i = 0, j = 0; j < TZARA_BUFFER_SIZE; i += 2, ++j) {
-            outData[i] = data[0][j];
-            outData[i+1] = data[1][j];
+            outData[i] = data[0][j + framesCount];
+            outData[i+1] = data[1][j + framesCount];
         }
         
         drwav_write_pcm_frames(&wav, TZARA_BUFFER_SIZE, outData);

@@ -69,6 +69,7 @@ tzara synth.tzara
 
 Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output a 1 minute audio file called `out.wav` (more options regarding the file rendering are going to be implemented).
 
+The audio output is normalized to 0dB;
 
 ## Nodes
 
