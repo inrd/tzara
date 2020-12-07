@@ -48,6 +48,9 @@
 - [clip] : clips {in} in range [{min}..{max}].
 	- inputs: in, min, max
 	- outputs: out
+- [wrap] : wraps {in} in range [{min}..{max}].
+	- inputs: in, min, max
+	- outputs: out
 - [equal] : outputs 1 if {in1} and {in2} are equal, 0 otherwise.
 	- inputs: in1, in2
 	- outputs: out

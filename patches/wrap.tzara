@@ -1,0 +1,29 @@
++ var boost
+= 16 $boost
+
++ sinosc osc
+= 80 osc@freq
+
++ add dc
+> osc@out dc@in1
+= 0.3 dc@in2
+
++ mult drive
+> dc@out drive@in1
+> $boost drive@in2
+
++ wrap wrp
+> drive@out wrp@in
+= -1 wrp@min
+= 1 wrp@max
+
++ dbtoamp db
+= -6 db@in
+
++ mult amp
+> wrp@out amp@in1
+> db@out amp@in2
+
+> amp@out _out_@l
+> amp@out _out_@r
+

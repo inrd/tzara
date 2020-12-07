@@ -30,6 +30,7 @@ enum NodeTypes {
     TAN_NODE,
     TANH_NODE,
     CLIP_NODE,
+    WRAP_NODE,
     EQUAL_NODE,
     NEQUAL_NODE,
     LOWER_NODE,
@@ -173,6 +174,9 @@ TzNode* createTanhNode ();
 
 void performClip (TzNode* n, TzProcessInfo* info);
 TzNode* createClipNode ();
+
+void performWrap (TzNode* n, TzProcessInfo* info);
+TzNode* createWrapNode ();
 
 void performEqual (TzNode* n, TzProcessInfo* info);
 TzNode* createEqualNode ();

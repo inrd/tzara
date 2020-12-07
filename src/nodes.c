@@ -26,6 +26,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"tan", "outputs the tangent of {in}.", "in", "out"},
     {"tanh", "outputs the hyperbolic tangent of {in}.", "in", "out"},
     {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
+    {"wrap", "wraps {in} in range [{min}..{max}].", "in, min, max", "out"},
     {"equal", "outputs 1 if {in1} and {in2} are equal, 0 otherwise.", "in1, in2", "out"},
     {"nequal", "outputs 1 if {in1} and {in2} are not equal, 0 otherwise.", "in1, in2", "out"},
     {"lower", "outputs 1 if {in1} < {in2}, 0 otherwise.", "in1, in2", "out"},
@@ -506,8 +507,14 @@ void performClip (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
     float in = getNodeInput(n, 0, 0.f);
-    const float min = getNodeInput(n, 1, -1.f);
-    const float max = getNodeInput(n, 2, 1.f);
+    float min = getNodeInput(n, 1, -1.f);
+    float max = getNodeInput(n, 2, 1.f);
+    float tmp = min;
+
+    if (min > max) {
+        min = max;
+        max = tmp;
+    }
     
     if (in < min) in = min;
     if (in > max) in = max;
@@ -523,6 +530,41 @@ TzNode* createClipNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performClip;
+    return n;
+}
+
+void performWrap (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float in = getNodeInput(n, 0, 0.f);
+    float min = getNodeInput(n, 1, -1.f);
+    float max = getNodeInput(n, 2, 1.f);
+    float tmp = min;
+
+    if (min > max) {
+        min = max;
+        max = tmp;
+    }
+    
+    
+    while (in < min) {
+        in = min < 0 ? in - min : in + min;
+    }
+    while (in > max) {
+        in = max < 0 ?  in + max : in - max;
+    }
+    n->outputs[0] = in;
+}
+
+TzNode* createWrapNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "min");
+    strcpy(n->inputsNames[2], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performWrap;
     return n;
 }
 

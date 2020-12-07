@@ -201,6 +201,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createClipNode(), name, isModule);
             break;
 
+        case WRAP_NODE:
+            printf("Creating wrap : %s\n", name);
+            addEngineNode(tz, createWrapNode(), name, isModule);
+            break;
+
         case EQUAL_NODE:
             printf("Creating equal : %s\n", name);
             addEngineNode(tz, createEqualNode(), name, isModule);
@@ -257,7 +262,7 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             break;
 
         case MAP_NODE:
-            printf("Creating mapper : %s\n", name);
+            printf("Creating map : %s\n", name);
             addEngineNode(tz, createMapNode(), name, isModule);
             break;
         
