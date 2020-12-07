@@ -19,6 +19,7 @@ syn keyword tzNode module defaultval var add sub mult div modulo pow sqrt abs si
 syn keyword tzIONode _out_ _in_
 
 syn match tzComment "#.*$"
+syn match tzMetadata "!.*$"
 syn match tzIO "^@.*$"
 
 hi def link tzComment Comment
@@ -27,4 +28,5 @@ hi def link tzConstant Constant
 hi def link tzNode Type 
 hi def link tzIO Constant
 hi def link tzIONode Constant
+hi def link tzMetadata PreProc
 

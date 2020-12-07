@@ -11,7 +11,6 @@
 #include "dr_wav.h"
 
 
-#define TZARA_WAV_DURATION_SEC 60
 #define TZARA_BUFFER_SIZE 4096
 #define TZARA_FILE_NAME_MAX_LENGTH 512
 
@@ -51,7 +50,7 @@ int main (int argc, char** argv) {
     drwav wav;
     float* outData;
     int i, j = 0;
-    unsigned long int numFrames = (unsigned long int)samplerate * TZARA_WAV_DURATION_SEC;
+    unsigned long int numFrames = (unsigned long int)samplerate * 60;
     unsigned long int framesCount = 0;
     char patchName[TZARA_FILE_NAME_MAX_LENGTH];
     char wavName[TZARA_FILE_NAME_MAX_LENGTH];
@@ -101,6 +100,8 @@ int main (int argc, char** argv) {
     }
 
     fclose(patch);
+
+    numFrames = (unsigned long int)samplerate * tz.renderDuration;
 
     printf("Rendering output...\n");
 

@@ -27,12 +27,15 @@ enum Operators {
     CREATE_NODE_OP,
     CREATE_CONSTANT_OP,
     CONNECT_OP,
-    MODULE_IO_OP
+    MODULE_IO_OP,
+    METADATA_OP
 };
 
 int parseOperator (char op);
 
 void parseCommentInstruction (char* instr);
+
+void parseMetadataInstruction (void* engine, char** tokens, int numTokens, int isModule);
 
 int parseNodeType (const char* name);
 

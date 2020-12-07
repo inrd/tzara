@@ -40,6 +40,10 @@ int parseOperator (char op) {
             return MODULE_IO_OP;
             break;
 
+        case '!':
+            return METADATA_OP;
+            break;
+
         default:
             return NO_OP;
             break;
@@ -48,6 +52,31 @@ int parseOperator (char op) {
 
 void parseCommentInstruction (char* instr) {
     printf("%s", instr);
+}
+
+void parseMetadataInstruction (void* engine, char** tokens, int numTokens, int isModule) {
+    int duration = 0;
+
+    if (numTokens == 3) {
+        if (strncmp(tokens[1], "duration", strlen(tokens[1])) == 0) {
+            if (isModule != 0) {
+                printf("Duration metadata is not valid in a module...\n");
+            }
+            else {
+                duration = atoi(tokens[2]);
+                if (duration <= 0) {
+                    printf("Invalid duration provided : %s.\nSetting to default value (60 seconds).\n", tokens[2]);
+                }
+                else {
+                    ((Tzara*)engine)->renderDuration = duration;
+                    printf("Render length set to %d seconds.\n", duration);
+                }
+            }
+        }
+        else {
+            printf("Unknown metadata : %s\n", tokens[1]);
+        }
+    }
 }
 
 int parseNodeType (const char* name) {
@@ -821,6 +850,10 @@ int parseInstruction (void* tz, char* instr, char** tokens, int numTokens, int i
 
         case MODULE_IO_OP:
             err = parseModuleIOInstruction(tz, tokens, numTokens, isModule);
+            break;
+
+        case METADATA_OP:
+            parseMetadataInstruction(tz, tokens, numTokens, isModule);
             break;
 
         default:

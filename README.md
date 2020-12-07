@@ -19,8 +19,13 @@ $ make
 ```
 
 # Lines starting by "#" are comments
-
 # All patch instructions start by an operator
+
+# The instruction below sets a metadata value
+# Here the value is the duration (in seconds) of the output wav file
+
+! duration 30
+
 
 # Create a node
 # + [node_type] [node_name]
@@ -67,11 +72,13 @@ To run the patch, if you saved the file as `synth.tzara`, run the following from
 tzara synth.tzara synth.wav
 ```
 
-Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output a 1 minute audio file called `synth.wav` (more options regarding the file rendering are going to be implemented).
+Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output an audio file named `synth.wav`.
 
 The audio output is normalized to 0dB.
 
 If you do not pass a name for the wav file, one will be generated automatically.
+
+The wav file duration can be specified in the patch metadata (see example above). If not set, Tzara will use a default duration of 60 seconds.
 
 ## Nodes
 

@@ -17,6 +17,7 @@ struct Tzara {
     TzNode* nodes[TZARA_MAX_NODES];
     int numNodes;
     float* outputs[TZARA_MAX_OUTPUT_CHANS];
+    int renderDuration; /* in seconds */
 };
 
 void init(Tzara* t);

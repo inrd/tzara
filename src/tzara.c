@@ -12,6 +12,8 @@ void init(Tzara* t) {
     for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
         t->outputs[i] = NULL;
     }
+
+    t->renderDuration = 60;
 }
 
 int addNode (Tzara* tz, TzNode* n, const char* name) {

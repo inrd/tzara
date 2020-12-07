@@ -1,6 +1,12 @@
-# operations on pulse signals
+# little arpeggio with delays
 
-# [BUG] the clock seems to start late
+! duration 120
+
++ samplerate sr
+
++ mult fadelength
+> sr@out fadelength@in1
+= 120 fadelength@in2
 
 + pulse clock
 = 200 clock@rate
@@ -37,6 +43,43 @@
 > mtof@out osc@freq
 > trigs@out osc@reset
 
++ count pc
+= 20000 pc@max
+> clock@out pc@clock
+
++ equal startup
+= 1 startup@in1
+> pc@out startup@in2
+
++ and t0
+> clock@out t0@in1
+> startup@out t0@in2
+
++ segment ramp
+> fadelength@out ramp@dur
+= 1 ramp@val1
+= 40 ramp@val2
+> t0@out ramp@clock
+
++ pow expramp
+> ramp@out expramp@base
+= 2 expramp@exp
+
++ add oscdc
+> osc@out oscdc@in1
+= 0.3 oscdc@in2
+
++ mult drive
+> oscdc@out drive@in1
+> expramp@out drive@in2
+
++ sin saturator
+> drive@out saturator@in
+
++ sub satdc
+> saturator@out satdc@in1
+= 0.3 satdc@in2
+
 + segment env
 = 0.8 env@val1
 = 0 env@val2
@@ -44,7 +87,7 @@
 > trigs@out env@clock
 
 + mult vca
-> osc@out vca@in1
+> satdc@out vca@in1
 > env@out vca@in2
 
 + var dlmix
