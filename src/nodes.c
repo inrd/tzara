@@ -48,6 +48,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
+    {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
+    {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
     {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
     {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"}
 };
@@ -1127,6 +1129,50 @@ TzNode* createSelectNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performSelect;
+    return n;
+}
+
+void performLowpass (TzNode* n, TzProcessInfo* info) {
+    const double in = (double)getNodeInput(n, 0, 0.f);
+    const double cut = (double)getNodeInput(n, 1, 11000.f);
+    const double costh = 2.0 - cos(2.0 * M_PI * cut /  (double)(info->samplerate));
+    const double coeff = sqrt(costh * costh - 1.0) - costh;
+
+    n->outputs[0] = (float)(in * (1.0 + coeff) - (double)(n->memory[0]) * coeff);
+    n->memory[0] = n->outputs[0];
+}
+
+TzNode* createLowpassNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "cut");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performLowpass;
+    return n;
+}
+
+void performHighpass (TzNode* n, TzProcessInfo* info) {
+    const double in = (double)getNodeInput(n, 0, 0.f);
+    const double cut = (double)getNodeInput(n, 1, 100.f);
+    const double costh = 2.0 - cos(2.0 * M_PI * cut /  (double)(info->samplerate));
+    const double coeff = costh - sqrt(costh * costh - 1.0);
+
+    n->outputs[0] = (float)(in * (1.0 - coeff) - (double)(n->memory[0]) * coeff);
+    n->memory[0] = n->outputs[0];
+}
+
+TzNode* createHighpassNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "cut");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performHighpass;
     return n;
 }
 

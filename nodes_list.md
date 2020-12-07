@@ -114,6 +114,12 @@
 - [select] : if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.
 	- inputs: index, in1, in2, in3, in4, in5, in6, in7, in8
 	- outputs: out
+- [lowpass] : a 1 pole lowpass filter.
+	- inputs: in, cut(Hz)
+	- outputs: out
+- [highpass] : a 1 pole highpass filter.
+	- inputs: in, cut(Hz)
+	- outputs: out
 - [delay] : a basic delay line (up to 2 seconds).
 	- inputs: in, time(Ms)
 	- outputs: out

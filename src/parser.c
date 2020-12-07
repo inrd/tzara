@@ -297,6 +297,16 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSelectNode(), name, isModule);
             break;
 
+        case LOWPASS_NODE:
+            printf("Creating lowpass : %s\n", name);
+            addEngineNode(tz, createLowpassNode(), name, isModule);
+            break;
+
+        case HIGHPASS_NODE:
+            printf("Creating highpass : %s\n", name);
+            addEngineNode(tz, createHighpassNode(), name, isModule);
+            break;
+
         case DELAY_NODE:
             printf("Creating delay : %s\n", name);
             addEngineNode(tz, createDelayNode(), name, isModule);

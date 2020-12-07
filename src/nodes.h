@@ -52,6 +52,8 @@ enum NodeTypes {
     RANDOM_NODE,
     SEGMENT_NODE,
     SELECT_NODE,
+    LOWPASS_NODE,
+    HIGHPASS_NODE,
     DELAY_NODE,
     FDELAY_NODE,
     NUM_NODE_TYPES
@@ -244,6 +246,12 @@ TzNode* createSegmentNode ();
 
 void performSelect (TzNode* n, TzProcessInfo* info);
 TzNode* createSelectNode ();
+
+void performLowpass (TzNode* n, TzProcessInfo* info);
+TzNode* createLowpassNode ();
+
+void performHighpass (TzNode* n, TzProcessInfo* info);
+TzNode* createHighpassNode ();
 
 void performDelay (TzNode* n, TzProcessInfo* info);
 TzNode* createDelayNode ();
