@@ -28,9 +28,9 @@
 
 # Notes
 + seq8 pattern
-= 34 pattern@step1
-= 36 pattern@step2
-= 37 pattern@step3
+= c3 pattern@step1
+= d#3 pattern@step2
+= e3 pattern@step3
 = 3 pattern@length
 > metro@out pattern@clock
 

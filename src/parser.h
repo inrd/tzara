@@ -19,6 +19,8 @@
 #define MODULE_INPUTS_NODE_INDEX -0xdd
 #define MODULE_OUTPUTS_NODE_INDEX -0xee
 
+extern const char* midiNotes[128];
+
 enum Operators {
     NO_OP = 0,
     COMMENT_OP,
