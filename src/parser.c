@@ -271,6 +271,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createMiditofreqNode(), name, isModule);
             break;
         
+        case DBTOAMP_NODE:
+            printf("Creating dbtoamp : %s\n", name);
+            addEngineNode(tz, createDbtoampNode(), name, isModule);
+            break;
+        
         case SAMPLERATE_NODE:
             printf("Creating samplerate : %s\n", name);
             addEngineNode(tz, createSamplerateNode(), name, isModule);

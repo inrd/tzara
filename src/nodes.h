@@ -44,6 +44,7 @@ enum NodeTypes {
     MAP_NODE,
     SMOOTH_NODE,
     MIDITOFREQ_NODE,
+    DBTOAMP_NODE,
     SAMPLERATE_NODE,
     COUNT_NODE,
     PHASOR_NODE,
@@ -214,6 +215,9 @@ TzNode* createSmoothNode ();
 
 void performMiditofreq (TzNode* n, TzProcessInfo* info);
 TzNode* createMiditofreqNode ();
+
+void performDbtoamp (TzNode* n, TzProcessInfo* info);
+TzNode* createDbtoampNode ();
 
 void performSamplerate (TzNode* n, TzProcessInfo* info);
 TzNode* createSamplerateNode ();

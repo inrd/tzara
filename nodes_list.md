@@ -90,6 +90,9 @@
 - [miditofreq] : converts a MIDI note [0..127] to a frequency in Hertz.
 	- inputs: in
 	- outputs: out
+- [dbtoamp] : converts a deciBel value to a linear amplitude value.
+	- inputs: in(dB)
+	- outputs: out
 - [samplerate] : outputs the current samplerate.
 	- inputs: -
 	- outputs: out

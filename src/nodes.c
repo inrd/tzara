@@ -40,6 +40,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
+    {"dbtoamp", "converts a deciBel value to a linear amplitude value.", "in(dB)", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
@@ -847,6 +848,24 @@ TzNode* createMiditofreqNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMiditofreq;
+    return n;
+}
+
+void performDbtoamp (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float db = getNodeInput(n, 0, 0.f);
+
+    n->outputs[0] = pow(10.f, db / 20.f);
+}
+
+TzNode* createDbtoampNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performDbtoamp;
     return n;
 }
 
