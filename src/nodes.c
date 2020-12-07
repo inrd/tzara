@@ -784,26 +784,31 @@ TzNode* createMixNode () {
 void performMap (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
-    const float in = getNodeInput(n, 0, 0.f);
-    const float imin = getNodeInput(n, 1, 0.f);
-    const float imax = getNodeInput(n, 2, 1.f);
-    const float omin = getNodeInput(n, 3, 0.f);
-    const float omax = getNodeInput(n, 4, 1.f);
+    float in = getNodeInput(n, 0, 0.f);
+    float imin = getNodeInput(n, 1, 0.f);
+    float imax = getNodeInput(n, 2, 1.f);
+    float omin = getNodeInput(n, 3, 0.f);
+    float omax = getNodeInput(n, 4, 1.f);
     float tmp = 0.f;
+    float t1 = imin;
+    float t2 = omin;
+    
+    if (imin > imax) {
+        imin = imax;
+        imax = t1;
+    }
 
-    float* errCount = &(n->memory[0]);
+    if (omin > omax) {
+        omin = omax;
+        omax = t2;
+    }
 
-    if ((imin >= imax)||(omin >= omax)||(in<imin)||(in>imax)) {
+    if (in < imin) in = imin;
+    if (in > imax) in = imax;
+
+    if ((imin == imax)||(omin == omax)) {
         /* invalid inputs */
         n->outputs[0] = 0.f;
-        if ((int)(*errCount) < 10) {
-            fprintf(stderr, "Warning : [%s] => invalid inputs, output set to 0...\n%f : [%f..%f] -> [%f..%f]\n", n->name, in, imin, imax, omin, omax); 
-            *errCount += 1;
-        }
-        else if ((int)(*errCount) == 10) {
-            fprintf(stderr, "[%s] => too many warnings, no longer printing them!\n", n->name); 
-            *errCount += 1;
-        }
     }
     else {
         tmp = (in - imin) / (imax - imin);
@@ -821,7 +826,6 @@ TzNode* createMapNode () {
     strcpy(n->inputsNames[4], "omax");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
-    n->memory[0] = 0.f;
     n->perform = &performMap;
     return n;
 }
