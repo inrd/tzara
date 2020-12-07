@@ -11,6 +11,7 @@
 const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"-", "-", "-", "-"},
     {"module", "special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.", "user declared inputs", "user declared outputs"},
+    {"defaultval", "outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.", "in, val", "out"},
     {"var", "holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
     {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
@@ -237,6 +238,29 @@ TzNode* createModuleNode (const char* filename) {
     return n;
 }
 
+
+void performDefaultval (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float* in = n->inputs[0];
+    if (in != NULL) {
+        n->outputs[0] = *in;
+    }
+    else {
+        n->outputs[0] = getNodeInput(n, 1, 0.f);
+    }
+}
+
+TzNode* createDefaultvalNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "val");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performDefaultval;
+    return n;
+}
 
 
 

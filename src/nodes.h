@@ -15,6 +15,7 @@
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
     MODULE_NODE,
+    DEFAULTVAL_NODE,
     VAR_NODE,
     ADDER_NODE,
     SUB_NODE,
@@ -126,6 +127,9 @@ void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletInd
 
 void performModule (TzNode* n, TzProcessInfo* info);
 TzNode* createModuleNode (const char* filename);
+
+void performDefaultval (TzNode* n, TzProcessInfo* info);
+TzNode* createDefaultvalNode ();
 
 void performVar (TzNode* n, TzProcessInfo* info);
 TzNode* createVarNode ();

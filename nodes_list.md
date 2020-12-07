@@ -3,6 +3,9 @@
 - [module] : special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.
 	- inputs: user declared inputs
 	- outputs: user declared outputs
+- [defaultval] : outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.
+	- inputs: in, val
+	- outputs: out
 - [var] : holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.
 	- inputs: val
 	- outputs: val

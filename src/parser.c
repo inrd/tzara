@@ -112,6 +112,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name, isModule);
             break;
         
+        case DEFAULTVAL_NODE:
+            printf("Creating defaultval : %s\n", name);
+            addEngineNode(tz, createDefaultvalNode(), name, isModule);
+            break;
+        
         case VAR_NODE:
             printf("Creating var : %s\n", name);
             addEngineNode(tz, createVarNode(), name, isModule);

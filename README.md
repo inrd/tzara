@@ -115,12 +115,23 @@ Here is how to declare inputs and outputs in module files :
 
 @ out sum
 
+# optionally map a default value to an input
+
++ defaultval n2
+> _in_@num2 n2@in
+= 10 n2@val
+
+# create the needed nodes
+
 + add cpu
 
 # use the declared inputs and outputs
 
 > _in_@num1 cpu@in1
-> _in_@num2 cpu@in2
+
+# use the output of the defaultval node instead of the raw input
+
+> n2@out cpu@in2
 
 > cpu@out _out_@sum
 
