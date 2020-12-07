@@ -355,7 +355,7 @@ void performPow (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
     const float base = getNodeInput(n, 0, 0.f);
-    const float exp = (float)((int)getNodeInput(n, 1, 0.f));
+    const float exp = getNodeInput(n, 1, 1.f);
 
     if ((base == 0.f && exp == 0.f) || (base == 0.f && exp < 0.f)) {
         n->outputs[0] = 0.f;
