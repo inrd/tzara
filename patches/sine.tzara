@@ -11,9 +11,12 @@
 + sin s
 > rad@out s@in
 
++ dbtoamp db
+= -6 db@in
+
 + mult amp
 > s@out amp@in1
-= 0.8 amp@in2
+> db@out amp@in2
 
 > amp@out _out_@l
 > amp@out _out_@r
