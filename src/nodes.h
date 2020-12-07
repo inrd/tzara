@@ -44,7 +44,6 @@ enum NodeTypes {
     SMOOTH_NODE,
     MIDITOFREQ_NODE,
     SAMPLERATE_NODE,
-    MEM_NODE,
     COUNT_NODE,
     PHASOR_NODE,
     PULSE_NODE,
@@ -212,9 +211,6 @@ TzNode* createMiditofreqNode ();
 
 void performSamplerate (TzNode* n, TzProcessInfo* info);
 TzNode* createSamplerateNode ();
-
-void performMem (TzNode* n, TzProcessInfo* info);
-TzNode* createMemNode ();
 
 void performCount (TzNode* n, TzProcessInfo* info);
 TzNode* createCountNode ();

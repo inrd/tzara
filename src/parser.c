@@ -257,11 +257,6 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSamplerateNode(), name, isModule);
             break;
         
-        case MEM_NODE:
-            printf("Creating mem : %s\n", name);
-            addEngineNode(tz, createMemNode(), name, isModule);
-            break;
-        
         case COUNT_NODE:
             printf("Creating count : %s\n", name);
             addEngineNode(tz, createCountNode(), name, isModule);

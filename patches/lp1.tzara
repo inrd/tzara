@@ -3,33 +3,33 @@
 # oscillator
 + phasor osc
 = 110 osc@freq
-+ add oscdc
-> osc@out oscdc@in1
-= -0.5 oscdc@in2
-+ mult oscamp
-> oscdc@out oscamp@in1
-= 2 oscamp@in2
+
++ map oosc
+= 0 oosc@imin
+= 1 oosc@imax
+= -1 oosc@omin
+= 1 oosc@omax
+> osc@out oosc@in
+
 
 # filter
-+ mem z1
 
 # filter cut modulation
 + sinosc lfo
-= 6.3 lfo@freq
-+ mult lfoscale
-> lfo@out lfoscale@in1
-= 0.1 lfoscale@in2
-+ add cut
-> lfoscale@out cut@in1
-= 0.15 cut@in2
+= 1.3 lfo@freq
++ map cut
+= -1 cut@imin
+= 1 cut@imax
+= 0.05 cut@omin
+= 2 cut@omax
+> lfo@out cut@in
 
 + mix interp
 > cut@out interp@coeff
-> z1@out interp@in1
-> oscamp@out interp@in2
-
 # feedback loop
-> interp@out z1@in
+# introduces a 1 sample delay
+> interp@out interp@in1
+> oosc@out interp@in2
 
 # level
 + mult gain

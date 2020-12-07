@@ -40,7 +40,6 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
-    {"mem", "1 sample delay.", "in", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
     {"pulse", "outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms), reset(pulse)", "out"},
@@ -838,26 +837,6 @@ TzNode* createSamplerateNode () {
     return n;
 }
 
-
-void performMem (TzNode* n, TzProcessInfo* info) {
-    TZ_UNUSED(info);
-
-    const float z1 = n->memory[0];
-    n->memory[0] = getNodeInput(n, 0, 0.f);
-
-    n->outputs[0] = z1;
-}
-
-TzNode* createMemNode () {
-    TzNode* n = allocateNewNode();
-    n->numInputs = 1;
-    strcpy(n->inputsNames[0], "in");
-    n->numOutputs = 1;
-    strcpy(n->outputsNames[0], "out");
-    n->memory[0] = 0.f;
-    n->perform = &performMem;
-    return n;
-}
 
 void performCount (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
