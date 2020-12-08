@@ -46,6 +46,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"dbtoamp", "converts a deciBel value to a linear amplitude value.", "in(dB)", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
     {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out"},
+    {"fixnan", "zeroes NaN in the signal.", "in", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
     {"pulse", "outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms), reset(pulse)", "out"},
@@ -1006,7 +1007,23 @@ TzNode* createFixdenormNode () {
     strcpy(n->inputsNames[0], "in");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
-    n->perform = &performSamplerate;
+    n->perform = &performFixdenorm;
+    return n;
+}
+
+void performFixnan (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = in != in ? 0.f : in;
+}
+
+TzNode* createFixnanNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performFixnan;
     return n;
 }
 

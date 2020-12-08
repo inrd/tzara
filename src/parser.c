@@ -330,6 +330,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createFixdenormNode(), name, isModule);
             break;
         
+        case FIXNAN_NODE:
+            printf("Creating fixnan : %s\n", name);
+            addEngineNode(tz, createFixnanNode(), name, isModule);
+            break;
+        
         case COUNT_NODE:
             printf("Creating count : %s\n", name);
             addEngineNode(tz, createCountNode(), name, isModule);
