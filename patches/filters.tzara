@@ -1,6 +1,6 @@
 
 + phasor ph
-= 110 ph@freq
+= 80 ph@freq
 
 + sub iph
 = 1 iph@in1
@@ -14,45 +14,27 @@
 > iph@out saw@in
 
 + sinosc si
-= 0.4 si@freq
+= 0.2 si@freq
 
 + map lfo
 = -1 lfo@imin
 = 1 lfo@imax
-= 40 lfo@omin
-= 800 lfo@omax
+= 80 lfo@omin
+= 1800 lfo@omax
 > si@out lfo@in
 
-+ lowpass lpf1
-> lfo@out lpf1@cut
-> saw@out lpf1@in
++ smooth cut
+> lfo@out cut@in
+= 60 cut@dur
 
-+ lowpass lpf2
-> lfo@out lpf2@cut
-> lpf1@out lpf2@in
++ svf flt
+> cut@out flt@cut
+= 0.95 flt@res
+> saw@out flt@in
 
-+ phasor ph2
-= 220 ph2@freq
++ tanh sat
+> flt@lowpass sat@in
 
-+ round rph2
-> ph2@out rph2@in
-
-+ map square
-= 0 square@imin
-= 1 square@imax
-= -1 square@omin
-= 1 square@omax
-> rph2@out square@in
-
-+ highpass hpf
-= 440 hpf@cut
-> square@out hpf@in
-
-+ mix merge
-= 0.5 merge@coeff
-> lpf2@out merge@in1
-> hpf@out merge@in2
-
-> merge@out _out_@l
-> merge@out _out_@r
+> sat@out _out_@l
+> sat@out _out_@r
 

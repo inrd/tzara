@@ -61,6 +61,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"timepoint", "outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.", "time(Ms)", "out"},
     {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
     {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
+    {"svf", "a state variable filter. Outputs lowpass, bandpass, highpass and notch.", "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch"},
     {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
     {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"}
 };
@@ -117,6 +118,13 @@ void releaseNode (TzNode* n) {
 
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
     return n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
+}
+
+float getNodeInputClipped (TzNode* n, int inputIndex, float defaultValue, float min, float max) {
+    float in =  n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
+    if (in < min) in = min;
+    if (in > max) in = max;
+    return in;
 }
 
 
@@ -1444,6 +1452,53 @@ TzNode* createHighpassNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performHighpass;
+    return n;
+}
+
+/* SVF based on Andrew Simper's paper : https://cytomic.com/index.php?q=technical-papers */
+
+void performSvf (TzNode* n, TzProcessInfo* info) {
+    const double v0 = (double)getNodeInput(n, 0, 0.f);
+    const double cut = (double)getNodeInput(n, 1, 1100.f);
+    const double res = (double)getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
+    const double g = tan(M_PI * cut / (double)(info->samplerate));
+    const double k = 2.0 - 2.0 * res;
+    const double a1 = 1.0 / (1.0 + g * (g + k));
+    const double a2 = g * a1;
+    const double a3 = g * a2;
+    const double ic1eq = n->memory[0];
+    const double ic2eq = n->memory[1];
+    const double v3 = v0 - ic2eq;
+    const double v1 = a1 * ic1eq + a2 * v3;
+    const double v2 = ic2eq + a2 * ic1eq + a3 * v3;
+    float* low = &(n->outputs[0]);
+    float* band = &(n->outputs[1]);
+    float* high = &(n->outputs[2]);
+    float* notch = &(n->outputs[3]);
+
+    n->memory[0] = 2.0 * v1 - ic1eq; /* ic1eq */
+    n->memory[1] = 2.0 * v2 - ic2eq; /* ic2eq */
+
+    *low = v2;
+    *band = v1;
+    *high = v0 - k * v1 - v2;
+    *notch = v0 - k * v1;
+}
+
+TzNode* createSvfNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "cut");
+    strcpy(n->inputsNames[2], "res");
+    n->numOutputs = 4;
+    strcpy(n->outputsNames[0], "lowpass");
+    strcpy(n->outputsNames[1], "bandpass");
+    strcpy(n->outputsNames[2], "highpass");
+    strcpy(n->outputsNames[3], "notch");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->perform = &performSvf;
     return n;
 }
 

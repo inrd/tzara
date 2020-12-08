@@ -153,6 +153,9 @@
 - [highpass] : a 1 pole highpass filter.
 	- inputs: in, cut(Hz)
 	- outputs: out
+- [svf] : a state variable filter. Outputs lowpass, bandpass, highpass and notch.
+	- inputs: in, cut, res[0..1]
+	- outputs: lowpass, bandpass, highpass, notch
 - [delay] : a basic delay line (up to 2 seconds).
 	- inputs: in, time(Ms)
 	- outputs: out

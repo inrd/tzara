@@ -405,6 +405,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createHighpassNode(), name, isModule);
             break;
 
+        case SVF_NODE:
+            printf("Creating svf : %s\n", name);
+            addEngineNode(tz, createSvfNode(), name, isModule);
+            break;
+
         case DELAY_NODE:
             printf("Creating delay : %s\n", name);
             addEngineNode(tz, createDelayNode(), name, isModule);

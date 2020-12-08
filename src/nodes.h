@@ -65,6 +65,7 @@ enum NodeTypes {
     TIMEPOINT_NODE,
     LOWPASS_NODE,
     HIGHPASS_NODE,
+    SVF_NODE,
     DELAY_NODE,
     FDELAY_NODE,
     NUM_NODE_TYPES
@@ -111,6 +112,7 @@ TzNode* allocateNewNode ();
 void releaseNode (TzNode* n);
 
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
+float getNodeInputClipped (TzNode* n, int inputIndex, float defaultValue, float min, float max);
 
 struct TzModule {
     TzNode* nodes[TZMODULE_MAX_NODES];
@@ -299,6 +301,9 @@ TzNode* createLowpassNode ();
 
 void performHighpass (TzNode* n, TzProcessInfo* info);
 TzNode* createHighpassNode ();
+
+void performSvf (TzNode* n, TzProcessInfo* info);
+TzNode* createSvfNode ();
 
 void performDelay (TzNode* n, TzProcessInfo* info);
 TzNode* createDelayNode ();
