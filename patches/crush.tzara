@@ -1,0 +1,29 @@
+! duration 30
+
++ pulse metro
+= 200 metro@rate
+
++ seq8 sq
+= 4 sq@length
+= c3 sq@step1
+= d#3 sq@step2
+= f3 sq@step3
+= d#3 sq@step4
+> metro@out sq@clock
+
++ miditofreq nt
+> sq@out nt@in
+
++ sinosc osc
+> nt@out osc@freq
+
++ pulse sr
+= 0.5 sr@rate
+
++ sah redux
+> osc@out redux@in
+> sr@out redux@clock
+
+> redux@out _out_@l
+> redux@out _out_@r
+

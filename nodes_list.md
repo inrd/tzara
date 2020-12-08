@@ -135,6 +135,9 @@
 - [select] : if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.
 	- inputs: index, in1, in2, in3, in4, in5, in6, in7, in8
 	- outputs: out
+- [sah] : samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value
+	- inputs: in clock
+	- outputs: out
 - [timepoint] : outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.
 	- inputs: time(Ms)
 	- outputs: out

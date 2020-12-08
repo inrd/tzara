@@ -55,6 +55,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
+    {"sah", "samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value", "in clock", "out"},
     {"timepoint", "outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.", "time(Ms)", "out"},
     {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
     {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
@@ -1317,6 +1318,31 @@ TzNode* createSelectNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performSelect;
+    return n;
+}
+
+void performSah (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    const float clock = getNodeInput(n, 1, 0.f);
+    float* smp = &(n->memory[0]);
+
+    if (clock != 0.f) {
+        *smp = in;
+    }
+
+    n->outputs[0] = *smp;
+}
+
+TzNode* createSahNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "clock");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performSah;
     return n;
 }
 
