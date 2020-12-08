@@ -152,6 +152,15 @@ Here is how to declare inputs and outputs in module files :
 
 A module can be included in another module.
 
+
+## Vim syntax
+
+A very basic syntax file is provided for Vim. You can install it with :
+
+```
+make vimsyntax
+```
+
 ----
 
 Using [dr_wav](https://github.com/mackron/dr_libs) to write wave files.
