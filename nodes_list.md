@@ -105,6 +105,9 @@
 - [samplerate] : outputs the current samplerate.
 	- inputs: -
 	- outputs: out
+- [fixdenorm] : zeroes denormal numbers in the signal.
+	- inputs: in
+	- outputs: out
 - [count] : outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).
 	- inputs: clock max
 	- outputs: out

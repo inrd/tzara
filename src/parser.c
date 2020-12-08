@@ -325,6 +325,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSamplerateNode(), name, isModule);
             break;
         
+        case FIXDENORM_NODE:
+            printf("Creating fixdenorm : %s\n", name);
+            addEngineNode(tz, createFixdenormNode(), name, isModule);
+            break;
+        
         case COUNT_NODE:
             printf("Creating count : %s\n", name);
             addEngineNode(tz, createCountNode(), name, isModule);

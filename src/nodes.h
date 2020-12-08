@@ -49,6 +49,7 @@ enum NodeTypes {
     MIDITOFREQ_NODE,
     DBTOAMP_NODE,
     SAMPLERATE_NODE,
+    FIXDENORM_NODE,
     COUNT_NODE,
     PHASOR_NODE,
     PULSE_NODE,
@@ -234,6 +235,9 @@ TzNode* createDbtoampNode ();
 
 void performSamplerate (TzNode* n, TzProcessInfo* info);
 TzNode* createSamplerateNode ();
+
+void performFixdenorm (TzNode* n, TzProcessInfo* info);
+TzNode* createFixdenormNode ();
 
 void performCount (TzNode* n, TzProcessInfo* info);
 TzNode* createCountNode ();

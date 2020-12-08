@@ -15,7 +15,7 @@ syn region tzConstant start='= \d\+\.\d*' end=' '
 syn region tzConstant start='= [-+]\d\+' end=' '
 syn region tzConstant start='= [-+]\d\+\.\d*' end=' '
 syn region tzConstant start='$\w*' end='\w*[ \n]'
-syn keyword tzNode module defaultval var add sub mult div modulo pow sqrt abs sin cos tan tanh clip wrap equal nequal lower greater min max round and or xor mix merge pmerge map smooth miditofreq dbtoamp samplerate count phasor pulse sinosc seq8 random segment select timepoint lowpass highpass delay fdelay
+syn keyword tzNode module defaultval var add sub mult div modulo pow sqrt abs sin cos tan tanh clip wrap equal nequal lower greater min max round and or xor mix merge pmerge map smooth miditofreq dbtoamp samplerate fixdenorm count phasor pulse sinosc seq8 random segment select timepoint lowpass highpass delay fdelay
 syn keyword tzIONode _out_ _in_
 
 syn match tzComment "#.*$"
