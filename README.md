@@ -90,7 +90,15 @@ tzara --nodes
 
 You can also read a dump of the above command in `nodes_list.md`.
 
+You can easily extend the existing set of nodes using modules (see below).
+
 **A node input can only be connected to 1 output/constant.** To route multiple signals to a single input, use nodes like `add`, `or`, `merge` and `pmerge`.
+
+The nodes are processed sequentially in the order they appear in the patch, one sample at a time. This means that connecting the output of a node to the input of another node which was instantiated before it will introduce a 1 sample delay (so the value received at the input will be the one from the previous sample/frame). 
+
+This behavior allows to easily create feedback loops but can also have unwanted side effects.
+
+Try to instantiate the nodes in the same order they are supposed to appear in the signal flow to avoid erratic results. 
 
 
 ## Modules
