@@ -1,4 +1,4 @@
-! duration 30 
+! duration 10 
 
 + pulse metro
 = 200 metro@rate

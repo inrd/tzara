@@ -102,6 +102,10 @@ int main (int argc, char** argv) {
     fclose(patch);
 
     numFrames = (unsigned long int)samplerate * tz.renderDuration;
+    
+    while ((numFrames % TZARA_BUFFER_SIZE) != 0) {
+        ++numFrames;
+    }
 
     printf("Rendering output...\n");
 
