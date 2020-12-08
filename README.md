@@ -90,6 +90,9 @@ tzara --nodes
 
 You can also read a dump of the above command in `nodes_list.md`.
 
+**A node input can only be connected to 1 output/constant.** To route multiple signals to a single input, use nodes like `add`, `or`, `merge` and `pmerge`.
+
+
 ## Modules
 
 A module is a separate tzara patch that can be called from the main patch.

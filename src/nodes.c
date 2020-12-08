@@ -38,6 +38,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"or", "outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
     {"xor", "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.", "in1 in2", "out"},
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
+    {"merge", "combines all of its inputs into a single signal. To combine pulses, see pmerge.", "in1, in2, ..., in16", "out"},
+    {"pmerge", "combines all of its inputs (pulses) into a single pulse output (works like a giant or node). To combine regular signals, see merge.", "in1, in2, ..., in16", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
@@ -779,6 +781,64 @@ TzNode* createMixNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMix;
+    return n;
+}
+
+void performMerge (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float out = 0.f;
+    int i = 0;
+
+    for (i = 0; i < 16; ++i) {
+        out += getNodeInput(n, i, 0.f);
+    }
+
+    n->outputs[0] = out;
+}
+
+TzNode* createMergeNode () {
+    int i = 0;
+    char inName[32];
+
+    TzNode* n = allocateNewNode();
+    n->numInputs = 16;
+    for (i = 0; i < 16; ++i) {
+        sprintf(inName, "in%d", i);
+        strcpy(n->inputsNames[i], inName);
+    }
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performMerge;
+    return n;
+}
+
+void performPmerge (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float out = 0.f;
+    int i = 0;
+
+    for (i = 0; i < 16; ++i) {
+        if (getNodeInput(n, i, 0.f) != 0.f) out = 1.f;
+    }
+
+    n->outputs[0] = out;
+}
+
+TzNode* createPmergeNode () {
+    int i = 0;
+    char inName[32];
+
+    TzNode* n = allocateNewNode();
+    n->numInputs = 16;
+    for (i = 0; i < 16; ++i) {
+        sprintf(inName, "in%d", i);
+        strcpy(n->inputsNames[i], inName);
+    }
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performPmerge;
     return n;
 }
 

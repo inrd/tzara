@@ -84,6 +84,12 @@
 - [mix] : interpolates between {in1} and {in2} according to {coeff} in range [0..1].
 	- inputs: in1, in2, coeff
 	- outputs: out
+- [merge] : combines all of its inputs into a single signal. To combine pulses, see pmerge.
+	- inputs: in1, in2, ..., in16
+	- outputs: out
+- [pmerge] : combines all of its inputs (pulses) into a single pulse output (works like a giant or node). To combine regular signals, see merge.
+	- inputs: in1, in2, ..., in16
+	- outputs: out
 - [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].
 	- inputs: in, imin, imax, omin, omax
 	- outputs: out

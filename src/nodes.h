@@ -42,6 +42,8 @@ enum NodeTypes {
     OR_NODE,
     XOR_NODE,
     MIX_NODE,
+    MERGE_NODE,
+    PMERGE_NODE,
     MAP_NODE,
     SMOOTH_NODE,
     MIDITOFREQ_NODE,
@@ -211,6 +213,12 @@ TzNode* createXorNode ();
 
 void performMix (TzNode* n, TzProcessInfo* info);
 TzNode* createMixNode ();
+
+void performMerge (TzNode* n, TzProcessInfo* info);
+TzNode* createMergeNode ();
+
+void performPmerge (TzNode* n, TzProcessInfo* info);
+TzNode* createPmergeNode ();
 
 void performMap (TzNode* n, TzProcessInfo* info);
 TzNode* createMapNode ();

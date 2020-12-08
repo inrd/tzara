@@ -290,6 +290,16 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createMixNode(), name, isModule);
             break;
 
+        case MERGE_NODE:
+            printf("Creating merge : %s\n", name);
+            addEngineNode(tz, createMergeNode(), name, isModule);
+            break;
+
+        case PMERGE_NODE:
+            printf("Creating pmerge : %s\n", name);
+            addEngineNode(tz, createPmergeNode(), name, isModule);
+            break;
+
         case MAP_NODE:
             printf("Creating map : %s\n", name);
             addEngineNode(tz, createMapNode(), name, isModule);

@@ -29,15 +29,12 @@
 = 1 env@val1
 = 0 env@val2
 
-+ or o1
-> t0@out o1@in1
-> t1@out o1@in2
++ pmerge mrg
+> t0@out mrg@in1
+> t1@out mrg@in2
+> t2@out mrg@in3
 
-+ or o2
-> o1@out o2@in1
-> t2@out o2@in2
-
-> o2@out env@clock
+> mrg@out env@clock
 
 + mult vca
 > osc@out vca@in1
