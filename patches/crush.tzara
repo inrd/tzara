@@ -1,4 +1,4 @@
-! duration 30
+! duration 30 
 
 + pulse metro
 = 200 metro@rate
@@ -17,12 +17,20 @@
 + sinosc osc
 > nt@out osc@freq
 
-+ pulse sr
-= 0.5 sr@rate
++ samplerate sr
++ div rdx
+> sr@out rdx@in1
+= 32 rdx@in2
+
++ hztoms rt 
+> rdx@out rt@in
+
++ pulse rc
+> rt@out rc@rate
 
 + sah redux
 > osc@out redux@in
-> sr@out redux@clock
+> rc@out redux@clock
 
 > redux@out _out_@l
 > redux@out _out_@r

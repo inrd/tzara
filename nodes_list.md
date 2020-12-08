@@ -102,6 +102,12 @@
 - [dbtoamp] : converts a deciBel value to a linear amplitude value.
 	- inputs: in(dB)
 	- outputs: out
+- [mstohz] : converts a duration  in milliseconds to a frequency in Hertz.
+	- inputs: in
+	- outputs: out
+- [hztoms] : converts a frequency in Hertz to a duration  in milliseconds.
+	- inputs: in
+	- outputs: out
 - [samplerate] : outputs the current samplerate.
 	- inputs: -
 	- outputs: out

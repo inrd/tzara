@@ -44,6 +44,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"dbtoamp", "converts a deciBel value to a linear amplitude value.", "in(dB)", "out"},
+    {"mstohz", "converts a duration  in milliseconds to a frequency in Hertz.", "in", "out"},
+    {"hztoms", "converts a frequency in Hertz to a duration  in milliseconds.", "in", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
     {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out"},
     {"fixnan", "zeroes NaN in the signal.", "in", "out"},
@@ -976,6 +978,40 @@ TzNode* createDbtoampNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performDbtoamp;
+    return n;
+}
+
+void performMstohz (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float ms = getNodeInput(n, 0, 0.f);
+
+    n->outputs[0] = ms != 0.f ? 1000.f / ms : 0.f;
+}
+
+TzNode* createMstohzNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performMstohz;
+    return n;
+}
+
+void performHztoms (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float hz = getNodeInput(n, 0, 0.f);
+
+    n->outputs[0] = hz != 0.f ? 1000.f / hz : 0.f;
+}
+
+TzNode* createHztomsNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performHztoms;
     return n;
 }
 

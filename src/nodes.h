@@ -48,6 +48,8 @@ enum NodeTypes {
     SMOOTH_NODE,
     MIDITOFREQ_NODE,
     DBTOAMP_NODE,
+    MSTOHZ_NODE,
+    HZTOMS_NODE,
     SAMPLERATE_NODE,
     FIXDENORM_NODE,
     FIXNAN_NODE,
@@ -234,6 +236,12 @@ TzNode* createMiditofreqNode ();
 
 void performDbtoamp (TzNode* n, TzProcessInfo* info);
 TzNode* createDbtoampNode ();
+
+void performMstohz (TzNode* n, TzProcessInfo* info);
+TzNode* createMstohzNode ();
+
+void performHztoms (TzNode* n, TzProcessInfo* info);
+TzNode* createHztomsNode ();
 
 void performSamplerate (TzNode* n, TzProcessInfo* info);
 TzNode* createSamplerateNode ();

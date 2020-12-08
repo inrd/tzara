@@ -320,6 +320,16 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createDbtoampNode(), name, isModule);
             break;
         
+        case MSTOHZ_NODE:
+            printf("Creating mstohz : %s\n", name);
+            addEngineNode(tz, createMstohzNode(), name, isModule);
+            break;
+        
+        case HZTOMS_NODE:
+            printf("Creating hztoms : %s\n", name);
+            addEngineNode(tz, createHztomsNode(), name, isModule);
+            break;
+        
         case SAMPLERATE_NODE:
             printf("Creating samplerate : %s\n", name);
             addEngineNode(tz, createSamplerateNode(), name, isModule);
