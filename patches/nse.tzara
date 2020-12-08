@@ -1,0 +1,71 @@
+
++ noise nse
+
++ pulse t
+= 250 t@rate
+
++ segment env
+= 100 env@dur
+= 1 env@val1
+= 0 env@val2
+> t@out env@clock
+
++ pow curv
+> env@out curv@base
+= 4 curv@exp
+
++ mult vca
+> nse@out vca@in1
+> curv@out vca@in2
+
++ seq8 arp
+= 4 arp@length
+= c3 arp@step1
+= d#4 arp@step2
+= e4 arp@step3
+= a3 arp@step4
+> t@out arp@clock
+
++ random rnd
+> t@out rnd@clock
+
++ map chance
+= 0 chance@imin
+= 1 chance@imax
+= 0 chance@omin
+= 4 chance@omax
+> rnd@out chance@in
+
++ select oct
+= -24 oct@in1
+= -12 oct@in2
+= 12 oct@in3
+= 24 oct@in4
+> chance@out oct@index
+
++ add offset
+> arp@out offset@in1
+> oct@out offset@in2
+
++ miditofreq mtf
+> offset@out mtf@in
+
++ hztoms time
+> mtf@out time@in
+
++ fdelay dl
+> time@out dl@time
+= 0.96 dl@feed
+> vca@out dl@in
+
++ mix dmx
+= 0.5 dmx@coeff
+> vca@out dmx@in1
+> dl@out dmx@in2
+
++ tanh sat
+> dmx@out sat@in
+
+> sat@out _out_@l
+> sat@out _out_@r
+

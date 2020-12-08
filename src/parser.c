@@ -365,6 +365,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSinoscNode(), name, isModule);
             break;
 
+        case NOISE_NODE:
+            printf("Creating noise : %s\n", name);
+            addEngineNode(tz, createNoiseNode(), name, isModule);
+            break;
+
         case SEQ8_NODE:
             printf("Creating seq8 : %s\n", name);
             addEngineNode(tz, createSeq8Node(), name, isModule);

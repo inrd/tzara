@@ -57,6 +57,7 @@ enum NodeTypes {
     PHASOR_NODE,
     PULSE_NODE,
     SINOSC_NODE,
+    NOISE_NODE,
     SEQ8_NODE,
     RANDOM_NODE,
     SEGMENT_NODE,
@@ -274,6 +275,9 @@ TzNode* createPulseNode ();
 
 void performSinosc (TzNode* n, TzProcessInfo* info);
 TzNode* createSinoscNode ();
+
+void performNoise (TzNode* n, TzProcessInfo* info);
+TzNode* createNoiseNode ();
 
 void performSeq8 (TzNode* n, TzProcessInfo* info);
 TzNode* createSeq8Node ();
