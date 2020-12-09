@@ -1,0 +1,39 @@
+# a simple naive saw synth to use in test patches
+
+@ in note
+@ in decay
+@ in trig
+
+@ out out
+
++ miditofreq mtf
+> _in_@note mtf@in
+
++ phasor ph
+> mtf@out ph@freq
+
+# invert phase
++ sub iph
+= 1 iph@in1
+> ph@out iph@in2
+
+# convert to audio range
++ map saw
+= 0 saw@imin
+= 1 saw@imax
+= -1 saw@omin
+= 1 saw@omax
+> iph@out saw@in
+
++ segment env
+= 1 env@val1
+= 0 env@val2
+> _in_@decay env@dur
+> _in_@trig env@clock
+
++ mult vca
+> saw@out vca@in1
+> env@out vca@in2
+
+> vca@out _out_@out
+

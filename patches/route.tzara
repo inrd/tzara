@@ -8,32 +8,10 @@
 = c3 rnt@max
 > t@out rnt@clock
 
-+ miditofreq mtf
-> rnt@out mtf@in
-
-+ phasor ph
-> mtf@out ph@freq
-
-+ lower ptos
-> ph@out ptos@in1
-= 0.5 ptos@in2
-
-+ map sqr
-= 0 sqr@imin
-= 1 sqr@imax
-= -1 sqr@omin
-= 1 sqr@omax
-> ptos@out sqr@in
-
-+ segment env
-= 1 env@val1
-= 0 env@val2
-= 120 env@dur
-> t@out env@clock
-
-+ mult vca
-> sqr@out vca@in1
-> env@out vca@in2
++ module saw <modules/minisynth.tzara>
+> rnt@out saw@note
+= 220 saw@decay
+> t@out saw@trig
 
 + module rnd <modules/irandom.tzara>
 = 1 rnd@min
@@ -42,7 +20,7 @@
 
 + route fx
 > rnd@out fx@index
-> vca@out fx@in
+> saw@out fx@in
 
 + svf flt
 = 220 flt@cut
