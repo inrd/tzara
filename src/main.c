@@ -11,7 +11,6 @@
 #include "dr_wav.h"
 
 
-#define TZARA_BUFFER_SIZE 4096
 #define TZARA_FILE_NAME_MAX_LENGTH 512
 
 void normalize (float** buf, const unsigned long int numSamples, const int numChannels) {
@@ -49,9 +48,8 @@ int main (int argc, char** argv) {
     const float samplerate = 44100.f;
     drwav wav;
     float* outData;
-    int i, j = 0;
+    unsigned long int i, j = 0;
     unsigned long int numFrames = (unsigned long int)samplerate * 60;
-    unsigned long int framesCount = 0;
     char patchName[TZARA_FILE_NAME_MAX_LENGTH];
     char wavName[TZARA_FILE_NAME_MAX_LENGTH];
 
@@ -111,10 +109,6 @@ int main (int argc, char** argv) {
 
     numFrames = (unsigned long int)samplerate * tz.renderDuration;
     
-    while ((numFrames % TZARA_BUFFER_SIZE) != 0) {
-        ++numFrames;
-    }
-
     printf("Rendering output...\n");
 
     for (i = 0; i < TZARA_MAX_OUTPUT_CHANS; ++i) {
@@ -135,21 +129,23 @@ int main (int argc, char** argv) {
     format.channels = 2;
     format.sampleRate = (int)samplerate;
     format.bitsPerSample = 32;
-    drwav_init_file_write(&wav, wavName, &format, NULL);
 
-    outData = (float*)malloc(TZARA_BUFFER_SIZE * 2 * sizeof(float));
+    if (!drwav_init_file_write(&wav, wavName, &format, NULL)) {
+        fprintf(stderr, "Error writing %s...\nAborting...\n\n", wavName);
+        return 1;
+    }
 
-    framesCount = 0;
 
-    while (framesCount < numFrames) {
-        for (i = 0, j = 0; j < TZARA_BUFFER_SIZE; i += 2, ++j) {
-            outData[i] = data[0][j + framesCount];
-            outData[i+1] = data[1][j + framesCount];
-        }
-        
-        drwav_write_pcm_frames(&wav, TZARA_BUFFER_SIZE, outData);
+    /* need interleaved data for output */
+    outData = (float*)malloc(numFrames * 2 * sizeof(float));
 
-        framesCount += TZARA_BUFFER_SIZE;
+    for (i = 0, j = 0; j < numFrames; i += 2, ++j) {
+        outData[i] = data[0][j];
+        outData[i+1] = data[1][j];
+    }
+    
+    if (drwav_write_pcm_frames(&wav, numFrames, outData) < numFrames) {
+        fprintf(stderr, "Error : not all data has been written to %s.\n", wavName);
     }
 
     drwav_uninit(&wav);

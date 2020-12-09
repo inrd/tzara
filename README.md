@@ -2,8 +2,6 @@
 
 Text based modular synthesizer.
 
-*Work in progress...*
-
 ## Install
 
 ```bash
