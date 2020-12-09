@@ -21,6 +21,10 @@
 
 extern const char* midiNotes[128];
 
+extern const char* noteNames[12];
+
+extern const char* scaleNames[NUM_SCALES];
+
 enum Operators {
     NO_OP = 0,
     COMMENT_OP,

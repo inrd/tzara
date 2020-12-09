@@ -8,8 +8,13 @@
 = c3 rnt@max
 > t@out rnt@clock
 
++ notescale scl
+= locrian scl@scale
+= c scl@root
+> rnt@out scl@note
+
 + module saw <modules/minisynth.tzara>
-> rnt@out saw@note
+> scl@out saw@note
 = 220 saw@decay
 > t@out saw@trig
 

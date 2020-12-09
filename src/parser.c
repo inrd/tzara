@@ -18,6 +18,25 @@ const char* midiNotes[128] = {
     "c9", "c#9", "d9", "d#9", "e9", "f9", "f#9", "g9"
 };
 
+const char* noteNames[12] = {"c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"};
+
+const char* scaleNames[NUM_SCALES] = {
+    "chromatic",
+    "major",
+    "minor",
+    "harmonic_major",
+    "harmonic_minor",
+    "locrian",
+    "pyramid_hexatonic",
+    "kung",
+    "hira_joshi",
+    "ritsu",
+    "mela_citrambari",
+    "raga_bilwadala",
+    "maqam_hijaz",
+    "gnossiennes"
+};
+
 int parseOperator (char op) {
     switch (op) {
         case '#':
@@ -380,6 +399,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createRandomNode(), name, isModule);
             break;
 
+        case NOTESCALE_NODE:
+            printf("Creating notescale : %s\n", name);
+            addEngineNode(tz, createNotescaleNode(), name, isModule);
+            break;
+
         case SEGMENT_NODE:
             printf("Creating segment : %s\n", name);
             addEngineNode(tz, createSegmentNode(), name, isModule);
@@ -669,6 +693,18 @@ float getConstantValue (char* token) {
     else {
         for (i = 0; i < 128; ++i) {
             if (strncmp(token, midiNotes[i], strlen(token)) == 0) {
+                return (float)i;
+            }
+        }
+
+        for (i = 0; i < 12; ++i) {
+            if (strncmp(token, noteNames[i], strlen(token)) == 0) {
+                return (float)i;
+            }
+        }
+
+        for (i = 0; i < NUM_SCALES; ++i) {
+            if (strncmp(token, scaleNames[i], strlen(token)) == 0) {
                 return (float)i;
             }
         }

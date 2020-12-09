@@ -56,6 +56,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"noise", "generates white noise.", "-", "out"},
     {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
+    {"notescale", "conforms a note value ({note}) to a musical {scale} according to a {root} note. Run tzara --scales to get a list of the available scales.", "note, scale, root", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
     {"route", "if {index} is greater than 0 and lower than 9, outputs {in} to the corresponding {out}.", "in, index", "out1, out2, out3, out4, out5, out6, out7, out8"},
@@ -1297,6 +1298,49 @@ TzNode* createRandomNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performRandom;
+    return n;
+}
+
+const int musicalScales [NUM_SCALES][12] = {
+    {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11},
+    {0, 0, 2, 2, 4, 5, 5, 7, 7, 9, 9, 11},
+    {0, 0, 2, 3, 3, 5, 5, 7, 8, 8, 10, 10},
+    {0, 0, 2, 2, 4, 5, 5, 7, 8, 8, 8, 11},
+    {0, 0, 2, 3, 3, 5, 5, 7, 8, 8, 8, 11},
+    {0, 1, 1, 3, 3, 5, 6, 6, 8, 8, 10, 10},
+    {0, 0, 2, 3, 3, 5, 6, 6, 6, 9, 9, 9},
+    {0, 0, 2, 2, 4, 4, 6, 6, 6, 9, 9, 9},
+    {0, 0, 2, 3, 3, 3, 3, 7, 8, 8, 8, 8},
+    {0, 1, 1, 3, 3, 5, 5, 5, 8, 8, 10, 10},
+    {0, 0, 2, 2, 4, 4, 6, 7, 7, 7, 10, 11},
+    {0, 0, 0, 0, 4, 4, 4, 4, 4, 9, 9, 9},
+    {0, 1, 1, 1, 4, 5, 5, 7, 8, 8, 10, 11},
+    {0, 0, 2, 3, 3, 3, 6, 7, 7, 9, 10, 10}
+};
+
+void performNotescale (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    int note = (int)getNodeInputClipped(n, 0, 0.f, 0.f, 127.f);
+    int scale = (int)getNodeInputClipped(n, 1, 0.f, 0.f, (float)(NUM_SCALES - 1));
+    int root = (int)getNodeInputClipped(n, 2, 0.f, 0.f, 11.f);
+    const int oct =  note / 12;
+    const int base = note % 12;
+    const int offset = base + root;
+    const int octshift = offset / 12;
+    const int conformed = musicalScales[scale][offset % 12] - root;
+
+    n->outputs[0] = (float)(conformed + ((oct + octshift) * 12));
+}
+
+TzNode* createNotescaleNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "note");
+    strcpy(n->inputsNames[1], "scale");
+    strcpy(n->inputsNames[2], "root");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performNotescale;
     return n;
 }
 

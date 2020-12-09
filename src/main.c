@@ -60,7 +60,7 @@ int main (int argc, char** argv) {
     srand((unsigned int)time(NULL));
 
     if (argc < 2) {
-        fprintf(stderr, "Usage:\ntzara [patch file] [out wav file]\ntzara [patch file]\ntzara --nodes\n\n");
+        fprintf(stderr, "Usage:\ntzara [patch file] [out wav file]\ntzara [patch file]\ntzara --nodes\ntzara --scales\n\n");
         return 1;
     }
 
@@ -68,6 +68,14 @@ int main (int argc, char** argv) {
         if (strncmp(argv[1], "--nodes", strlen(argv[1])) == 0) {
             for (i = 1; i < NUM_NODE_TYPES; ++i) {
                 printf("- [%s] : %s\n\t- inputs: %s\n\t- outputs: %s\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
+            }
+            printf("\n");
+            return 0;
+        }
+        else if (strncmp(argv[1], "--scales", strlen(argv[1])) == 0) {
+            printf("Available scales for the notescale node :\n");
+            for (i = 0; i < NUM_SCALES; ++i) {
+                printf("- %s\n", scaleNames[i]);
             }
             printf("\n");
             return 0;

@@ -60,6 +60,7 @@ enum NodeTypes {
     NOISE_NODE,
     SEQ8_NODE,
     RANDOM_NODE,
+    NOTESCALE_NODE,
     SEGMENT_NODE,
     SELECT_NODE,
     ROUTE_NODE,
@@ -71,6 +72,25 @@ enum NodeTypes {
     DELAY_NODE,
     FDELAY_NODE,
     NUM_NODE_TYPES
+};
+
+
+enum NoteScales {
+    CHROMATIC_SCALE = 0,
+    MAJOR_SCALE,
+    MINOR_SCALE,
+    HARMONIC_MAJOR_SCALE,
+    HARMONIC_MINOR_SCALE,
+    LOCRIAN_SCALE,
+    PYRAMID_HEXATONIC_SCALE,
+    KUNG_SCALE,
+    HIRA_JOSHI_SCALE,
+    RITSU_SCALE,
+    MELA_CITRAMBARI_SCALE,
+    RAGA_BILWADALA_SCALE,
+    MAQAM_HIJAZ_SCALE,
+    GNOSSIENNES_SCALE,
+    NUM_SCALES
 };
 
 
@@ -285,6 +305,10 @@ TzNode* createSeq8Node ();
 
 void performRandom (TzNode* n, TzProcessInfo* info);
 TzNode* createRandomNode ();
+
+extern const int musicalScales [NUM_SCALES][12];
+void performNotescale (TzNode* n, TzProcessInfo* info);
+TzNode* createNotescaleNode ();
 
 void performSegment (TzNode* n, TzProcessInfo* info);
 TzNode* createSegmentNode ();

@@ -138,6 +138,9 @@
 - [random] : outputs a random value in the range [0..1] when receiving a pulse at {clock}.
 	- inputs: clock
 	- outputs: out
+- [notescale] : conforms a note value ({note}) to a musical {scale} according to a {root} note. Run tzara --scales to get a list of the available scales.
+	- inputs: note, scale, root
+	- outputs: out
 - [segment] : outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.
 	- inputs: clock, val1, val2, dur
 	- outputs: out, end(pulse)
