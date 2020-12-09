@@ -38,6 +38,8 @@ enum NodeTypes {
     MIN_NODE,
     MAX_NODE,
     ROUND_NODE,
+    CEIL_NODE,
+    FLOOR_NODE,
     AND_NODE,
     OR_NODE,
     XOR_NODE,
@@ -230,6 +232,12 @@ TzNode* createMaxNode ();
 
 void performRound (TzNode* n, TzProcessInfo* info);
 TzNode* createRoundNode ();
+
+void performCeil (TzNode* n, TzProcessInfo* info);
+TzNode* createCeilNode ();
+
+void performFloor (TzNode* n, TzProcessInfo* info);
+TzNode* createFloorNode ();
 
 void performAnd (TzNode* n, TzProcessInfo* info);
 TzNode* createAndNode ();

@@ -34,6 +34,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"min", "outputs the lowest value between {in1} and {in2}.", "in1, in2", "out"},
     {"max", "outputs the highest value between {in1} and {in2}.", "in1, in2", "out"},
     {"round", "rounds {in} to the nearest integer value.", "in", "out"},
+    {"ceil", "rounds {in} up to the nearest higher integer.", "in", "out"},
+    {"floor", "rounds {in} down to the nearest lower integer.", "in", "out"},
     {"and", "outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
     {"or", "outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
     {"xor", "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.", "in1 in2", "out"},
@@ -719,6 +721,38 @@ TzNode* createRoundNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performRound;
+    return n;
+}
+
+void performCeil (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = ceil(in);
+}
+
+TzNode* createCeilNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performCeil;
+    return n;
+}
+
+void performFloor (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = floor(in);
+}
+
+TzNode* createFloorNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performFloor;
     return n;
 }
 

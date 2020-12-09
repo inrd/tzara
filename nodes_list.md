@@ -72,6 +72,12 @@
 - [round] : rounds {in} to the nearest integer value.
 	- inputs: in
 	- outputs: out
+- [ceil] : rounds {in} up to the nearest higher integer.
+	- inputs: in
+	- outputs: out
+- [floor] : rounds {in} down to the nearest lower integer.
+	- inputs: in
+	- outputs: out
 - [and] : outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.
 	- inputs: in1 in2
 	- outputs: out
