@@ -775,10 +775,16 @@ int parseCreateConstantInstruction (void* tz, char** tokens, int numTokens, int 
         return 0;
     }
 
-    if (node < 0 || input < 0) {
-        fprintf(stderr, "Invalid node input...\n");
+    if (node < 0) {
+        printf("Invalid node : %s...\n", destString);
         return 1; 
     }
+
+    if (input < 0) {
+        printf("Invalid node input : %s...\n", destString);
+        return 1; 
+    }
+
 
     if (isModule == 0) {
         printf("Map constant with value %f to %s[%s]\n", val, ((Tzara*)tz)->nodes[node]->name, ((Tzara*)tz)->nodes[node]->inputsNames[input]);
@@ -801,8 +807,10 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
     int srcOutput = -1;
     int destNode = -1;
     int destInput = -1;
+    char srcString[512];
     char destString[512];
 
+    memset(srcString, '\0', 512);
     memset(destString, '\0', 512);
 
     if (numTokens < 3) {
@@ -810,7 +818,8 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
         return 1;
     }
 
-    parseNodeOutputString(tz, tokens[1], &srcNode, &srcOutput, isModule);
+    strncpy(srcString, tokens[1], 511);
+    parseNodeOutputString(tz, srcString, &srcNode, &srcOutput, isModule);
 
     strncpy(destString, tokens[2], 511);
     trimNewLine(destString);
@@ -819,7 +828,7 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
     if (destNode == TZARA_OUTPUT_NODE_INDEX) {
         if (isModule == 0) {
             if (srcNode < 0 || srcOutput < 0) {
-                fprintf(stderr, "Invalid connection...\n");
+                fprintf(stderr, "Invalid connection source : %s\n", srcString);
                 return 1;
             }
             if (destInput == TZARA_OUTPUT_LEFT_INDEX) {
@@ -831,7 +840,7 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
                 connectNodeToOutput((Tzara*)tz, srcNode, srcOutput, 1);
             }
             else {
-                fprintf(stderr, "Invalid Input...\n");
+                fprintf(stderr, "Invalid connection destination : %s\n", destString);
                 return 1;
             }
             return 0;
@@ -849,7 +858,7 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
 
     if (destNode == MODULE_OUTPUTS_NODE_INDEX) {
         if (srcNode < 0 || srcOutput < 0) {
-            fprintf(stderr, "Invalid connection...\n");
+            fprintf(stderr, "Invalid connection source : %s\n", srcString);
             return 1;
         }
         printf("Connect %s[%s] to module out\n", ((TzModule*)tz)->nodes[srcNode]->name, ((TzModule*)tz)->nodes[srcNode]->outputsNames[srcOutput]);
@@ -859,7 +868,7 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
 
     if (srcNode == MODULE_INPUTS_NODE_INDEX) {
         if (destNode < 0 || destInput < 0) {
-            fprintf(stderr, "Invalid connection...\n");
+            fprintf(stderr, "Invalid connection destination : %s\n", destString);
             return 1;
         }
         printf("Connect module in to %s[%s]\n", ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->inputsNames[destInput]);
@@ -867,9 +876,24 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
         return 0;
     }
 
-    if (srcNode < 0 || srcOutput < 0 || destNode < 0 || destInput < 0) {
-        fprintf(stderr, "Invalid connection...\n");
-        return  1;
+    if (srcNode < 0) {
+        printf("Invalid node : %s...\n", srcString);
+        return 1; 
+    }
+
+    if (srcOutput < 0) {
+        printf("Invalid node output : %s...\n", srcString);
+        return 1; 
+    }
+
+    if (destNode < 0) {
+        printf("Invalid node : %s...\n", destString);
+        return 1; 
+    }
+
+    if (destInput < 0) {
+        printf("Invalid node input : %s...\n", destString);
+        return 1; 
     }
 
     if (isModule == 0) {
@@ -879,6 +903,10 @@ int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModul
     else {
         printf("Connect %s[%s] to %s[%s]\n", ((TzModule*)tz)->nodes[srcNode]->name, ((TzModule*)tz)->nodes[srcNode]->outputsNames[srcOutput], ((TzModule*)tz)->nodes[destNode]->name, ((TzModule*)tz)->nodes[destNode]->inputsNames[destInput]);
         connectModuleNodes((TzModule*)tz, srcNode, srcOutput, destNode, destInput); 
+    }
+
+    if (destNode < srcNode) {
+        printf("! WARNING ! this is a backward connection, it introduces a 1 sample delay.\n");
     }
 
     return 0;
