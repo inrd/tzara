@@ -78,6 +78,9 @@
 - [floor] : rounds {in} down to the nearest lower integer.
 	- inputs: in
 	- outputs: out
+- [frac] : outputs the fractional part of {in} (e.g. 0.5 for 2.5).
+	- inputs: in
+	- outputs: out
 - [and] : outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.
 	- inputs: in1 in2
 	- outputs: out

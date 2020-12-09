@@ -40,6 +40,7 @@ enum NodeTypes {
     ROUND_NODE,
     CEIL_NODE,
     FLOOR_NODE,
+    FRAC_NODE,
     AND_NODE,
     OR_NODE,
     XOR_NODE,
@@ -238,6 +239,9 @@ TzNode* createCeilNode ();
 
 void performFloor (TzNode* n, TzProcessInfo* info);
 TzNode* createFloorNode ();
+
+void performFrac (TzNode* n, TzProcessInfo* info);
+TzNode* createFracNode ();
 
 void performAnd (TzNode* n, TzProcessInfo* info);
 TzNode* createAndNode ();

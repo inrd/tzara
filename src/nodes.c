@@ -36,6 +36,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"round", "rounds {in} to the nearest integer value.", "in", "out"},
     {"ceil", "rounds {in} up to the nearest higher integer.", "in", "out"},
     {"floor", "rounds {in} down to the nearest lower integer.", "in", "out"},
+    {"frac", "outputs the fractional part of {in} (e.g. 0.5 for 2.5).", "in", "out"},
     {"and", "outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
     {"or", "outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.", "in1 in2", "out"},
     {"xor", "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or both are not 0.", "in1 in2", "out"},
@@ -753,6 +754,22 @@ TzNode* createFloorNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performFloor;
+    return n;
+}
+
+void performFrac (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+    const float absin = fabs(getNodeInput(n, 0, 0.f));
+    n->outputs[0] = absin - (float)((int)absin);
+}
+
+TzNode* createFracNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 1;
+    strcpy(n->inputsNames[0], "in");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performFrac;
     return n;
 }
 

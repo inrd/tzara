@@ -299,6 +299,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createFloorNode(), name, isModule);
             break;
         
+        case FRAC_NODE:
+            printf("Creating frac : %s\n", name);
+            addEngineNode(tz, createFracNode(), name, isModule);
+            break;
+        
         case AND_NODE:
             printf("Creating and : %s\n", name);
             addEngineNode(tz, createAndNode(), name, isModule);
