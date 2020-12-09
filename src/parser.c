@@ -390,6 +390,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSelectNode(), name, isModule);
             break;
 
+        case ROUTE_NODE:
+            printf("Creating route : %s\n", name);
+            addEngineNode(tz, createRouteNode(), name, isModule);
+            break;
+
         case SAH_NODE:
             printf("Creating sah : %s\n", name);
             addEngineNode(tz, createSahNode(), name, isModule);

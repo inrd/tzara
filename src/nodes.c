@@ -58,6 +58,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
+    {"route", "if {index} is greater than 0 and lower than 9, outputs {in} to the corresponding {out}.", "in, index", "out1, out2, out3, out4, out5, out6, out7, out8"},
     {"sah", "samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value", "in clock", "out"},
     {"timepoint", "outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.", "time(Ms)", "out"},
     {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
@@ -1380,6 +1381,35 @@ TzNode* createSelectNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performSelect;
+    return n;
+}
+
+void performRoute (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float in = getNodeInput(n, 0, 0.f);
+    int idx = (int)getNodeInput(n, 1, 0.f);
+    int i = 0;
+
+    for (i = 0; i < 8; ++i) {
+        n->outputs[i] = (idx == (i + 1)) ? in : 0.f;
+    }
+}
+
+TzNode* createRouteNode () {
+    int i = 0;
+    char outName[32];
+
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "index");
+    n->numOutputs = 8;
+    for (i = 0; i < 8; ++i) {
+        sprintf(outName, "out%d", i + 1);
+        strcpy(n->outputsNames[i], outName);
+    }
+    n->perform = &performRoute;
     return n;
 }
 

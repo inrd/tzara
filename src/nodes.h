@@ -62,6 +62,7 @@ enum NodeTypes {
     RANDOM_NODE,
     SEGMENT_NODE,
     SELECT_NODE,
+    ROUTE_NODE,
     SAH_NODE,
     TIMEPOINT_NODE,
     LOWPASS_NODE,
@@ -290,6 +291,9 @@ TzNode* createSegmentNode ();
 
 void performSelect (TzNode* n, TzProcessInfo* info);
 TzNode* createSelectNode ();
+
+void performRoute (TzNode* n, TzProcessInfo* info);
+TzNode* createRouteNode ();
 
 void performSah (TzNode* n, TzProcessInfo* info);
 TzNode* createSahNode ();

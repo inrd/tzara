@@ -1,0 +1,72 @@
+! duration 30
+
++ pulse t
+= 500 t@rate
+
++ module rnt <modules/irandom.tzara>
+= c1 rnt@min
+= c3 rnt@max
+> t@out rnt@clock
+
++ miditofreq mtf
+> rnt@out mtf@in
+
++ phasor ph
+> mtf@out ph@freq
+
++ lower ptos
+> ph@out ptos@in1
+= 0.5 ptos@in2
+
++ map sqr
+= 0 sqr@imin
+= 1 sqr@imax
+= -1 sqr@omin
+= 1 sqr@omax
+> ptos@out sqr@in
+
++ segment env
+= 1 env@val1
+= 0 env@val2
+= 120 env@dur
+> t@out env@clock
+
++ mult vca
+> sqr@out vca@in1
+> env@out vca@in2
+
++ module rnd <modules/irandom.tzara>
+= 1 rnd@min
+= 3 rnd@max
+> t@out rnd@clock
+
++ route fx
+> rnd@out fx@index
+> vca@out fx@in
+
++ svf flt
+= 220 flt@cut
+= 0.8 flt@res
+> fx@out1 flt@in
+
++ fdelay shortd
+= 60 shortd@time
+= 0.9 shortd@feed
+> fx@out2 shortd@in
+
++ fdelay medd
+= 250 medd@time
+= 0.5 medd@feed
+> fx@out3 medd@in
+
++ merge mrg
+> flt@bandpass mrg@in1
+> shortd@out mrg@in2
+> medd@out mrg@in3
+
++ tanh sat
+> mrg@out sat@in
+
+> sat@out _out_@l
+> sat@out _out_@r
+
