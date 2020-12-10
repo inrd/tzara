@@ -1650,7 +1650,7 @@ void performIrandom (TzNode* n, TzProcessInfo* info) {
 
     const int clock = (int)getNodeInput(n, 0, 0.f);
     int min = (int)getNodeInput(n, 1, 0.f);
-    int max = (int)getNodeInput(n, 2, 0.f);
+    int max = (int)getNodeInput(n, 2, 1.f);
     float* out = &(n->memory[0]);
     int t = min;
     float r = 0.f;
