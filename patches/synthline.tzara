@@ -60,12 +60,10 @@
 + random rnd
 > metro@out rnd@clock
 
-+ map fdec
++ from0_1 fdec
 > rnd@out fdec@in
-= 0 fdec@imin
-= 1 fdec@imax
-= 20 fdec@omin
-= 80 fdec@omax
+= 20 fdec@min
+= 80 fdec@max
 
 + segment fenv
 > fdec@out fenv@dur
@@ -84,12 +82,10 @@
 + random cutrnd
 > metro@out cutrnd@clock
 
-+ map cutfloor
++ from0_1 cutfloor
 > cutrnd@out cutfloor@in
-= 0 cutfloor@imin
-= 1 cutfloor@imax
-= 20 cutfloor@omin
-= 220 cutfloor@omax
+= 20 cutfloor@min
+= 220 cutfloor@max
 
 + add cut
 > cutfloor@out cut@in1

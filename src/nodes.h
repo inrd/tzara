@@ -48,6 +48,8 @@ enum NodeTypes {
     MERGE_NODE,
     PMERGE_NODE,
     MAP_NODE,
+    FROM01_NODE,
+    TO01_NODE,
     SMOOTH_NODE,
     MIDITOFREQ_NODE,
     DBTOAMP_NODE,
@@ -266,6 +268,12 @@ TzNode* createPmergeNode ();
 
 void performMap (TzNode* n, TzProcessInfo* info);
 TzNode* createMapNode ();
+
+void performFrom0_1 (TzNode* n, TzProcessInfo* info);
+TzNode* createFrom0_1Node ();
+
+void performTo0_1 (TzNode* n, TzProcessInfo* info);
+TzNode* createTo0_1Node ();
 
 void performSmooth (TzNode* n, TzProcessInfo* info);
 TzNode* createSmoothNode ();

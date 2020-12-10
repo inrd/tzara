@@ -102,6 +102,12 @@
 - [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].
 	- inputs: in, imin, imax, omin, omax
 	- outputs: out
+- [from0_1] : maps {in} from the range [0..1] to the range [{min}..{max}].
+	- inputs: in, min, max
+	- outputs: out
+- [to0_1] : maps {in} from the range [{min}..{max}] to the range [0..1].
+	- inputs: in, min, max
+	- outputs: out
 - [smooth] : smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.
 	- inputs: in, dur
 	- outputs: out

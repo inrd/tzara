@@ -339,6 +339,16 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createMapNode(), name, isModule);
             break;
         
+        case FROM01_NODE:
+            printf("Creating from0_1 : %s\n", name);
+            addEngineNode(tz, createFrom0_1Node(), name, isModule);
+            break;
+        
+        case TO01_NODE:
+            printf("Creating to0_1 : %s\n", name);
+            addEngineNode(tz, createTo0_1Node(), name, isModule);
+            break;
+        
         case SMOOTH_NODE:
             printf("Creating smooth : %s\n", name);
             addEngineNode(tz, createSmoothNode(), name, isModule);

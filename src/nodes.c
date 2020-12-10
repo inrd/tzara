@@ -44,6 +44,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"merge", "combines all of its inputs into a single signal. To combine pulses, see pmerge.", "in1, in2, ..., in16", "out"},
     {"pmerge", "combines all of its inputs (pulses) into a single pulse output (works like a giant or node). To combine regular signals, see merge.", "in1, in2, ..., in16", "out"},
     {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
+    {"from0_1", "maps {in} from the range [0..1] to the range [{min}..{max}].", "in, min, max", "out"}, 
+    {"to0_1", "maps {in} from the range [{min}..{max}] to the range [0..1].", "in, min, max", "out"}, 
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.", "in", "out"},
     {"dbtoamp", "converts a deciBel value to a linear amplitude value.", "in(dB)", "out"},
@@ -958,6 +960,77 @@ TzNode* createMapNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMap;
+    return n;
+}
+
+void performFrom0_1 (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float in = getNodeInput(n, 0, 0.f);
+    float min = getNodeInput(n, 1, 0.f);
+    float max = getNodeInput(n, 2, 1.f);
+    float t = min;
+    
+    if (min > max) {
+        min = max;
+        max = t;
+    }
+
+    if (min == max) {
+        /* invalid inputs */
+        n->outputs[0] = 0.f;
+    }
+    else {
+        n->outputs[0] = min + (in * (max - min));
+    }
+}
+
+TzNode* createFrom0_1Node () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "min");
+    strcpy(n->inputsNames[2], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performFrom0_1;
+    return n;
+}
+
+void performTo0_1 (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    float in = getNodeInput(n, 0, 0.f);
+    float min = getNodeInput(n, 1, 0.f);
+    float max = getNodeInput(n, 2, 1.f);
+    float t = min;
+    
+    if (min > max) {
+        min = max;
+        max = t;
+    }
+
+    if (in < min) in = min;
+    if (in > max) in = max;
+
+    if (min == max) {
+        /* invalid inputs */
+        n->outputs[0] = 0.f;
+    }
+    else {
+        n->outputs[0] = (in - min) / (max - min);
+    }
+}
+
+TzNode* createTo0_1Node () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "min");
+    strcpy(n->inputsNames[2], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performTo0_1;
     return n;
 }
 
