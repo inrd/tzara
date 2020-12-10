@@ -3,7 +3,7 @@
 + pulse t
 = 250 t@rate
 
-+ module rnt <modules/irandom.tzara>
++ irandom rnt 
 = c2 rnt@min
 = c7 rnt@max
 > t@out rnt@clock
@@ -18,7 +18,7 @@
 = 220 saw@decay
 > t@out saw@trig
 
-+ module rnd <modules/irandom.tzara>
++ irandom rnd 
 = 1 rnd@min
 = 3 rnd@max
 > t@out rnd@clock

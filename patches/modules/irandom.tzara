@@ -1,5 +1,7 @@
 # random integer generator
 
+# not useful anymore :  use the irandom node instead
+
 @ in clock
 @ in min
 @ in max

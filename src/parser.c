@@ -439,6 +439,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createRandomNode(), name, isModule);
             break;
 
+        case IRANDOM_NODE:
+            printf("Creating irandom : %s\n", name);
+            addEngineNode(tz, createIrandomNode(), name, isModule);
+            break;
+
         case NOTESCALE_NODE:
             printf("Creating notescale : %s\n", name);
             addEngineNode(tz, createNotescaleNode(), name, isModule);

@@ -162,6 +162,9 @@
 - [random] : outputs a random value in the range [0..1] when receiving a pulse at {clock}.
 	- inputs: clock
 	- outputs: out
+- [irandom] : outputs a random integer value in the range [{min}..{max}] (inclusive) when receiving a pulse at {clock}.
+	- inputs: clock, min, max
+	- outputs: out
 - [notescale] : conforms a note value ({note}) to a musical {scale} according to a {root} note. Run tzara --scales to get a list of the available scales.
 	- inputs: note, scale, root
 	- outputs: out

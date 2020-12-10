@@ -68,6 +68,7 @@ enum NodeTypes {
     NOISE_NODE,
     SEQ8_NODE,
     RANDOM_NODE,
+    IRANDOM_NODE,
     NOTESCALE_NODE,
     SEGMENT_NODE,
     SELECT_NODE,
@@ -337,6 +338,9 @@ TzNode* createSeq8Node ();
 
 void performRandom (TzNode* n, TzProcessInfo* info);
 TzNode* createRandomNode ();
+
+void performIrandom (TzNode* n, TzProcessInfo* info);
+TzNode* createIrandomNode ();
 
 extern const int musicalScales [NUM_SCALES][12];
 void performNotescale (TzNode* n, TzProcessInfo* info);

@@ -64,6 +64,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"noise", "generates white noise.", "-", "out"},
     {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
+    {"irandom", "outputs a random integer value in the range [{min}..{max}] (inclusive) when receiving a pulse at {clock}.", "clock, min, max", "out"},
     {"notescale", "conforms a note value ({note}) to a musical {scale} according to a {root} note. Run tzara --scales to get a list of the available scales.", "note, scale, root", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
@@ -1641,6 +1642,47 @@ TzNode* createRandomNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performRandom;
+    return n;
+}
+
+void performIrandom (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const int clock = (int)getNodeInput(n, 0, 0.f);
+    int min = (int)getNodeInput(n, 1, 0.f);
+    int max = (int)getNodeInput(n, 2, 0.f);
+    float* out = &(n->memory[0]);
+    int t = min;
+    float r = 0.f;
+    
+    if (min > max) {
+        min = max;
+        max = t;
+    }
+
+    if (clock != 0) {
+        if (min == max) {
+            *out = (float)min;
+        }
+        else {
+            r = (float)rand()/(float)(RAND_MAX);
+            *out = min + (r * (max - min));
+        }
+    }
+
+    n->outputs[0] = *out;
+}
+
+TzNode* createIrandomNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "clock");
+    strcpy(n->inputsNames[1], "min");
+    strcpy(n->inputsNames[2], "max");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performIrandom;
     return n;
 }
 
