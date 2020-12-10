@@ -16,8 +16,20 @@
 = d#3 seq@step7
 = d3 seq@step8
 
++ seq8 gseq
+> metro@out gseq@clock
+= 4 gseq@length
+= 1 gseq@step1
+= 1 gseq@step2
+= 1 gseq@step3
+= 80 gseq@step4
+
 + miditofreq mtof
 > seq@out mtof@in
+
++ smooth glide
+> gseq@out glide@dur
+> mtof@out glide@in
 
 + sinosc lfo
 = 0.05 lfo@freq
@@ -29,9 +41,21 @@
 = 0.1 pwm@omin
 = 0.9 pwm@omax
 
-+ sqrosc osc
-> mtof@out osc@freq
-> pwm@out osc@pw
++ sqrosc sqr 
+> glide@out sqr@freq
+> pwm@out sqr@pw
+
++ mult o2frq
+> glide@out o2frq@in1
+= 0.5 o2frq@in2
+
++ sawosc saw
+> o2frq@out saw@freq
+
++ mix osc
+= 0.5 osc@coeff
+> sqr@out osc@in1
+> saw@out osc@in2
 
 + random rnd
 > metro@out rnd@clock
@@ -40,7 +64,7 @@
 > rnd@out fdec@in
 = 0 fdec@imin
 = 1 fdec@imax
-= 5 fdec@omin
+= 20 fdec@omin
 = 80 fdec@omax
 
 + segment fenv
