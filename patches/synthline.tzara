@@ -1,0 +1,100 @@
+# A basic synth line example
+
+! duration 32
+
++ pulse metro
+= 200 metro@rate
+
++ seq8 seq
+> metro@out seq@clock
+= c2 seq@step1
+= c2 seq@step2
+= c2 seq@step3
+= c3 seq@step4
+= c2 seq@step5
+= c2 seq@step6
+= d#3 seq@step7
+= d3 seq@step8
+
++ miditofreq mtof
+> seq@out mtof@in
+
++ sinosc lfo
+= 0.05 lfo@freq
+
++ map pwm
+> lfo@out pwm@in
+= -1 pwm@imin
+= 1 pwm@imax
+= 0.1 pwm@omin
+= 0.9 pwm@omax
+
++ sqrosc osc
+> mtof@out osc@freq
+> pwm@out osc@pw
+
++ random rnd
+> metro@out rnd@clock
+
++ map fdec
+> rnd@out fdec@in
+= 0 fdec@imin
+= 1 fdec@imax
+= 5 fdec@omin
+= 80 fdec@omax
+
++ segment fenv
+> fdec@out fenv@dur
+= 1 fenv@val1
+= 0 fenv@val2
+> metro@out fenv@clock
+
++ pow fenvshape
+> fenv@out fenvshape@base
+= 4 fenvshape@exp
+
++ mult fenvscl
+> fenvshape@out fenvscl@in1
+= 4000 fenvscl@in2
+
++ random cutrnd
+> metro@out cutrnd@clock
+
++ map cutfloor
+> cutrnd@out cutfloor@in
+= 0 cutfloor@imin
+= 1 cutfloor@imax
+= 20 cutfloor@omin
+= 220 cutfloor@omax
+
++ add cut
+> cutfloor@out cut@in1
+> fenvscl@out cut@in2
+
++ random res
+> metro@out res@clock
+
++ svf flt
+> cut@out flt@cut
+> res@out flt@res
+> osc@out flt@in
+
++ timepoint start
+
++ segment drive
+# fade in for the render duration
+= 32000 drive@dur
+= 0.8 drive@val1
+= 20 drive@val2
+> start@out drive@clock
+
++ mult boost
+> flt@lowpass boost@in1
+> drive@out boost@in2
+
++ tanh saturator
+> boost@out saturator@in
+
+> saturator@out _out_@l
+> saturator@out _out_@r
+
