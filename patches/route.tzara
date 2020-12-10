@@ -1,11 +1,11 @@
 ! duration 30
 
 + pulse t
-= 500 t@rate
+= 250 t@rate
 
 + module rnt <modules/irandom.tzara>
-= c1 rnt@min
-= c3 rnt@max
+= c2 rnt@min
+= c7 rnt@max
 > t@out rnt@clock
 
 + notescale scl
@@ -27,25 +27,45 @@
 > rnd@out fx@index
 > saw@out fx@in
 
++ random cut
+> t@out cut@clock
+
++ map cutscl
+> cut@out cutscl@in
+= 0 cutscl@imin
+= 1 cutscl@imax
+= 80 cutscl@omin
+= 800 cutscl@omax
+
 + svf flt
-= 220 flt@cut
-= 0.8 flt@res
+> cutscl@out flt@cut
+= 0.9 flt@res
 > fx@out1 flt@in
 
-+ fdelay shortd
-= 60 shortd@time
-= 0.9 shortd@feed
-> fx@out2 shortd@in
++ fdelay dl1
+= 375 dl1@time
+= 0.7 dl1@feed
+> fx@out2 dl1@in
 
-+ fdelay medd
-= 250 medd@time
-= 0.5 medd@feed
-> fx@out3 medd@in
++ sinosc lfo
+= 0.1 lfo@freq
+
++ map lfoscl
+> lfo@out lfoscl@in
+= -1 lfoscl@imin
+= 1 lfoscl@imax
+= 3 lfoscl@omin
+= 20 lfoscl@omax
+
++ fdelay dl2
+> lfoscl@out dl2@time
+= 0.6 dl2@feed
+> fx@out3 dl2@in
 
 + merge mrg
 > flt@bandpass mrg@in1
-> shortd@out mrg@in2
-> medd@out mrg@in3
+> dl1@out mrg@in2
+> dl2@out mrg@in3
 
 + tanh sat
 > mrg@out sat@in

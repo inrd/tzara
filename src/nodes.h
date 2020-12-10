@@ -60,6 +60,9 @@ enum NodeTypes {
     PHASOR_NODE,
     PULSE_NODE,
     SINOSC_NODE,
+    SAWOSC_NODE,
+    SQROSC_NODE,
+    TRIOSC_NODE,
     NOISE_NODE,
     SEQ8_NODE,
     RANDOM_NODE,
@@ -308,6 +311,15 @@ TzNode* createPulseNode ();
 
 void performSinosc (TzNode* n, TzProcessInfo* info);
 TzNode* createSinoscNode ();
+
+void performSawosc (TzNode* n, TzProcessInfo* info);
+TzNode* createSawoscNode ();
+
+void performSqrosc (TzNode* n, TzProcessInfo* info);
+TzNode* createSqroscNode ();
+
+void performTriosc (TzNode* n, TzProcessInfo* info);
+TzNode* createTrioscNode ();
 
 void performNoise (TzNode* n, TzProcessInfo* info);
 TzNode* createNoiseNode ();

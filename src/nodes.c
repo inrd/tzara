@@ -54,8 +54,11 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"fixnan", "zeroes NaN in the signal.", "in", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
     {"phasor", "generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.", "freq(Hz), reset(pulse)", "out"},
-    {"pulse", "outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms), reset(pulse)", "out"},
+    {"pulse", "outputs a pulse (1 sample long signal whose value is 1) at a periodic rate. A pulse at {reset} resets the phase.", "rate(Ms), reset(pulse)", "out"},
     {"sinosc", "generates a sine wave. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.", "freq(Hz), reset(pulse), fm, fmdepth", "out"},
+    {"sawosc", "a bandlimited sawtooth oscillator. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.", "freq(Hz), reset(pulse), fm, fmdepth", "out"},
+    {"sqrosc", "a bandlimited square oscillator. A pulse at {reset} resets the phase. The pulse width can be  controlled via {pw}. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.", "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out"},
+    {"triosc", "a bandlimited triangle oscillator. A pulse at {reset} resets the phase. The pulse width can be  controlled via {pw}. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.", "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out"},
     {"noise", "generates white noise.", "-", "out"},
     {"seq8", "outputs the values of inputs {step1} to {step8} sequentially when receiving a pulse at {clock}. The sequence length can be changed via input {length}. The output {pos} sends the playhead position.", "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
     {"random", "outputs a random value in the range [0..1] when receiving a pulse at {clock}.", "clock", "out"},
@@ -1261,6 +1264,222 @@ TzNode* createSinoscNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performSinosc;
+    return n;
+}
+
+/* polyblep oscillators : based on http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/ */
+
+void performSawosc (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float twopi = 2.f * M_PI;
+    const float freq = getNodeInput(n, 0, 440.f);
+    const float reset = getNodeInput(n, 1, 0.f);
+    const float fm = getNodeInput(n, 2, 0.f);
+    const float fmdepth = getNodeInput(n, 3, 0.f);
+    float* phase = &(n->memory[0]);
+
+    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
+    const float dt = incr / twopi;
+    float t = 0.f;
+    float pblep = 0.f;
+    float wv = 0.f;
+
+    if (reset > 0) {
+        *phase = 0.f;
+    }
+
+    t = *phase / twopi;
+    if (t < dt) {
+        t = t / dt;
+        pblep = (t + t) - (t * t) - 1.f;
+    }
+    else if (t > (1.f - dt)) {
+        t = (t - 1.f) / dt;
+        pblep = (t * t) + (t + t) + 1.f;
+    }
+
+    wv = (2.f * (*phase) / twopi) - 1.f;
+    wv -= pblep;
+
+    n->outputs[0] = wv;
+    *phase += incr;
+    while (*phase > twopi) *phase -= twopi;
+}
+
+TzNode* createSawoscNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 4;
+    strcpy(n->inputsNames[0], "freq");
+    strcpy(n->inputsNames[1], "reset");
+    strcpy(n->inputsNames[2], "fm");
+    strcpy(n->inputsNames[3], "fmdepth");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performSawosc;
+    return n;
+}
+
+void performSqrosc (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float twopi = 2.f * M_PI;
+    const float freq = getNodeInput(n, 0, 440.f);
+    const float reset = getNodeInput(n, 1, 0.f);
+    const float pw = getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
+    const float fm = getNodeInput(n, 3, 0.f);
+    const float fmdepth = getNodeInput(n, 4, 0.f);
+    float* phase = &(n->memory[0]);
+
+    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
+    const float dt = incr / twopi;
+    float t0 = 0.f;
+    float t1 = 0.f;
+    float t2 = 0.f;
+    float pblep1 = 0.f;
+    float pblep2 = 0.f;
+    float c = 0.f;
+    float wv = 0.f;
+
+    if (reset > 0) {
+        *phase = 0.f;
+    }
+
+    t0 = *phase / twopi;
+    t1 = t0;
+
+    if (t1 < dt) {
+        t1 = t1 / dt;
+        pblep1 = (t1 + t1) - (t1 * t1) - 1.f;
+    }
+    else if (t1 > (1.f - dt)) {
+        t1 = (t1 - 1.f) / dt;
+        pblep1 = (t1 * t1) + (t1 + t1) + 1.f;
+    }
+
+    t2 = fmod((t0 + pw), 1.f);
+
+    if (t2 < dt) {
+        t2 = t2 / dt;
+        pblep2 = (t2 + t2) - (t2 * t2) - 1.f;
+    }
+    else if (t2 > (1.f - dt)) {
+        t2 = (t2 - 1.f) / dt;
+        pblep2 = (t2 * t2) + (t2 + t2) + 1.f;
+    }
+
+    c = pw * twopi;
+    if (*phase < c) {
+        wv = 1.f;
+    }
+    else {
+        wv = -1.f;
+    }
+    wv += pblep1;
+    wv -= pblep2;
+
+    n->outputs[0] = wv;
+    *phase += incr;
+    while (*phase > twopi) *phase -= twopi;
+
+}
+
+TzNode* createSqroscNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 5;
+    strcpy(n->inputsNames[0], "freq");
+    strcpy(n->inputsNames[1], "reset");
+    strcpy(n->inputsNames[2], "pw");
+    strcpy(n->inputsNames[3], "fm");
+    strcpy(n->inputsNames[4], "fmdepth");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performSqrosc;
+    return n;
+}
+
+void performTriosc (TzNode* n, TzProcessInfo* info) {
+    const float samplerate = info->samplerate;
+    const float twopi = 2.f * M_PI;
+    const float freq = getNodeInput(n, 0, 440.f);
+    const float reset = getNodeInput(n, 1, 0.f);
+    const float pw = getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
+    const float fm = getNodeInput(n, 3, 0.f);
+    const float fmdepth = getNodeInput(n, 4, 0.f);
+    float* phase = &(n->memory[0]);
+    float* mem = &(n->memory[1]);
+
+    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
+    const float dt = incr / twopi;
+    float t0 = 0.f;
+    float t1 = 0.f;
+    float t2 = 0.f;
+    float pblep1 = 0.f;
+    float pblep2 = 0.f;
+    float c = 0.f;
+    float wv = 0.f;
+
+    if (reset > 0) {
+        *phase = 0.f;
+    }
+
+    t0 = *phase / twopi;
+    t1 = t0;
+
+    if (t1 < dt) {
+        t1 = t1 / dt;
+        pblep1 = (t1 + t1) - (t1 * t1) - 1.f;
+    }
+    else if (t1 > (1.f - dt)) {
+        t1 = (t1 - 1.f) / dt;
+        pblep1 = (t1 * t1) + (t1 + t1) + 1.f;
+    }
+
+    t2 = fmod((t0 + pw), 1.f);
+
+    if (t2 < dt) {
+        t2 = t2 / dt;
+        pblep2 = (t2 + t2) - (t2 * t2) - 1.f;
+    }
+    else if (t2 > (1.f - dt)) {
+        t2 = (t2 - 1.f) / dt;
+        pblep2 = (t2 * t2) + (t2 + t2) + 1.f;
+    }
+
+    c = pw * twopi;
+    if (*phase < c) {
+        wv = 1.f;
+    }
+    else {
+        wv = -1.f;
+    }
+    wv += pblep1;
+    wv -= pblep2;
+
+    /* make triangle out of square */
+    wv = (incr * wv) + ((1.f - incr) * (*mem));
+
+    *mem = wv;
+
+    n->outputs[0] = wv;
+    *phase += incr;
+    while (*phase > twopi) *phase -= twopi;
+
+}
+
+TzNode* createTrioscNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 5;
+    strcpy(n->inputsNames[0], "freq");
+    strcpy(n->inputsNames[1], "reset");
+    strcpy(n->inputsNames[2], "pw");
+    strcpy(n->inputsNames[3], "fm");
+    strcpy(n->inputsNames[4], "fmdepth");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->perform = &performTriosc;
     return n;
 }
 

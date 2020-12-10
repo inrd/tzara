@@ -9,21 +9,8 @@
 + miditofreq mtf
 > _in_@note mtf@in
 
-+ phasor ph
-> mtf@out ph@freq
-
-# invert phase
-+ sub iph
-= 1 iph@in1
-> ph@out iph@in2
-
-# convert to audio range
-+ map saw
-= 0 saw@imin
-= 1 saw@imax
-= -1 saw@omin
-= 1 saw@omax
-> iph@out saw@in
++ sawosc saw
+> mtf@out saw@freq
 
 + segment env
 = 1 env@val1

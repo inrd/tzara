@@ -132,11 +132,20 @@
 - [phasor] : generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.
 	- inputs: freq(Hz), reset(pulse)
 	- outputs: out
-- [pulse] : outputs a pulse at a periodic rate. A pulse at {reset} resets the phase.
+- [pulse] : outputs a pulse (1 sample long signal whose value is 1) at a periodic rate. A pulse at {reset} resets the phase.
 	- inputs: rate(Ms), reset(pulse)
 	- outputs: out
 - [sinosc] : generates a sine wave. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.
 	- inputs: freq(Hz), reset(pulse), fm, fmdepth
+	- outputs: out
+- [sawosc] : a bandlimited sawtooth oscillator. A pulse at {reset} resets the phase. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.
+	- inputs: freq(Hz), reset(pulse), fm, fmdepth
+	- outputs: out
+- [sqrosc] : a bandlimited square oscillator. A pulse at {reset} resets the phase. The pulse width can be  controlled via {pw}. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.
+	- inputs: freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth
+	- outputs: out
+- [triosc] : a bandlimited triangle oscillator. A pulse at {reset} resets the phase. The pulse width can be  controlled via {pw}. A signal can be sent to {fm) for frequency modulation with the amount of modulation controled by {fmdepth}.
+	- inputs: freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth
 	- outputs: out
 - [noise] : generates white noise.
 	- inputs: -

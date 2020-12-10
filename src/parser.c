@@ -399,6 +399,21 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSinoscNode(), name, isModule);
             break;
 
+        case SAWOSC_NODE:
+            printf("Creating sawosc : %s\n", name);
+            addEngineNode(tz, createSawoscNode(), name, isModule);
+            break;
+
+        case SQROSC_NODE:
+            printf("Creating sqrosc : %s\n", name);
+            addEngineNode(tz, createSqroscNode(), name, isModule);
+            break;
+
+        case TRIOSC_NODE:
+            printf("Creating triosc : %s\n", name);
+            addEngineNode(tz, createTrioscNode(), name, isModule);
+            break;
+
         case NOISE_NODE:
             printf("Creating noise : %s\n", name);
             addEngineNode(tz, createNoiseNode(), name, isModule);
