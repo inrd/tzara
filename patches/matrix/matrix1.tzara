@@ -1,0 +1,30 @@
+! duration 32
+
++ pulse clock
+= 200 clock@rate
+
++ count pos
+> clock@out pos@clock
+= 4 pos@max
+
+# matrix indexes start from 0 so we normalize the counter value
++ sub column
+> pos@out column@in1
+= 1 column@in2
+
++ irandom row
+> clock@out row@clock
+= 0 row@min
+= 2 row@max
+
++ matrix pattern 3 4 <m1.txt>
+> row@out pattern@getrow
+> column@out pattern@getcol
+
++ module blip <blip.tzara>
+> pattern@out blip@note
+= 120 blip@decay
+> clock@out blip@trig
+
+> blip@out _out_@l
+> blip@out _out_@r

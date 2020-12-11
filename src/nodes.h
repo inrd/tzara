@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #define TZNODE_MAX_INPUTS 16 
 #define TZNODE_MAX_OUTPUTS 16
@@ -15,6 +16,7 @@
 enum NodeTypes {
     INVALID_NODE_TYPE = 0,
     MODULE_NODE,
+    MATRIX_NODE,
     DEFAULTVAL_NODE,
     VAR_NODE,
     ADDER_NODE,
@@ -115,11 +117,22 @@ struct TzNodeDoc {
 extern const TzNodeDoc nodesDoc [NUM_NODE_TYPES];
 
 typedef struct TzModule TzModule;
+typedef struct TzMatrix TzMatrix;
 typedef struct TzProcessInfo TzProcessInfo;
 
 struct TzProcessInfo {
     float samplerate;
 };
+
+struct TzMatrix {
+    float** matrix;
+    int numRows;
+    int numCols;
+};
+
+int initMatrix (TzMatrix* m, const int numRows, const int numCols);
+void releaseMatrix (TzMatrix* m);
+void populateMatrixFromFile (FILE* f, TzMatrix* m);
 
 typedef struct TzNode TzNode;
 struct TzNode {
@@ -134,6 +147,7 @@ struct TzNode {
     char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
     char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
     TzModule* submodule;
+    TzMatrix* matrix;
 }; 
 
 void flush (TzNode* n);
@@ -170,6 +184,9 @@ void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletInd
 
 void performModule (TzNode* n, TzProcessInfo* info);
 TzNode* createModuleNode (const char* filename);
+
+void performMatrix (TzNode* n, TzProcessInfo* info);
+TzNode* createMatrixNode (int numRows, int numCols, char* filename);
 
 void performDefaultval (TzNode* n, TzProcessInfo* info);
 TzNode* createDefaultvalNode ();

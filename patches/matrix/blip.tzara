@@ -1,0 +1,25 @@
+@ in note
+@ in decay
+@ in trig
+
+@ out out
+
++ miditofreq frq
+> _in_@note frq@in
+
++ sinosc osc
+> frq@out osc@freq
+> _in_@trig osc@reset
+
++ segment env
+> _in_@decay env@dur
+= 1 env@val1
+= 0 env@val2
+> _in_@trig env@clock
+
++ mult vca
+> osc@out vca@in1
+> env@out vca@in2
+
+> vca@out _out_@out
+

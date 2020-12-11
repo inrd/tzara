@@ -112,13 +112,9 @@ int parseNodeType (const char* name) {
 }
 
 void trimNewLine (char* str) {
-    const int strSize = strlen(str);
-    int i = 0;
-    for (i = 0; i < strSize; ++i) {
-        if (str[i] == '\n') {
-            str[i] = '\0';
-        }
-    }
+    char* nl = NULL;
+    nl = strchr(str, '\n');
+    if (nl != NULL) *nl = '\0';
 }
 
 TzNode* parseAndCreateModule (char** tokens, int numTokens) {
@@ -142,6 +138,40 @@ TzNode* parseAndCreateModule (char** tokens, int numTokens) {
 
     printf("Invalid syntax, cannot parse module file name...\n");
     return NULL;
+
+}
+
+TzNode* parseAndCreateMatrix (char** tokens, int numTokens) {
+    int i = 1;
+    char filename[512];
+    int numRows, numCols = 0;
+
+    memset(filename, '\0', 512);
+
+    if (numTokens < 5) {
+        printf("Missing arguments!\nSyntax : + matrix node_name num_rows num_columns <filename (optional)>\n");
+        return NULL;
+    }
+
+    numRows = atoi(tokens[3]);
+    numCols = atoi(tokens[4]);
+
+    if (numTokens == 5) {
+        return createMatrixNode(numRows, numCols, NULL);
+    }
+    else {
+        if (tokens[5][0] == '<') {
+            while (tokens[5][i] != '>' && tokens[5][i] != '\0') {
+                filename[i-1] = tokens[5][i];
+                ++i;
+            }
+            return createMatrixNode(numRows, numCols, filename);
+        }
+        else {
+            printf("Invalid syntax.\n");
+            return NULL;
+        }
+    }
 
 }
 
@@ -172,6 +202,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
         case MODULE_NODE:
             printf("Creating module : %s\n", name);
             addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name, isModule);
+            break;
+        
+        case MATRIX_NODE:
+            printf("Creating matrix : %s\n", name);
+            addEngineNode(tz, parseAndCreateMatrix(tokens, numTokens), name, isModule);
             break;
         
         case DEFAULTVAL_NODE:

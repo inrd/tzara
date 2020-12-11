@@ -47,6 +47,8 @@ void trimNewLine (char* str);
 
 TzNode* parseAndCreateModule (char** tokens, int numTokens);
 
+TzNode* parseAndCreateMatrix (char** tokens, int numTokens);
+
 void addEngineNode (void* engine, TzNode* n, char* name, int isModule);
 
 int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isModule);

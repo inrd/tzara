@@ -2,15 +2,18 @@
 
 #include <math.h>
 #include <time.h>
-#include <stdio.h>
 
 #include "parser.h"
 
 #define TZ_UNUSED(x) (void)(x)
 
+# define TZMATRIX_PARSER_CACHE_SIZE  4096
+
+
 const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"-", "-", "-", "-"},
     {"module", "special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.", "user declared inputs", "user declared outputs"},
+    {"matrix", "special node that stores a matrix (optionally loaded from a file). Use {getrow} and {getcol} to retrieve values at {out}. Set {write} to a non zero value to write the value from {setval} to {setrow} and {setcol}. Get operations have precedence over set operations : if you write a value to a cell and poll that same cell concurrently, the previous value of the cell will be sent to {out}.", "getrow getcol setrow setcol setval write", "out"},
     {"defaultval", "outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.", "in, val", "out"},
     {"var", "holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
@@ -78,6 +81,74 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"}
 };
 
+int initMatrix (TzMatrix* m, const int numRows, const int numCols) {
+    int r = 0;
+    if (m == NULL) {
+        return 1;
+    }
+
+    m->numRows = numRows > 0 ? numRows : 1;
+    m->numCols = numCols > 0 ? numCols : 1;
+
+    /* need to do more checks for failed allocations */
+
+    m->matrix = malloc(m->numRows * sizeof(float*));
+    for (r = 0; r < m->numRows; ++r) {
+        m->matrix[r] = malloc(m->numCols * sizeof(float));
+    }
+    return 0;
+}
+
+void releaseMatrix (TzMatrix* m) {
+    int r = 0;
+    for (r = 0; r < m->numRows; ++r) {
+        if (m->matrix[r] != NULL) {
+            free(m->matrix[r]);
+        }
+    }
+    free(m);
+}
+
+void populateMatrixFromFile (FILE* f, TzMatrix* m) {
+    char cache[TZMATRIX_PARSER_CACHE_SIZE];
+    int r, c = 0;
+    char* tok;
+    char* nl;
+
+    memset(cache, 0, TZMATRIX_PARSER_CACHE_SIZE);
+
+    r = 0;
+
+    while (r < m->numRows) {
+        if (fgets(cache, TZMATRIX_PARSER_CACHE_SIZE, f) != NULL) {
+
+            c = 0;
+            tok = strtok(cache, " ");
+
+            while (c  < m->numCols) {
+                if (tok != NULL) {
+                    /* remove newline */
+                    nl = strchr(tok, '\n');
+                    if (nl != NULL) *nl = '\0';
+                    m->matrix[r][c] = getConstantValue(tok);
+                    tok = strtok(NULL, " ");
+                }
+                else {
+                    m->matrix[r][c] = 0.f;
+                }
+                ++c;
+            }
+
+        }
+        else {
+            for (c = 0; c < m->numCols; ++c) {
+                m->matrix[r][c] = 0.f;
+            }
+        }
+        ++r;
+    }
+}
+
 
 void flush (TzNode* n) {
     int i = 0;
@@ -101,6 +172,7 @@ void flush (TzNode* n) {
         memset(n->outputsNames[i], '\0', TZNODE_NAME_SIZE);
     }
     n->submodule = NULL;
+    n->matrix = NULL;
 }
 
 TzNode* allocateNewNode () {
@@ -125,6 +197,10 @@ void releaseNode (TzNode* n) {
         }
         free(n->submodule);
         n->submodule = NULL;
+    }
+
+    if (n->matrix != NULL) {
+        releaseMatrix(n->matrix);
     }
 }
 
@@ -265,6 +341,81 @@ TzNode* createModuleNode (const char* filename) {
         strcpy(n->outputsNames[i], n->submodule->outputsNames[i]);
     }
     n->perform = &performModuleNode;
+    return n;
+}
+
+void performMatrix (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const int getrow = getNodeInputClipped(n, 0, 0.f, 0.f, (float)(n->matrix->numRows - 1));
+    const int getcol = getNodeInputClipped(n, 1, 0.f, 0.f, (float)(n->matrix->numCols - 1));
+    const int setrow = getNodeInputClipped(n, 2, 0.f, 0.f, (float)(n->matrix->numRows - 1));
+    const int setcol = getNodeInputClipped(n, 3, 0.f, 0.f, (float)(n->matrix->numCols - 1));
+    const float setval = getNodeInput(n, 4, 0.f);
+    const int write = getNodeInput(n, 5, 0.f) != 0.f ? 1 : 0;
+
+    n->outputs[0] = n->matrix->matrix[getrow][getcol];
+
+    if (write != 0) {
+        n->matrix->matrix[setrow][setcol] = setval;
+    }
+}
+
+TzNode* createMatrixNode (int numRows, int numCols, char* filename) {
+    FILE* f = NULL;
+    int r, c = 0;
+    TzNode* n = allocateNewNode();
+
+    n->matrix = malloc(sizeof(TzMatrix));
+
+    if ((n->matrix != NULL) && (initMatrix (n->matrix, numRows, numCols) != 0)) {
+        fprintf(stderr, "Failed to create matrix node...\n\n");
+        return n;
+    }
+
+
+    if (filename != NULL) {
+        f = fopen(filename, "r");
+        if (f != NULL) {
+            printf("\n== Populating matrix from file : %s ==\n\n", filename);
+            populateMatrixFromFile(f, n->matrix);
+
+            printf("\n");
+            for (r = 0; r < n->matrix->numRows; ++r) {
+                for (c = 0; c < n->matrix->numCols; ++c) {
+                    printf("[%.2f] ", n->matrix->matrix[r][c]);
+                }
+                printf("\n");
+            }
+            printf("\n");
+            fclose(f);
+            printf("\n== Matrix populated from file ==\n\n");
+        }
+        else {
+            printf("Unable to open matrix file : %s...\n", filename);
+        }
+    }
+
+    else {
+        for (r = 0; r < n->matrix->numRows; ++r) {
+            for (c = 0; c < n->matrix->numCols; ++c) {
+                n->matrix->matrix[r][c] = 0.f;
+            }
+        }
+        printf("Initialized empty matrix of %d * %d.\n", n->matrix->numRows, n->matrix->numCols);
+    }
+
+    n->numInputs = 6;
+    strcpy(n->inputsNames[0], "getrow");
+    strcpy(n->inputsNames[1], "getcol");
+    strcpy(n->inputsNames[2], "setrow");
+    strcpy(n->inputsNames[3], "setcol");
+    strcpy(n->inputsNames[4], "setval");
+    strcpy(n->inputsNames[5], "write");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+
+    n->perform = &performMatrix;
     return n;
 }
 

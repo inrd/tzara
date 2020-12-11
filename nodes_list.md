@@ -3,6 +3,9 @@
 - [module] : special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.
 	- inputs: user declared inputs
 	- outputs: user declared outputs
+- [matrix] : special node that stores a matrix (optionally loaded from a file). Use {getrow} and {getcol} to retrieve values at {out}. Set {write} to a non zero value to write the value from {setval} to {setrow} and {setcol}. Get operations have precedence over set operations : if you write a value to a cell and poll that same cell concurrently, the previous value of the cell will be sent to {out}.
+	- inputs: getrow getcol setrow setcol setval write
+	- outputs: out
 - [defaultval] : outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.
 	- inputs: in, val
 	- outputs: out
