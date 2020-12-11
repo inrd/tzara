@@ -1,0 +1,95 @@
+# Improving the matrix1 patch
+
+! duration 32
+
++ var beat
+= 200 $beat
+
++ pulse clock
+> $beat clock@rate
+
++ count pos
+> clock@out pos@clock
+= 4 pos@max
+
++ sub column
+> pos@out column@in1
+= 1 column@in2
+
++ irandom row
+> clock@out row@clock
+= 0 row@min
+= 2 row@max
+
++ matrix pattern 3 4 <m1.txt>
+> row@out pattern@getrow
+> column@out pattern@getcol
+
++ module blip <blip.tzara>
+> pattern@out blip@note
+= 120 blip@decay
+> clock@out blip@trig
+
+# get data from the 1st matrix
++ mget fromp1 pattern
+> row@out fromp1@row
+> column@out fromp1@col
+
+# create a matrix from scratch
++ matrix mtx2 1 3
+
+# write a value on each pulse
+> clock@out mtx2@write
+# convert pos 1 to fit the new matrix
++ modulo pos2
+> pos@out pos2@in1
+= 3 pos2@in2
++ sub col2
+> pos2@out col2@in1
+= 1 col2@in2
+# write to new pos
+= 0 mtx2@setrow
+> col2@out mtx2@setcol
+# copy data from 1st matrix
+> fromp1@out mtx2@setval
+
+# use a different clock for the 2nd synth
++ mult ternary
+> $beat ternary@in1
+= 1.5 ternary@in2
+
++ pulse tclock
+> ternary@out tclock@rate
+
+# read from the new matrix
++ count tcount
+= 3 tcount@max
+> tclock@out tcount@clock
+
++ sub tpos
+> tcount@out tpos@in1
+= 1 tpos@in2
+
+= 0 mtx2@getrow
+> tpos@out mtx2@getcol
+
++ add pat2
+> mtx2@out pat2@in1
+= 24 pat2@in2
+
+# interpolate between values
++ div gtime
+> ternary@out gtime@in1
+= 4 gtime@in2
++ smooth glide
+> gtime@out glide@dur
+> pat2@out glide@in
+
++ module blip2 <blip.tzara>
+> glide@out blip2@note
+= 80 blip2@decay
+> tclock@out blip2@trig
+
+
+> blip@out _out_@l
+> blip2@out _out_@r
