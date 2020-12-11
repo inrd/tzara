@@ -73,20 +73,12 @@
 = 0 mtx2@getrow
 > tpos@out mtx2@getcol
 
-+ add pat2
++ sub pat2
 > mtx2@out pat2@in1
-= 24 pat2@in2
-
-# interpolate between values
-+ div gtime
-> ternary@out gtime@in1
-= 4 gtime@in2
-+ smooth glide
-> gtime@out glide@dur
-> pat2@out glide@in
+= 12 pat2@in2
 
 + module blip2 <blip.tzara>
-> glide@out blip2@note
+> pat2@out blip2@note
 = 80 blip2@decay
 > tclock@out blip2@trig
 
