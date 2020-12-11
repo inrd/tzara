@@ -4,8 +4,14 @@
 	- inputs: user declared inputs
 	- outputs: user declared outputs
 - [matrix] : special node that stores a matrix (optionally loaded from a file). Use {getrow} and {getcol} to retrieve values at {out}. Set {write} to a non zero value to write the value from {setval} to {setrow} and {setcol}. Get operations have precedence over set operations : if you write a value to a cell and poll that same cell concurrently, the previous value of the cell will be sent to {out}.
-	- inputs: getrow getcol setrow setcol setval write
+	- inputs: getrow, getcol, setrow, setcol, setval, write
 	- outputs: out
+- [mget] : gets a value from a matrix. Useful to access a matrix at different positions during the same processing frame. Create a mget node pointing to a matrix and access the desired value by setting {row} and {col}.
+	- inputs: row col
+	- outputs: out
+- [mset] : sets a value in a matrix. Useful to access a matrix at different positions during the same processing frame. Create a mset node pointing to a matrix and set the desired value by setting {val}, {row} and {col}. The value will be set when {write} receives a non zero value.
+	- inputs: val, row, col, write
+	- outputs: -
 - [defaultval] : outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.
 	- inputs: in, val
 	- outputs: out

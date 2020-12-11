@@ -175,6 +175,70 @@ TzNode* parseAndCreateMatrix (char** tokens, int numTokens) {
 
 }
 
+TzNode* parseAndCreateMget (void* tz, char** tokens, int numTokens, int isModule) {
+    TzMatrix* ref = NULL;
+    int refIdx = -1;
+
+    if (numTokens != 4) {
+        printf("Invalid arguments!\nSyntax : + mget node_name matrix_name\n");
+        return NULL;
+    }
+
+    trimNewLine(tokens[3]);
+    refIdx = searchNode(tz, tokens[3], isModule);
+
+    if (refIdx < 0) {
+        printf("Matrix not found : %s\n", tokens[3]);
+        return NULL;
+    }
+
+    if (isModule != 0) {
+        ref = ((TzModule*)tz)->nodes[refIdx]->matrix;
+    }
+    else {
+        ref = ((Tzara*)tz)->nodes[refIdx]->matrix;
+    }
+
+    if (ref == NULL) {
+        printf("%s is not a matrix...", tokens[3]);
+        return NULL;
+    }
+
+    return createMgetNode(ref);
+}
+
+TzNode* parseAndCreateMset (void* tz, char** tokens, int numTokens, int isModule) {
+    TzMatrix* ref = NULL;
+    int refIdx = -1;
+
+    if (numTokens != 4) {
+        printf("Invalid arguments!\nSyntax : + mset node_name matrix_name\n");
+        return NULL;
+    }
+
+    trimNewLine(tokens[3]);
+    refIdx = searchNode(tz, tokens[3], isModule);
+
+    if (refIdx < 0) {
+        printf("Matrix not found : %s\n", tokens[3]);
+        return NULL;
+    }
+
+    if (isModule != 0) {
+        ref = ((TzModule*)tz)->nodes[refIdx]->matrix;
+    }
+    else {
+        ref = ((Tzara*)tz)->nodes[refIdx]->matrix;
+    }
+
+    if (ref == NULL) {
+        printf("%s is not a matrix...", tokens[3]);
+        return NULL;
+    }
+
+    return createMsetNode(ref);
+}
+
 void addEngineNode (void* engine, TzNode* n, char* name, int isModule) {
     if (isModule == 0) {
         addNode((Tzara*)engine, n, name);
@@ -207,6 +271,16 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
         case MATRIX_NODE:
             printf("Creating matrix : %s\n", name);
             addEngineNode(tz, parseAndCreateMatrix(tokens, numTokens), name, isModule);
+            break;
+        
+        case MGET_NODE:
+            printf("Creating mget : %s\n", name);
+            addEngineNode(tz, parseAndCreateMget(tz, tokens, numTokens, isModule), name, isModule);
+            break;
+        
+        case MSET_NODE:
+            printf("Creating mset : %s\n", name);
+            addEngineNode(tz, parseAndCreateMset(tz, tokens, numTokens, isModule), name, isModule);
             break;
         
         case DEFAULTVAL_NODE:

@@ -26,5 +26,27 @@
 = 120 blip@decay
 > clock@out blip@trig
 
++ irandom row2
+> clock@out row2@clock
+= 0 row2@min
+= 2 row2@max
+
+# To access another location in the matrix during the same process frame 
+# we need to use a separate mget node otherwise the 2nd matrix access 
+# would shadow the first one (same as for var nodes)
++ mget p2 pattern
+> row2@out p2@row
+> column@out p2@col
+
++ add pat2
+> p2@out pat2@in1
+= 12 pat2@in2
+
++ module blip2 <blip.tzara>
+> pat2@out blip2@note
+= 120 blip2@decay
+> clock@out blip2@trig
+
+
 > blip@out _out_@l
-> blip@out _out_@r
+> blip2@out _out_@r

@@ -17,6 +17,8 @@ enum NodeTypes {
     INVALID_NODE_TYPE = 0,
     MODULE_NODE,
     MATRIX_NODE,
+    MGET_NODE,
+    MSET_NODE,
     DEFAULTVAL_NODE,
     VAR_NODE,
     ADDER_NODE,
@@ -148,6 +150,7 @@ struct TzNode {
     char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
     TzModule* submodule;
     TzMatrix* matrix;
+    TzMatrix* matrixRef;
 }; 
 
 void flush (TzNode* n);
@@ -187,6 +190,12 @@ TzNode* createModuleNode (const char* filename);
 
 void performMatrix (TzNode* n, TzProcessInfo* info);
 TzNode* createMatrixNode (int numRows, int numCols, char* filename);
+
+void performMget (TzNode* n, TzProcessInfo* info);
+TzNode* createMgetNode (TzMatrix* parentMatrix);
+
+void performMset (TzNode* n, TzProcessInfo* info);
+TzNode* createMsetNode (TzMatrix* parentMatrix);
 
 void performDefaultval (TzNode* n, TzProcessInfo* info);
 TzNode* createDefaultvalNode ();

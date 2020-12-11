@@ -13,7 +13,9 @@
 const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"-", "-", "-", "-"},
     {"module", "special node that processes a patch internally and exposes up to 16 inputs and up to 16 outputs.", "user declared inputs", "user declared outputs"},
-    {"matrix", "special node that stores a matrix (optionally loaded from a file). Use {getrow} and {getcol} to retrieve values at {out}. Set {write} to a non zero value to write the value from {setval} to {setrow} and {setcol}. Get operations have precedence over set operations : if you write a value to a cell and poll that same cell concurrently, the previous value of the cell will be sent to {out}.", "getrow getcol setrow setcol setval write", "out"},
+    {"matrix", "special node that stores a matrix (optionally loaded from a file). Use {getrow} and {getcol} to retrieve values at {out}. Set {write} to a non zero value to write the value from {setval} to {setrow} and {setcol}. Get operations have precedence over set operations : if you write a value to a cell and poll that same cell concurrently, the previous value of the cell will be sent to {out}.", "getrow, getcol, setrow, setcol, setval, write", "out"},
+    {"mget", "gets a value from a matrix. Useful to access a matrix at different positions during the same processing frame. Create a mget node pointing to a matrix and access the desired value by setting {row} and {col}.", "row col", "out"},
+    {"mset", "sets a value in a matrix. Useful to access a matrix at different positions during the same processing frame. Create a mset node pointing to a matrix and set the desired value by setting {val}, {row} and {col}. The value will be set when {write} receives a non zero value.", "val, row, col, write", "-"},
     {"defaultval", "outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 if both {in} and {val} are not connected. Use to set a default value for a module input.", "in, val", "out"},
     {"var", "holds a variable that can be shared through the patch. Instead of using myvar@val for I/O, you can simply use $myvar.", "val", "val"},
     {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
@@ -174,6 +176,7 @@ void flush (TzNode* n) {
     }
     n->submodule = NULL;
     n->matrix = NULL;
+    n->matrixRef = NULL;
 }
 
 TzNode* allocateNewNode () {
@@ -202,7 +205,9 @@ void releaseNode (TzNode* n) {
 
     if (n->matrix != NULL) {
         releaseMatrix(n->matrix);
+        n->matrix = NULL;
     }
+    n->matrixRef = NULL;
 }
 
 float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
@@ -419,6 +424,62 @@ TzNode* createMatrixNode (int numRows, int numCols, char* filename) {
     n->perform = &performMatrix;
     return n;
 }
+
+void performMget (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const int getrow = getNodeInputClipped(n, 0, 0.f, 0.f, (float)(n->matrixRef->numRows - 1));
+    const int getcol = getNodeInputClipped(n, 1, 0.f, 0.f, (float)(n->matrixRef->numCols - 1));
+
+    n->outputs[0] = n->matrixRef->matrix[getrow][getcol];
+}
+
+TzNode* createMgetNode (TzMatrix* parentMatrix) {
+    if (parentMatrix == NULL) {
+        printf("Invalid matrix reference!\n");
+        return NULL;
+    }
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "row");
+    strcpy(n->inputsNames[1], "col");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->matrixRef = parentMatrix;
+    n->perform = &performMget;
+    return n;
+}
+
+void performMset (TzNode* n, TzProcessInfo* info) {
+    TZ_UNUSED(info);
+
+    const float setval = getNodeInput(n, 0, 0.f);
+    const int setrow = getNodeInputClipped(n, 1, 0.f, 0.f, (float)(n->matrixRef->numRows - 1));
+    const int setcol = getNodeInputClipped(n, 2, 0.f, 0.f, (float)(n->matrixRef->numCols - 1));
+    const int write = getNodeInput(n, 3, 0.f) != 0.f ? 1 : 0;
+
+    if (write != 0) {
+        n->matrixRef->matrix[setrow][setcol] = setval;
+    }
+}
+
+TzNode* createMsetNode (TzMatrix* parentMatrix) {
+    if (parentMatrix == NULL) {
+        printf("Invalid matrix reference!\n");
+        return NULL;
+    }
+    TzNode* n = allocateNewNode();
+    n->numInputs = 4;
+    strcpy(n->inputsNames[0], "val");
+    strcpy(n->inputsNames[1], "row");
+    strcpy(n->inputsNames[2], "col");
+    strcpy(n->inputsNames[3], "write");
+    n->numOutputs = 0;
+    n->matrixRef = parentMatrix;
+    n->perform = &performMset;
+    return n;
+}
+
 
 
 void performDefaultval (TzNode* n, TzProcessInfo* info) {
