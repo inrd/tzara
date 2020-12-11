@@ -13,16 +13,18 @@
 = c3 seq@step4
 = c2 seq@step5
 = c2 seq@step6
-= d#3 seq@step7
-= d3 seq@step8
+= d#4 seq@step7
+= d2 seq@step8
 
 + seq8 gseq
 > metro@out gseq@clock
-= 4 gseq@length
-= 1 gseq@step1
-= 1 gseq@step2
-= 1 gseq@step3
+= 6 gseq@length
+= 0 gseq@step1
+= 0 gseq@step2
+= 0 gseq@step3
 = 80 gseq@step4
+= 0 gseq@step5
+= 120 gseq@step6
 
 + miditofreq mtof
 > seq@out mtof@in

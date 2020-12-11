@@ -967,7 +967,7 @@ TzNode* createMapNode () {
 void performFrom0_1 (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
-    float in = getNodeInput(n, 0, 0.f);
+    float in = getNodeInputClipped(n, 0, 0.f, 0.f, 1.f);
     float min = getNodeInput(n, 1, 0.f);
     float max = getNodeInput(n, 2, 1.f);
     float t = min;
@@ -1046,6 +1046,9 @@ void performSmooth (TzNode* n, TzProcessInfo* info) {
         /* jump straight to input value on startup */
         *val = in;
         *startFlag = 1.f;
+    }
+    else if (dur <= 0.f) {
+        *val = in;
     }
     else {
         dur = dur * 0.001f * info->samplerate;
