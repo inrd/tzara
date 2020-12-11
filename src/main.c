@@ -27,16 +27,17 @@ void normalize (float** buf, const unsigned long int numSamples, const int numCh
         }
     }
 
-    if (peak != 0.f) {
+    if (peak > 1.f) {
+        printf("Normalizing levels...\n");
         ratio = 1.f / peak;
-    }
+        printf("Peak : %0.2f\nNormalization factor : %0.2f\n", peak, ratio);
 
-    printf("Peak : %0.2f\nNormalization factor : %0.2f\n", peak, ratio);
-
-    for (c = 0; c < numChannels; ++c) {
-        for (i = 0; i < numSamples; ++i) {
-            buf[c][i] *=  ratio;
+        for (c = 0; c < numChannels; ++c) {
+            for (i = 0; i < numSamples; ++i) {
+                buf[c][i] *=  ratio;
+            }
         }
+
     }
 
 }
@@ -116,8 +117,6 @@ int main (int argc, char** argv) {
     }
 
     process (&tz, data, TZARA_MAX_OUTPUT_CHANS, numFrames, samplerate);
-
-    printf("Normalizing levels...\n");
 
     normalize (data, numFrames, TZARA_MAX_OUTPUT_CHANS);
 

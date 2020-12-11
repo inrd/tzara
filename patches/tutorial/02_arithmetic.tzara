@@ -41,8 +41,9 @@
 # The signals passed between the nodes can have any floating point values though audio
 # signals are supposed to have a value in the range [-1..+1].
 #
-# As you cannot hear the patch in realtime, Tzara  automatically normalizes the audio 
-# to 0dB before writing it to the wav file to avoid absurd levels and nasty surprises.
+# As you cannot hear the patch in realtime, Tzara automatically normalizes the audio 
+# to 0dB before writing it to the wav file if it goes over that threshold to avoid 
+# absurd levels and nasty surprises.
 #
 #
 # Modifying signals

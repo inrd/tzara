@@ -74,7 +74,7 @@ tzara synth.tzara synth.wav
 
 Tzara will output a log of the build process to the standard output and if the patch was successfully built it will output an audio file named `synth.wav`.
 
-The audio output is normalized to 0dB.
+The audio output is normalized to 0dB if there are peaks above that threshold.
 
 If you do not pass a name for the wav file, one will be generated automatically.
 
