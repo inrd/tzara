@@ -1,0 +1,106 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 04. Levels
+# ==========
+#
+# We are going to take our patch from tutorial 02 and make it
+# slightly more interesting by playing with the signal amplitudes.
+#
+# It will be a good opportunity to discover a few other nodes.
+
+
+# The var node is a small utility to share a value across a patch.
+# It is not a constant so its value can be set by other nodes.
+# Make sure to assign it only once per patch otherwise you will
+# face a shadowing issue (cf. tutorial 03).
+#
+# A nice advantage of this node is that its input and output can be
+# accessed with the same syntax $myvarname.
+#
+# This is actually a way to express myvarname@val (which would be a
+# valid syntax as both the input and output of a var are named "val").
+#
+# Here we store the 220 Hz frequency in the var basefreq so that we can
+# reuse its value later on.
+
++ var basefreq
+= 220 $basefreq
+
++ sinosc sine1
+
+# When assigning the output of a var to a node input make sure to use
+# the connect operator ">" and not the constant assign operator "="
+
+> $basefreq sine1@freq
+
+# Once again we can use our var to calculate the frequency of sine2.
+# That way if we change the value of basefreq, the frequency of sine2
+# will be automatically recalculated.
+
++ mult upperfreq
+> $basefreq upperfreq@in1
+= 4 upperfreq@in2
+
++ sinosc sine2
+> upperfreq@out sine2@freq
+
+# The phasor node outputs a periodical ramp up from 0 to 1
+
++ phasor mod1
+
+# We set its frequency to 1 cycle per second
+= 1 mod1@freq
+
+# We modulate the amplitude of sine1 by mod1
+
++ mult modsine1
+> sine1@out modsine1@in1
+> mod1@out modsine1@in2
+
+# Another phasor that goes a little bit faster
+
++ phasor mod2
+= 1.5 mod2@freq
+
+# And we use it to modulate the amplitude of sine2
++ mult modsine2
+> sine2@out modsine2@in1
+> mod2@out modsine2@in2
+
+# We mix our modulated sine waves
+
++ add summer
+> modsine1@out summer@in1
+> modsine2@out summer@in2
+
+# we create another modulator, this time a sinosc running at 1.5 * basefreq
+
++ mult f3
+> $basefreq f3@in1
+= 1.5 f3@in2
+
++ sinosc mod3
+> f3@out mod3@freq
+
+# We (ring) modulate the output of the summer using mod3
+
++ mult ringmod
+> summer@out ringmod@in1
+> mod3@out ringmod@in2
+
+# finally we use a value in dB to set the out gain
+
++ dbtoamp db
+= -12 db@in
+
++ mult amp
+> ringmod@out amp@in1
+> db@out amp@in2
+
+> amp@out _out_@l
+> amp@out _out_@r
+
