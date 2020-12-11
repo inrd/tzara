@@ -1,0 +1,104 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 03. Shadows
+# ===========
+#
+#
+# Be careful!
+# -----------
+#
+# Here is a little modification of the previous patch to illustrate
+# an important thing to keep in mind when connecting nodes.
+#
+# This patch will not give the expected result.
+# We'll detail what went wrong at the bottom of the file and offer
+# some alternatives.
+#
+# This is not the most rewarding example but the notion explained 
+# has important implications so please read that one carefully.
+
++ sinosc sine1
+= 220 sine1@freq
+
++ mult upperfreq
+= 220 upperfreq@in1
+= 4 upperfreq@in2
+
++ sinosc sine2
+> upperfreq@out sine2@freq
+
++ add summer
+> sine1@out summer@in1
+> sine2@out summer@in2
+
+# We want to add a saw oscillator running at 440 Hz on top of our two sines
+
++ sawosc saw
+= 440 saw@freq
+
+# We patch it straight into the amp to combine it with the summer
+# and scale down the level a bit more.
+
++ mult amp
+> summer@out amp@in1
+> saw@out amp@in1
+= 0.3 amp@in2
+
+> amp@out _out_@l
+> amp@out _out_@r
+
+# Now run the patch :
+#     tzara 03_shadows.tzara
+#
+# If you listen to the output, only the saw wave can be heard!
+#
+# The culprit lines are these ones :
+#
+#     > summer@out amp@in1
+#     > saw@out amp@in1
+#
+# We have connected 2 node outputs to the same input (amp@in1).
+# What actually happens in these 2 lines :
+#
+#     1. connect the output of summer to amp@in1
+#     2. request to connect the output of saw to amp@in1
+#         2.1. amp@in1 is already connected so the existing connection
+#              is broken
+#         2.2. saw@out is connected in place of the previous source
+#              => the output of summer is no longer wired to amp so
+#                 it never reaches _out_
+#
+# THE IMPORTANT RULE TO KEEP IN MIND
+# ----------------------------------
+#
+#     A NODE INPUT CAN ONLY HAVE ONE ACTIVE CONNECTION AT A TIME.
+#     THE LATEST CONNECTION IN THE PATCH SHADOWS ANY EXISTING CONNECTIONS.
+#
+# Note that a node output can be connected to several inputs.
+#
+# A way to fix the above patch is to route both summer@out and saw@out
+# to an additional add node.
+#
+#     + add summer2
+#     > summer@out summer2@in1
+#     > saw@out summer2@in2
+#     > summer2@out amp@in1
+#
+# Or instead of using two add nodes, there is a node called merge that can
+# combine up to 16 inputs into a single output :
+#
+#     + merge bus
+#     > sine1@out bus@in1
+#     > sine2@out bus@in2
+#     > saw@out bus@in3
+#
+#     > bus@out amp@in1
+#
+# The tzara output log warns you when you are breaking an existing connection.
+# If what you hear is not what you expected, take a look at the log to debug.
+#
+
