@@ -106,6 +106,7 @@ void releaseMatrix (TzMatrix* m) {
             free(m->matrix[r]);
         }
     }
+    free(m->matrix);
     free(m);
 }
 
