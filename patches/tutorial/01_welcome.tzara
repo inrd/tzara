@@ -1,0 +1,132 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 01. Welcome
+# ===========
+#
+#
+# Introduction
+# ------------
+#
+# Tzara is modular synthesis environment with a minimal text based interface.
+#
+# Its workflow is vastly different from realtime UI based systems :
+# - you start by creating a patch as a text file in your usual text editor 
+#   (this is actually a patch, see below)
+# - you then call the tzara executable to build the patch from the file
+# - finally the engine renders the patch as a wav file
+#
+# You can think of it as a crossover between Csound and Pure Data.
+# While, like Csound, it does not operate in realtime, you connect nodes in 
+# a way that is reminiscent of Pure Data.
+# 
+# It may feel awkward at first to operate blindly and listen to the results 
+# afterwards, but it offers significant advantages in terms of signal chaining, 
+# integration in scripts (for example to generate sounds in batch), and it can run on 
+# lower end hardware. It can be useful to generate samples, make full blown musical 
+# pieces or prototype DSP algorithms.
+#
+# The requirements to build and run Tzara are a POSIX compliant system and a C compiler.
+#
+# 
+# Getting Started
+# ---------------
+#
+# Time to make sound!
+# First things first, let's take a quick look at the syntax.
+#
+# By now you will have noticed that all the above lines start with a # followed by a space.
+# These lines are comments : they are ignored when building the patch but are useful to 
+# keep track of what is going on. When you build the patch, all comment lines are displayed
+# in the output log so you can use them to add  some useful debugging info.
+#
+# The space after the # is mandatory because # is an operator.
+# There are a few of them to memorize :
+# 
+# # is the comment operator
+# + is the creation operator for adding new nodes to a patch
+# > is the connection operator to route signals between nodes
+# = is the assignment operator to set a node input to a constant value
+# ! is the metadata operator to set values that affect the Tzara engine itself
+# @ is the module I/O operator (we will leave this one on the side for now)
+#
+# Each line that should be processed needs to start with one of these operators
+# followed by a space.
+#
+# /!\ Vim users : there is a Vim syntax file in the git repository. Run :
+#                 `make vimsyntax` to install it. It makes patches way 
+#                 easier to decipher.
+#
+# So we can start by creating a node using the + operator :
+
++ sinosc sine
+
+# The above line means :
+# [create a new node] [of type sinosc] [and give it the name sine]
+# The node type and node name arguments are mandatory, if you forget them the patch will not build.
+#
+# sinosc nodes generate a periodic sinusoidal wave.
+# This specific sinosc node is named sine and can now be referred to by that name.
+# 
+# /!\ Important note regarding the nodes names :
+#     they must not contain spaces and should use only alphanumeric characters or basic symbols.
+#     It is useful to try to follow a personal convention when naming nodes.
+#
+# At this stage, the patch would build but would not do much.
+# We need to connect the oscillator to the main output to generate something more interesting than
+# an empty wav file.
+# 
+# But before routing the audio signal, we are going to set the frequency of the oscillator.
+# To do so, we assign a constant to the sinosc node frequency input called freq.
+# To get a list of all nodes and their inputs and outputs, run :
+# tzara --nodes
+# The same information is also available in nodes_list.md in the git repository.
+#
+# To refer to an input or output, you use the syntax :
+# node_name@input_name or node_name@output_name
+# 
+# To assign a constant to an input, we use the = operator as stated above.
+# So mapping the value 220 Hz to our sine node looks like this :
+
+= 220 sine@freq
+
+# The above line means :
+# [assign a constant value] [whose value is 220] [to the node named sine [at] its input named freq]
+# 
+# Well we are nearly there, only a couple of lines missing. Time for our first connection.
+#
+# The connection syntax follows the same principles :
+# [> connection operator] [source_node_name [at] source_node_output_name] [target_node_name [at] target_node_input_name]
+#
+# But where is the main output node? We have not created it with the + operator.
+# Luckily it is always available under the name _out_ .
+# And it always has 2 inputs named l and r => _out_@l and _out_@r
+# So the final lines of your patches will probably look like this most of the time :
+
+> sine@out _out_@l
+> sine@out _out_@r
+
+# And this is it...
+# The actual patch is :
+#
+#     + sinosc sine
+#     = 220 sine@freq
+#     > sine@out _out_@l
+#     > sine@out _out_@r
+#
+# Now, from the directory containing this patch file, run
+#
+#     tzara 01_welcome.tzara
+#
+# If things go well you should see these comments printed to the standard output as well
+# as some additional informations.
+#
+# A one minute long stereo wav file name 01_welcome.tzara.wav should have been generated next to the patch.
+#
+# Open it with an audio player or editor to enjoy one minute of 220 Hz purity.
+#
+
+

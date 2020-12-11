@@ -14,6 +14,8 @@ $ make
 
 ## Syntax
 
+This is just a basic overview. For a more detailed introduction, look at the `tutorial` directory under `patches`.
+
 ```
 
 # Lines starting by "#" are comments
