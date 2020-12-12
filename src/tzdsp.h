@@ -72,4 +72,12 @@ float tzPhasor (float freq, float samplerate, float* phase);
 /* requires an external variable to store the phase */
 float tzSinewave (float freq, float samplerate, float* phase);
 
+/* polyblep oscillators : based on http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/ */
+
+/* requires an external variable to store the phase */
+float tzPolyblepSaw (float freq, float samplerate, float* phase);
+
+/* requires an external variable to store the phase */
+float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase);
+
 #endif

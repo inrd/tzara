@@ -152,3 +152,82 @@ float tzSinewave (float freq, float samplerate, float* phase) {
 }
 
 
+float tzPolyblepSaw (float freq, float samplerate, float* phase) {
+    const float twopi = 2.f * M_PI;
+    float incr = freq * twopi / samplerate;
+    float dt = incr / twopi;
+    float t = 0.f;
+    float pblep = 0.f;
+    float wv = 0.f;
+
+    t = *phase / twopi;
+    if (t < dt) {
+        t = t / dt;
+        pblep = (t + t) - (t * t) - 1.f;
+    }
+    else if (t > (1.f - dt)) {
+        t = (t - 1.f) / dt;
+        pblep = (t * t) + (t + t) + 1.f;
+    }
+
+    wv = (2.f * (*phase) / twopi) - 1.f;
+    wv -= pblep;
+
+    *phase += incr;
+    *phase = tzWrap(*phase, 0.f, twopi);
+
+    return wv;
+}
+
+
+float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase) {
+    const float twopi = 2.f * M_PI;
+    float incr = freq + * twopi / samplerate;
+    float dt = incr / twopi;
+    float t0 = 0.f;
+    float t1 = 0.f;
+    float t2 = 0.f;
+    float pblep1 = 0.f;
+    float pblep2 = 0.f;
+    float c = 0.f;
+    float wv = 0.f;
+
+    t0 = *phase / twopi;
+    t1 = t0;
+
+    if (t1 < dt) {
+        t1 = t1 / dt;
+        pblep1 = (t1 + t1) - (t1 * t1) - 1.f;
+    }
+    else if (t1 > (1.f - dt)) {
+        t1 = (t1 - 1.f) / dt;
+        pblep1 = (t1 * t1) + (t1 + t1) + 1.f;
+    }
+
+    t2 = fmod((t0 + pw), 1.f);
+
+    if (t2 < dt) {
+        t2 = t2 / dt;
+        pblep2 = (t2 + t2) - (t2 * t2) - 1.f;
+    }
+    else if (t2 > (1.f - dt)) {
+        t2 = (t2 - 1.f) / dt;
+        pblep2 = (t2 * t2) + (t2 + t2) + 1.f;
+    }
+
+    c = pw * twopi;
+    if (*phase < c) {
+        wv = 1.f;
+    }
+    else {
+        wv = -1.f;
+    }
+    wv += pblep1;
+    wv -= pblep2;
+
+    *phase += incr;
+    tzWrap(*phase, 0.f, twopi);
+
+    return wv;
+}
+

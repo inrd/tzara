@@ -1447,43 +1447,18 @@ TzNode* createSinoscNode () {
     return n;
 }
 
-/* polyblep oscillators : based on http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/ */
-
 void performSawosc (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
-    const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float reset = getNodeInput(n, 1, 0.f);
     const float fm = getNodeInput(n, 2, 0.f);
     const float fmdepth = getNodeInput(n, 3, 0.f);
     float* phase = &(n->memory[0]);
 
-    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
-    const float dt = incr / twopi;
-    float t = 0.f;
-    float pblep = 0.f;
-    float wv = 0.f;
-
     if (reset > 0) {
         *phase = 0.f;
     }
 
-    t = *phase / twopi;
-    if (t < dt) {
-        t = t / dt;
-        pblep = (t + t) - (t * t) - 1.f;
-    }
-    else if (t > (1.f - dt)) {
-        t = (t - 1.f) / dt;
-        pblep = (t * t) + (t + t) + 1.f;
-    }
-
-    wv = (2.f * (*phase) / twopi) - 1.f;
-    wv -= pblep;
-
-    n->outputs[0] = wv;
-    *phase += incr;
-    while (*phase > twopi) *phase -= twopi;
+    n->outputs[0] = tzPolyblepSaw(freq + (fm * fmdepth), info->samplerate, phase);
 }
 
 TzNode* createSawoscNode () {
@@ -1501,8 +1476,6 @@ TzNode* createSawoscNode () {
 }
 
 void performSqrosc (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
-    const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float reset = getNodeInput(n, 1, 0.f);
     const float pw = getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
@@ -1510,57 +1483,11 @@ void performSqrosc (TzNode* n, TzProcessInfo* info) {
     const float fmdepth = getNodeInput(n, 4, 0.f);
     float* phase = &(n->memory[0]);
 
-    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
-    const float dt = incr / twopi;
-    float t0 = 0.f;
-    float t1 = 0.f;
-    float t2 = 0.f;
-    float pblep1 = 0.f;
-    float pblep2 = 0.f;
-    float c = 0.f;
-    float wv = 0.f;
-
     if (reset > 0) {
         *phase = 0.f;
     }
 
-    t0 = *phase / twopi;
-    t1 = t0;
-
-    if (t1 < dt) {
-        t1 = t1 / dt;
-        pblep1 = (t1 + t1) - (t1 * t1) - 1.f;
-    }
-    else if (t1 > (1.f - dt)) {
-        t1 = (t1 - 1.f) / dt;
-        pblep1 = (t1 * t1) + (t1 + t1) + 1.f;
-    }
-
-    t2 = fmod((t0 + pw), 1.f);
-
-    if (t2 < dt) {
-        t2 = t2 / dt;
-        pblep2 = (t2 + t2) - (t2 * t2) - 1.f;
-    }
-    else if (t2 > (1.f - dt)) {
-        t2 = (t2 - 1.f) / dt;
-        pblep2 = (t2 * t2) + (t2 + t2) + 1.f;
-    }
-
-    c = pw * twopi;
-    if (*phase < c) {
-        wv = 1.f;
-    }
-    else {
-        wv = -1.f;
-    }
-    wv += pblep1;
-    wv -= pblep2;
-
-    n->outputs[0] = wv;
-    *phase += incr;
-    while (*phase > twopi) *phase -= twopi;
-
+    n->outputs[0] = tzPolyblepSquare(freq, pw, info->samplerate, phase);
 }
 
 TzNode* createSqroscNode () {
