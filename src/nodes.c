@@ -1,5 +1,7 @@
 #include "nodes.h"
 
+#include "tzdsp.h"
+
 #include <math.h>
 #include <time.h>
 
@@ -216,9 +218,7 @@ float getNodeInput (TzNode* n, int inputIndex, float defaultValue) {
 
 float getNodeInputClipped (TzNode* n, int inputIndex, float defaultValue, float min, float max) {
     float in =  n->inputs[inputIndex] != NULL ? *(n->inputs[inputIndex]) : defaultValue;
-    if (in < min) in = min;
-    if (in > max) in = max;
-    return in;
+    return tzClip(in, min, max);
 }
 
 
@@ -750,16 +750,8 @@ void performClip (TzNode* n, TzProcessInfo* info) {
     float in = getNodeInput(n, 0, 0.f);
     float min = getNodeInput(n, 1, -1.f);
     float max = getNodeInput(n, 2, 1.f);
-    float tmp = min;
 
-    if (min > max) {
-        min = max;
-        max = tmp;
-    }
-    
-    if (in < min) in = min;
-    if (in > max) in = max;
-    n->outputs[0] = in;
+    n->outputs[0] = tzClip(in, min, max);
 }
 
 TzNode* createClipNode () {
@@ -780,21 +772,8 @@ void performWrap (TzNode* n, TzProcessInfo* info) {
     float in = getNodeInput(n, 0, 0.f);
     float min = getNodeInput(n, 1, -1.f);
     float max = getNodeInput(n, 2, 1.f);
-    float tmp = min;
 
-    if (min > max) {
-        min = max;
-        max = tmp;
-    }
-    
-    
-    while (in < min) {
-        in = min < 0 ? in - min : in + min;
-    }
-    while (in > max) {
-        in = max < 0 ?  in + max : in - max;
-    }
-    n->outputs[0] = in;
+    n->outputs[0] = tzWrap(in, min, max);
 }
 
 TzNode* createWrapNode () {
@@ -890,7 +869,7 @@ void performMin (TzNode* n, TzProcessInfo* info) {
 
     const float in1 = getNodeInput(n, 0, 0.f);
     const float in2 = getNodeInput(n, 1, 0.f);
-    n->outputs[0] = in1 < in2 ? in1 : in2;
+    n->outputs[0] = tzMin(in1, in2);
 }
 
 TzNode* createMinNode () {
@@ -909,7 +888,7 @@ void performMax (TzNode* n, TzProcessInfo* info) {
 
     const float in1 = getNodeInput(n, 0, 0.f);
     const float in2 = getNodeInput(n, 1, 0.f);
-    n->outputs[0] = in1 > in2 ? in1 : in2;
+    n->outputs[0] = tzMax(in1, in2);
 }
 
 TzNode* createMaxNode () {
@@ -926,12 +905,7 @@ TzNode* createMaxNode () {
 void performRound (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
     float in = getNodeInput(n, 0, 0.f);
-    if (in < 0.f) {
-        n->outputs[0] = (int)(in - 0.5);
-    }
-    else {
-        n->outputs[0] = (int)(in + 0.5);
-    }
+    n->outputs[0] = (float)tzRoundToInt(in);
 }
 
 TzNode* createRoundNode () {
@@ -978,8 +952,8 @@ TzNode* createFloorNode () {
 
 void performFrac (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
-    const float absin = fabs(getNodeInput(n, 0, 0.f));
-    n->outputs[0] = absin - (float)((int)absin);
+    const float in = getNodeInput(n, 0, 0.f);
+    n->outputs[0] = tzFrac(in);
 }
 
 TzNode* createFracNode () {
@@ -1051,11 +1025,9 @@ void performMix (TzNode* n, TzProcessInfo* info) {
 
     const float a = getNodeInput(n, 0, 0.f);
     const float b = getNodeInput(n, 1, 0.f);
-    float coeff = getNodeInput(n, 2, 0.f);
+    float coeff = getNodeInputClipped(n, 2, 0.f, 0.f, 1.f);
     
-    if (coeff < 0.f) coeff = 0.f;
-    if (coeff > 1.f) coeff = 1.f;
-    n->outputs[0] = a + coeff * (b - a);
+    n->outputs[0] = tzLinInterp(a, b, coeff);
 }
 
 TzNode* createMixNode () {
@@ -1136,31 +1108,8 @@ void performMap (TzNode* n, TzProcessInfo* info) {
     float imax = getNodeInput(n, 2, 1.f);
     float omin = getNodeInput(n, 3, 0.f);
     float omax = getNodeInput(n, 4, 1.f);
-    float tmp = 0.f;
-    float t1 = imin;
-    float t2 = omin;
-    
-    if (imin > imax) {
-        imin = imax;
-        imax = t1;
-    }
 
-    if (omin > omax) {
-        omin = omax;
-        omax = t2;
-    }
-
-    if (in < imin) in = imin;
-    if (in > imax) in = imax;
-
-    if ((imin == imax)||(omin == omax)) {
-        /* invalid inputs */
-        n->outputs[0] = 0.f;
-    }
-    else {
-        tmp = (in - imin) / (imax - imin);
-        n->outputs[0] = omin + (tmp * (omax - omin));
-    }
+    n->outputs[0] = tzMapToRange(in, imin, imax, omin, omax);
 }
 
 TzNode* createMapNode () {
@@ -1183,20 +1132,8 @@ void performFrom0_1 (TzNode* n, TzProcessInfo* info) {
     float in = getNodeInputClipped(n, 0, 0.f, 0.f, 1.f);
     float min = getNodeInput(n, 1, 0.f);
     float max = getNodeInput(n, 2, 1.f);
-    float t = min;
-    
-    if (min > max) {
-        min = max;
-        max = t;
-    }
 
-    if (min == max) {
-        /* invalid inputs */
-        n->outputs[0] = 0.f;
-    }
-    else {
-        n->outputs[0] = min + (in * (max - min));
-    }
+    n->outputs[0] = tzMapFrom0_1(in, min, max);
 }
 
 TzNode* createFrom0_1Node () {
@@ -1217,23 +1154,8 @@ void performTo0_1 (TzNode* n, TzProcessInfo* info) {
     float in = getNodeInput(n, 0, 0.f);
     float min = getNodeInput(n, 1, 0.f);
     float max = getNodeInput(n, 2, 1.f);
-    float t = min;
-    
-    if (min > max) {
-        min = max;
-        max = t;
-    }
 
-    if (in < min) in = min;
-    if (in > max) in = max;
-
-    if (min == max) {
-        /* invalid inputs */
-        n->outputs[0] = 0.f;
-    }
-    else {
-        n->outputs[0] = (in - min) / (max - min);
-    }
+    n->outputs[0] = tzMapTo0_1(in, min, max);
 }
 
 TzNode* createTo0_1Node () {
@@ -1249,10 +1171,9 @@ TzNode* createTo0_1Node () {
 }
 
 void performSmooth (TzNode* n, TzProcessInfo* info) {
-    const float in = getNodeInput(n, 0, 0.f); 
+    float in = getNodeInput(n, 0, 0.f); 
     float dur = getNodeInput(n, 1, 1.f);
     float* val = &(n->memory[0]);
-    float delta = 0.f;
     float* startFlag = &(n->memory[1]);
 
     if (*startFlag == 0.f) {
@@ -1264,22 +1185,7 @@ void performSmooth (TzNode* n, TzProcessInfo* info) {
         *val = in;
     }
     else {
-        dur = dur * 0.001f * info->samplerate;
-
-        delta = (in - *val) / dur;
-
-        if (delta >= 0.f) {
-            *val += delta;
-            if (*val > in) {
-                *val = in;
-            }
-        }
-        else {
-            *val += delta;
-            if (*val < in) {
-                *val = in;
-            }
-        }
+        tzSmooth(val, in, dur, info->samplerate);
     }
     
     n->outputs[0] = *val;
@@ -1301,11 +1207,9 @@ TzNode* createSmoothNode () {
 void performMiditofreq (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
-    float midi = getNodeInput(n, 0, 0.f);
-    if (midi < 0) midi = 0;
-    if (midi > 127) midi = 127;
+    float midi = getNodeInputClipped(n, 0, 0.f, 0.f, 127.f);
 
-    n->outputs[0] = 440.f * pow(2.f, ((float)(midi - 69)) / 12.f);
+    n->outputs[0] = tzMIDIToFreq(midi);
 }
 
 TzNode* createMiditofreqNode () {
@@ -1323,7 +1227,7 @@ void performDbtoamp (TzNode* n, TzProcessInfo* info) {
 
     const float db = getNodeInput(n, 0, 0.f);
 
-    n->outputs[0] = pow(10.f, db / 20.f);
+    n->outputs[0] = tzDecibelsToAmp(db);
 }
 
 TzNode* createDbtoampNode () {
@@ -1340,7 +1244,7 @@ void performMstohz (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
     const float ms = getNodeInput(n, 0, 0.f);
 
-    n->outputs[0] = ms != 0.f ? 1000.f / ms : 0.f;
+    n->outputs[0] = tzMsToHz(ms);
 }
 
 TzNode* createMstohzNode () {
@@ -1357,7 +1261,7 @@ void performHztoms (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
     const float hz = getNodeInput(n, 0, 0.f);
 
-    n->outputs[0] = hz != 0.f ? 1000.f / hz : 0.f;
+    n->outputs[0] = tzHzToMs(hz); 
 }
 
 TzNode* createHztomsNode () {
@@ -1386,11 +1290,10 @@ TzNode* createSamplerateNode () {
 
 void performFixdenorm (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
-    static const float z = 1e-18;
-    float in = getNodeInput(n, 0, 0.f);
-    in += z;
-    in -= z;
-    n->outputs[0] = in;
+    if (n->inputs[0] != NULL) {
+        tzFixDenormals(n->inputs[0]);
+        n->outputs[0] = *(n->inputs[0]);
+    }
 }
 
 TzNode* createFixdenormNode () {
@@ -1405,8 +1308,10 @@ TzNode* createFixdenormNode () {
 
 void performFixnan (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
-    const float in = getNodeInput(n, 0, 0.f);
-    n->outputs[0] = in != in ? 0.f : in;
+    if (n->inputs[0] != NULL) {
+        tzFixNaN(n->inputs[0]);
+        n->outputs[0] = *(n->inputs[0]);
+    }
 }
 
 TzNode* createFixnanNode () {
@@ -1465,20 +1370,13 @@ TzNode* createConstantNode (float val) {
 }
 
 void performPhasor (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
-    const float freq = getNodeInput(n, 0, 440.f);
-    const float incr = freq / samplerate;
-    const float reset = getNodeInput(n, 1, 0.f);
-
+    float freq = getNodeInput(n, 0, 440.f);
+    float reset = getNodeInput(n, 1, 0.f);
     float* phase = &(n->memory[0]);
 
-    if (reset > 0) {
-        *phase = 0.f;
-    }
+    if (reset > 0) *phase = 0.f;
 
-    n->outputs[0] = *phase;
-    *phase += incr;
-    while (*phase > 1.f) *phase -= 1.f;
+    n->outputs[0] = tzPhasor(freq, info->samplerate, phase);
 }
 
 TzNode* createPhasorNode () {
@@ -1494,9 +1392,8 @@ TzNode* createPhasorNode () {
 }
 
 void performPulse (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
     const float rate = getNodeInput(n, 0, 100.f);
-    const float period = rate * 0.001f *samplerate;
+    const float period = tzMsToSamples(rate, info->samplerate);
     const float reset = getNodeInput(n, 1, 0.f);
 
     float* count = &(n->memory[0]);
@@ -1523,24 +1420,17 @@ TzNode* createPulseNode () {
 }
 
 void performSinosc (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
-    const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float reset = getNodeInput(n, 1, 0.f);
     const float fm = getNodeInput(n, 2, 0.f);
     const float fmdepth = getNodeInput(n, 3, 0.f);
-
-    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
-
     float* phase = &(n->memory[0]);
 
     if (reset > 0) {
         *phase = 0.f;
     }
 
-    n->outputs[0] = sin(*phase);
-    *phase += incr;
-    while (*phase > twopi) *phase -= twopi;
+    n->outputs[0] = tzSinewave(freq + (fm * fmdepth), info->samplerate, phase);
 }
 
 TzNode* createSinoscNode () {
@@ -2084,9 +1974,11 @@ TzNode* createSahNode () {
 }
 
 void performTimepoint (TzNode* n, TzProcessInfo* info) {
-    float time = getNodeInput(n, 0, 0.f) * 0.001f * info->samplerate;
+    float time = getNodeInput(n, 0, 0.f);
     float* pos = &(n->memory[0]);
-    time = (float)((int)(time + 0.5f)); /* round to int for comparison */
+
+    time = tzMsToSamples(time, info->samplerate);
+    time = (float)tzRoundToInt(time); /* round to int for comparison */
 
     n->outputs[0] = *pos == time ? 1.f : 0.f;
 
@@ -2220,7 +2112,7 @@ void performDelay (TzNode* n, TzProcessInfo* info) {
     }
 
     if (time < 1.f) time = 1.f;
-    stime = time * 0.001 * info->samplerate;
+    stime = tzMsToSamples(time, info->samplerate);
     if (stime > *maxpos) stime = *maxpos;
 
     rp = *wp - stime;
@@ -2277,7 +2169,7 @@ void performFdelay (TzNode* n, TzProcessInfo* info) {
     }
 
     if (time < 1.f) time = 1.f;
-    stime = time * 0.001 * info->samplerate;
+    stime = tzMsToSamples(time, info->samplerate);
     if (stime > *maxpos) stime = *maxpos;
 
     rp = *wp - stime;

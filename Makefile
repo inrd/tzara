@@ -7,6 +7,7 @@ BUILD_DIR = build
 CFLAGS = -Wall -Wextra -O2
 
 SRC_FILES = main.c \
+			tzdsp.c \
 			nodes.c  \
 			tzara.c \
 			parser.c
