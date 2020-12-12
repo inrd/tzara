@@ -52,7 +52,7 @@ int main (int argc, char** argv) {
     unsigned long int i, j = 0;
     unsigned long int numFrames = (unsigned long int)samplerate * 60;
     char patchName[TZARA_FILE_NAME_MAX_LENGTH];
-    char wavName[TZARA_FILE_NAME_MAX_LENGTH];
+    char wavName[TZARA_FILE_NAME_MAX_LENGTH + 5];
 
     memset(wavName, '\0', TZARA_FILE_NAME_MAX_LENGTH);
 
