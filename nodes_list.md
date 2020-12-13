@@ -207,4 +207,7 @@
 - [fdelay] : a delay line with feedback (up to 2 seconds).
 	- inputs: in, time(Ms) feed([0..1])
 	- outputs: out
+- [allpass] : an allpass filter (up to 2 seconds of delay time).
+	- inputs: in, time(Ms) gain([0..1])
+	- outputs: out
 

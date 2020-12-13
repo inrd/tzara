@@ -426,3 +426,37 @@ float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate,
 }
 
 
+float tzAllpassFilter (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos) {
+    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+    float rp = *pos - stime;
+    int irp = 0;
+    int irp1 = 1;
+    float frac = 0.f;
+    float g = tzClip(gain, 0.f, 1.f);
+    float fbck = 0.f;
+    float ffwd = 0.f;
+    float v = 0.f;
+    float dl = 0.f;
+    float out = 0.f;
+
+    rp = tzWrap(rp, 0.f, (float)maxPos);
+
+    irp = (int)rp;
+    frac = rp - (float)irp;
+    irp1 = irp + 1 > maxPos ? 0 : irp + 1;
+
+    dl = tzLinInterp(delayBuf[irp], delayBuf[irp1], frac);
+
+    fbck = dl * (-g);
+    v = in + fbck;
+    ffwd = v * g;
+    out = dl + ffwd;
+
+    delayBuf[(int)(*pos)] = v;
+    ++(*pos);
+    *pos = tzWrap(*pos, 0.f, (float)maxPos);
+
+    return out;
+}
+
+

@@ -82,7 +82,8 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
     {"svf", "a state variable filter. Outputs lowpass, bandpass, highpass and notch.", "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch"},
     {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
-    {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"}
+    {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"},
+    {"allpass", "an allpass filter (up to 2 seconds of delay time).", "in, time(Ms) gain([0..1])", "out"}
 };
 
 int initMatrix (TzMatrix* m, const int numRows, const int numCols) {
@@ -1999,6 +2000,44 @@ TzNode* createFdelayNode () {
     n->memory[1] = 0.f;
     n->memory[2] = 0.f;
     n->perform = &performFdelay;
+    return n;
+}
+
+void performAllpass (TzNode* n, TzProcessInfo* info) {
+    const int maxLength = (2 * (int)(info->samplerate)) + 16; /* small padding for safe access */
+    float in  = getNodeInput(n, 0, 0.f);
+    float time = getNodeInput(n, 1, 1.f);
+    float gain = getNodeInput(n, 2, 0.f);
+    float* pos = &(n->memory[0]);
+    float* maxpos = &(n->memory[1]);
+    float* startupFlag = &(n->memory[2]);
+    
+    if (*startupFlag < 1.f) {
+        /* init buffer */
+        n->buffers[0] = malloc(maxLength * sizeof(float));
+        if (n->buffers[0] == NULL) {
+            printf("Failed to allocate delay buffer.\n");
+        }
+        memset(n->buffers[0], 0, maxLength);
+        *maxpos = (2.f * info->samplerate) - 1;
+        *startupFlag = 1.f;
+    }
+
+    n->outputs[0] = tzAllpassFilter(in, time, gain, info->samplerate, n->buffers[0], (int)(*maxpos), pos);
+}
+
+TzNode* createAllpassNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "time");
+    strcpy(n->inputsNames[2], "gain");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->memory[2] = 0.f;
+    n->perform = &performAllpass;
     return n;
 }
 

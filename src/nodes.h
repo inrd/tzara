@@ -84,6 +84,7 @@ enum NodeTypes {
     SVF_NODE,
     DELAY_NODE,
     FDELAY_NODE,
+    ALLPASS_NODE,
     NUM_NODE_TYPES
 };
 
@@ -404,5 +405,9 @@ TzNode* createDelayNode ();
 
 void performFdelay (TzNode* n, TzProcessInfo* info);
 TzNode* createFdelayNode ();
+
+void performAllpass (TzNode* n, TzProcessInfo* info);
+TzNode* createAllpassNode ();
+
 
 #endif

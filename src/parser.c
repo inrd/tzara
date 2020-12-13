@@ -608,6 +608,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createFdelayNode(), name, isModule);
             break;
 
+        case ALLPASS_NODE:
+            printf("Creating allpass : %s\n", name);
+            addEngineNode(tz, createAllpassNode(), name, isModule);
+            break;
+
         default:
             fprintf(stderr, "Could not create node : invalid node type...\n");
             return 1;
