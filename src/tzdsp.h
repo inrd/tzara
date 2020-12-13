@@ -63,6 +63,20 @@ void tzFixDenormals (float* x);
 
 void tzFixNaN (float* x);
 
+void tzGenRandomSeed ();
+void tzSetRandomSeed (unsigned int seed);
+
+/* returns a random value in range [0..1] */
+float tzRandom ();
+
+/* returns a random floating point value in range [min..max] */
+float tzRandomFloat (float min, float max);
+
+/* returns a random integer value in range [min..max] */
+int tzRandomInt (int min, int max);
+
+float tzWhiteNoise ();
+
 /* smooth value changes requires an external variable to store the value */
 void tzSmooth (float* val, float target, float rampTimeMs, float samplerate);
 

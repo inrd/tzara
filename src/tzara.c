@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "tzdsp.h"
+
 void init(Tzara* t) {
     int i = 0;
     for (i = 0; i < TZARA_MAX_NODES; ++i) {
@@ -14,6 +16,8 @@ void init(Tzara* t) {
     }
 
     t->renderDuration = 60;
+
+    tzGenRandomSeed();
 }
 
 int addNode (Tzara* tz, TzNode* n, const char* name) {

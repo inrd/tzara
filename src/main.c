@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <math.h>
 
 #include "tzara.h"
@@ -55,8 +54,6 @@ int main (int argc, char** argv) {
     char wavName[TZARA_FILE_NAME_MAX_LENGTH + 5];
 
     memset(wavName, '\0', TZARA_FILE_NAME_MAX_LENGTH);
-
-    srand((unsigned int)time(NULL));
 
     if (argc < 2) {
         fprintf(stderr, "Usage:\ntzara [patch file] [out wav file]\ntzara [patch file]\ntzara --nodes\ntzara --scales\n\n");

@@ -1,6 +1,8 @@
 #include "tzdsp.h"
 
 #include <math.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 void tzSwap (float* a, float* b) {
@@ -113,6 +115,36 @@ void tzFixDenormals (float* x) {
 
 void tzFixNaN (float* x) {
     if (*x != *x) *x = 0.f;
+}
+
+
+void tzGenRandomSeed () {
+    srand((unsigned int)time(NULL));
+}
+
+
+void tzSetRandomSeed (unsigned int seed) {
+    srand(seed);
+}
+
+
+float tzRandom () {
+    return (float)rand()/(float)(RAND_MAX);
+}
+
+
+float tzRandomFloat (float min, float max) {
+    return tzMapFrom0_1(tzRandom(), min, max);
+}
+
+
+int tzRandomInt (int min, int max) {
+    return tzRoundToInt(tzRandomFloat((float)min, (float)max));
+}
+
+
+float tzWhiteNoise () {
+    return tzRandomFloat(-1.f, 1.f);
 }
 
 

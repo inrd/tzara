@@ -1540,9 +1540,7 @@ TzNode* createTrioscNode () {
 void performNoise (TzNode* n, TzProcessInfo* info) {
     TZ_UNUSED(info);
 
-    const float noise = (float)rand()/(float)(RAND_MAX);
-
-    n->outputs[0] = (noise * 2.f) - 1.f;
+    n->outputs[0] = tzWhiteNoise();
 }
 
 TzNode* createNoiseNode () {
@@ -1608,7 +1606,7 @@ void performRandom (TzNode* n, TzProcessInfo* info) {
     float* out = &(n->memory[0]);
 
     if (clock != 0) {
-        *out = (float)rand()/(float)(RAND_MAX);
+        *out = tzRandom();
     }
 
     n->outputs[0] = *out;
@@ -1632,22 +1630,9 @@ void performIrandom (TzNode* n, TzProcessInfo* info) {
     int min = (int)getNodeInput(n, 1, 0.f);
     int max = (int)getNodeInput(n, 2, 1.f);
     float* out = &(n->memory[0]);
-    int t = min;
-    float r = 0.f;
-    
-    if (min > max) {
-        min = max;
-        max = t;
-    }
 
     if (clock != 0) {
-        if (min == max) {
-            *out = (float)min;
-        }
-        else {
-            r = (float)rand()/(float)(RAND_MAX);
-            *out = min + (r * (max - min));
-        }
+        *out = (float)tzRandomInt((int)min, (int)max);
     }
 
     n->outputs[0] = *out;
