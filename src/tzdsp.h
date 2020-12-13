@@ -78,6 +78,11 @@ float tzSinewave (float freq, float samplerate, float* phase);
 float tzPolyblepSaw (float freq, float samplerate, float* phase);
 
 /* requires an external variable to store the phase */
+/* pw in range [0..1] */
 float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase);
+
+/* requires external variables to store the phase and the previous output (z1) */
+/* pw in range [0..1] */
+float tzPolyblepTriangle (float freq, float pw, float samplerate, float* phase, float* z1);
 
 #endif

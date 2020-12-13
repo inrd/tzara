@@ -1487,7 +1487,7 @@ void performSqrosc (TzNode* n, TzProcessInfo* info) {
         *phase = 0.f;
     }
 
-    n->outputs[0] = tzPolyblepSquare(freq, pw, info->samplerate, phase);
+    n->outputs[0] = tzPolyblepSquare(freq + (fm * fmdepth), pw, info->samplerate, phase);
 }
 
 TzNode* createSqroscNode () {
@@ -1506,8 +1506,6 @@ TzNode* createSqroscNode () {
 }
 
 void performTriosc (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
-    const float twopi = 2.f * M_PI;
     const float freq = getNodeInput(n, 0, 440.f);
     const float reset = getNodeInput(n, 1, 0.f);
     const float pw = getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
@@ -1516,62 +1514,11 @@ void performTriosc (TzNode* n, TzProcessInfo* info) {
     float* phase = &(n->memory[0]);
     float* mem = &(n->memory[1]);
 
-    const float incr = (freq + (fm * fmdepth)) * twopi / samplerate;
-    const float dt = incr / twopi;
-    float t0 = 0.f;
-    float t1 = 0.f;
-    float t2 = 0.f;
-    float pblep1 = 0.f;
-    float pblep2 = 0.f;
-    float c = 0.f;
-    float wv = 0.f;
-
     if (reset > 0) {
         *phase = 0.f;
     }
 
-    t0 = *phase / twopi;
-    t1 = t0;
-
-    if (t1 < dt) {
-        t1 = t1 / dt;
-        pblep1 = (t1 + t1) - (t1 * t1) - 1.f;
-    }
-    else if (t1 > (1.f - dt)) {
-        t1 = (t1 - 1.f) / dt;
-        pblep1 = (t1 * t1) + (t1 + t1) + 1.f;
-    }
-
-    t2 = fmod((t0 + pw), 1.f);
-
-    if (t2 < dt) {
-        t2 = t2 / dt;
-        pblep2 = (t2 + t2) - (t2 * t2) - 1.f;
-    }
-    else if (t2 > (1.f - dt)) {
-        t2 = (t2 - 1.f) / dt;
-        pblep2 = (t2 * t2) + (t2 + t2) + 1.f;
-    }
-
-    c = pw * twopi;
-    if (*phase < c) {
-        wv = 1.f;
-    }
-    else {
-        wv = -1.f;
-    }
-    wv += pblep1;
-    wv -= pblep2;
-
-    /* make triangle out of square */
-    wv = (incr * wv) + ((1.f - incr) * (*mem));
-
-    *mem = wv;
-
-    n->outputs[0] = wv;
-    *phase += incr;
-    while (*phase > twopi) *phase -= twopi;
-
+    n->outputs[0] = tzPolyblepTriangle(freq + (fm * fmdepth), pw, info->samplerate, phase, mem);
 }
 
 TzNode* createTrioscNode () {
