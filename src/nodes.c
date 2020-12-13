@@ -1929,14 +1929,9 @@ TzNode* createSvfNode () {
 
 void performDelay (TzNode* n, TzProcessInfo* info) {
     const int maxLength = (2 * (int)(info->samplerate)) + 16; /* small padding for safe access */
-    const float in  = getNodeInput(n, 0, 0.f);
+    float in  = getNodeInput(n, 0, 0.f);
     float time = getNodeInput(n, 1, 1.f);
-    float stime = 1.f;
-    float rp = 0;
-    int irp = 0;
-    int irp1 = 1;
-    float frac = 0.f;
-    float* wp = &(n->memory[0]);
+    float* pos = &(n->memory[0]);
     float* maxpos = &(n->memory[1]);
     float* startupFlag = &(n->memory[2]);
     
@@ -1946,26 +1941,12 @@ void performDelay (TzNode* n, TzProcessInfo* info) {
         if (n->buffers[0] == NULL) {
             printf("Failed to allocate delay buffer.\n");
         }
-        *maxpos = 2.f * (info->samplerate - 1);
+        memset(n->buffers[0], 0, maxLength);
+        *maxpos = (2.f * info->samplerate) - 1;
         *startupFlag = 1.f;
     }
 
-    if (time < 1.f) time = 1.f;
-    stime = tzMsToSamples(time, info->samplerate);
-    if (stime > *maxpos) stime = *maxpos;
-
-    rp = *wp - stime;
-    while (rp < 0.f) rp += *maxpos;
-
-    irp = (int)rp;
-    frac = rp - (float)irp;
-    irp1 = irp + 1 > (int)(*maxpos) ? 0 : irp + 1;
-
-    n->outputs[0] = n->buffers[0][irp] + frac * (n->buffers[0][irp1] - n->buffers[0][irp]);
-
-    n->buffers[0][(int)(*wp)] = in;
-    ++(*wp);
-    *wp = *wp > *maxpos ? 0 : *wp;
+    n->outputs[0] = tzDelay(in, time, info->samplerate, n->buffers[0], (int)(*maxpos), pos);
 }
 
 TzNode* createDelayNode () {
@@ -1985,15 +1966,10 @@ TzNode* createDelayNode () {
 
 void performFdelay (TzNode* n, TzProcessInfo* info) {
     const int maxLength = (2 * (int)(info->samplerate)) + 16; /* small padding for safe access */
-    const float in  = getNodeInput(n, 0, 0.f);
+    float in  = getNodeInput(n, 0, 0.f);
     float time = getNodeInput(n, 1, 1.f);
-    const float feed = getNodeInput(n, 2, 0.f);
-    float stime = 1.f;
-    float rp = 0;
-    int irp = 0;
-    int irp1 = 1;
-    float frac = 0.f;
-    float* wp = &(n->memory[0]);
+    float feed = getNodeInput(n, 2, 0.f);
+    float* pos = &(n->memory[0]);
     float* maxpos = &(n->memory[1]);
     float* startupFlag = &(n->memory[2]);
     
@@ -2003,26 +1979,12 @@ void performFdelay (TzNode* n, TzProcessInfo* info) {
         if (n->buffers[0] == NULL) {
             printf("Failed to allocate delay buffer.\n");
         }
-        *maxpos = 2.f * (info->samplerate - 1);
+        memset(n->buffers[0], 0, maxLength);
+        *maxpos = (2.f * info->samplerate) - 1;
         *startupFlag = 1.f;
     }
 
-    if (time < 1.f) time = 1.f;
-    stime = tzMsToSamples(time, info->samplerate);
-    if (stime > *maxpos) stime = *maxpos;
-
-    rp = *wp - stime;
-    while (rp < 0.f) rp += *maxpos;
-
-    irp = (int)rp;
-    frac = rp - (float)irp;
-    irp1 = irp + 1 > (int)(*maxpos) ? 0 : irp + 1;
-
-    n->outputs[0] = n->buffers[0][irp] + frac * (n->buffers[0][irp1] - n->buffers[0][irp]);
-
-    n->buffers[0][(int)(*wp)] = tanh(in + (n->outputs[0] * feed));
-    ++(*wp);
-    *wp = *wp > *maxpos ? 0 : *wp;
+    n->outputs[0] = tzFeedbackDelay(in, time, feed, info->samplerate, n->buffers[0], (int)(*maxpos), pos);
 }
 
 TzNode* createFdelayNode () {

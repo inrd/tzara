@@ -378,3 +378,51 @@ TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float sample
 }
 
 
+float tzDelay (float in, float timeMs, float samplerate, float* delayBuf, int maxPos, float* pos) {
+    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+    float rp = *pos - stime;
+    int irp = 0;
+    int irp1 = 1;
+    float frac = 0.f;
+    float out = 0.f;
+
+    rp = tzWrap(rp, 0.f, (float)maxPos);
+
+    irp = (int)rp;
+    frac = rp - (float)irp;
+    irp1 = irp + 1 > maxPos ? 0 : irp + 1;
+
+    out = tzLinInterp(delayBuf[irp], delayBuf[irp1], frac);
+
+    delayBuf[(int)(*pos)] = in;
+    ++(*pos);
+    *pos = tzWrap(*pos, 0.f, (float)maxPos);
+
+    return out;
+}
+
+
+float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate, float* delayBuf, int maxPos, float* pos) {
+    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+    float rp = *pos - stime;
+    int irp = 0;
+    int irp1 = 1;
+    float frac = 0.f;
+    float out = 0.f;
+
+    rp = tzWrap(rp, 0.f, (float)maxPos);
+
+    irp = (int)rp;
+    frac = rp - (float)irp;
+    irp1 = irp + 1 > maxPos ? 0 : irp + 1;
+
+    out = tzLinInterp(delayBuf[irp], delayBuf[irp1], frac);
+
+    delayBuf[(int)(*pos)] = tanh(in + (out * feedback));
+    ++(*pos);
+    *pos = tzWrap(*pos, 0.f, (float)maxPos);
+
+    return out;
+}
+
+

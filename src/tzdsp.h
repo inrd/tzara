@@ -123,4 +123,14 @@ struct TZSvfOutputs {
 /* resonance in range [0..1] */
 TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq);
 
+/* requires an externally allocated delay buffer and an external variable to store pos */
+/* maxpos = delay buffer length minus 1 */
+float tzDelay (float in, float timeMs, float samplerate, float* delayBuf, int maxPos, float* pos);
+
+/* Same as tzDelay but with an internal feedback path */
+/* requires an externally allocated delay buffer and an external variable to store pos */
+/* maxpos = delay buffer length minus 1 */
+/* feedback in range [0..1] */
+float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate, float* delayBuf, int maxPos, float* pos);
+
 #endif
