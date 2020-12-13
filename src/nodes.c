@@ -1673,13 +1673,8 @@ void performNotescale (TzNode* n, TzProcessInfo* info) {
     int note = (int)getNodeInputClipped(n, 0, 0.f, 0.f, 127.f);
     int scale = (int)getNodeInputClipped(n, 1, 0.f, 0.f, (float)(NUM_SCALES - 1));
     int root = (int)getNodeInputClipped(n, 2, 0.f, 0.f, 11.f);
-    const int oct =  note / 12;
-    const int base = note % 12;
-    const int offset = base + root;
-    const int octshift = offset / 12;
-    const int conformed = musicalScales[scale][offset % 12] - root;
 
-    n->outputs[0] = (float)(conformed + ((oct + octshift) * 12));
+    n->outputs[0] = (float)tzConformNoteToScale(note, musicalScales[scale], root);
 }
 
 TzNode* createNotescaleNode () {
@@ -1696,12 +1691,11 @@ TzNode* createNotescaleNode () {
 
 
 void performSegment (TzNode* n, TzProcessInfo* info) {
-    const float samplerate = info->samplerate;
     const float dur = getNodeInput(n, 3, 10.f);
-    const float length = (dur > 0 ? dur : 10.f) * 0.001f *samplerate;
-
     const float v1 = getNodeInput(n, 1, 0.f);
     const float v2 = getNodeInput(n, 2, 0.f);
+
+    const float length = tzMsToSamples((dur > 0 ? dur : 10.f), info->samplerate);
     const float delta = (v2 - v1) / length;
 
     const int clock = (int)getNodeInput(n, 0, 0.f);
@@ -1856,13 +1850,11 @@ TzNode* createTimepointNode () {
 }
 
 void performLowpass (TzNode* n, TzProcessInfo* info) {
-    const double in = (double)getNodeInput(n, 0, 0.f);
-    const double cut = (double)getNodeInput(n, 1, 11000.f);
-    const double costh = 2.0 - cos(2.0 * M_PI * cut /  (double)(info->samplerate));
-    const double coeff = sqrt(costh * costh - 1.0) - costh;
+    float in = getNodeInput(n, 0, 0.f);
+    float cut = getNodeInput(n, 1, 11000.f);
+    float* z1 = &(n->memory[0]);
 
-    n->outputs[0] = (float)(in * (1.0 + coeff) - (double)(n->memory[0]) * coeff);
-    n->memory[0] = n->outputs[0];
+    n->outputs[0] = tzOnePoleLowpass(in, cut, info->samplerate, z1);
 }
 
 TzNode* createLowpassNode () {
@@ -1878,13 +1870,11 @@ TzNode* createLowpassNode () {
 }
 
 void performHighpass (TzNode* n, TzProcessInfo* info) {
-    const double in = (double)getNodeInput(n, 0, 0.f);
-    const double cut = (double)getNodeInput(n, 1, 100.f);
-    const double costh = 2.0 - cos(2.0 * M_PI * cut /  (double)(info->samplerate));
-    const double coeff = costh - sqrt(costh * costh - 1.0);
+    float in = getNodeInput(n, 0, 0.f);
+    float cut = getNodeInput(n, 1, 100.f);
+    float* z1 = &(n->memory[0]);
 
-    n->outputs[0] = (float)(in * (1.0 - coeff) - (double)(n->memory[0]) * coeff);
-    n->memory[0] = n->outputs[0];
+    n->outputs[0] = tzOnePoleHighpass(in, cut, info->samplerate, z1);
 }
 
 TzNode* createHighpassNode () {

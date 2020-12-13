@@ -106,6 +106,17 @@ float tzHzToMs (float hz) {
 }
 
 
+int tzConformNoteToScale (int note, const int scale[12], int root) {
+    const int oct =  note / 12;
+    const int base = note % 12;
+    const int offset = base + root;
+    const int octshift = offset / 12;
+    const int conformed = scale[offset % 12] - root;
+
+    return conformed + ((oct + octshift) * 12);
+}
+
+
 void tzFixDenormals (float* x) {
     static const float z = 1e-18;
     *x += z;
@@ -319,4 +330,27 @@ float tzPolyblepTriangle (float freq, float pw, float samplerate, float* phase, 
 
     return wv;
 }
+
+
+float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1) {
+    const double costh = 2.0 - cos(2.0 * M_PI * (double)cut /  (double)samplerate);
+    const double coeff = sqrt(costh * costh - 1.0) - costh;
+
+    const double out = (double)in * (1.0 + coeff) - (double)(*z1) * coeff;
+    *z1 = (float)out;
+
+    return (float)out;
+}
+
+
+float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1) {
+    const double costh = 2.0 - cos(2.0 * M_PI * (double)cut /  (double)samplerate);
+    const double coeff = costh - sqrt(costh * costh - 1.0);
+
+    const double out = (double)in * (1.0 - coeff) - (double)(*z1) * coeff;
+    *z1 = (float)out; 
+
+    return out;
+}
+
 

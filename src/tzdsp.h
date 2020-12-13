@@ -59,6 +59,8 @@ float tzMsToHz (float ms);
 
 float tzHzToMs (float hz);
 
+int tzConformNoteToScale (int note, const int scale[12], int root);
+
 void tzFixDenormals (float* x);
 
 void tzFixNaN (float* x);
@@ -98,5 +100,11 @@ float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase);
 /* requires external variables to store the phase and the previous output (z1) */
 /* pw in range [0..1] */
 float tzPolyblepTriangle (float freq, float pw, float samplerate, float* phase, float* z1);
+
+/* requires an external variable to store z1 */
+float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1);
+
+/* requires an external variable to store z1 */
+float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1);
 
 #endif
