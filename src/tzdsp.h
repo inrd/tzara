@@ -21,6 +21,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #ifndef TZDSP_H
 #define TZDSP_H
 
+typedef struct TZSvfOutputs TZSvfOutputs;
+
 void tzSwap (float* a, float* b);
 
 float tzClip (float val, float min, float max);
@@ -106,5 +108,19 @@ float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1);
 
 /* requires an external variable to store z1 */
 float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1);
+
+
+struct TZSvfOutputs {
+    float lowpass;
+    float bandpass;
+    float highpass;
+    float notch;
+};
+
+/* SVF based on Andrew Simper's paper : https://cytomic.com/index.php?q=technical-papers */
+/* requires external variables to store ic1eq and ic2eq */
+/* returns 4 outputs at once */
+/* resonance in range [0..1] */
+TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq);
 
 #endif

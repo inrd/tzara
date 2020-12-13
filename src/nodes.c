@@ -1889,34 +1889,24 @@ TzNode* createHighpassNode () {
     return n;
 }
 
-/* SVF based on Andrew Simper's paper : https://cytomic.com/index.php?q=technical-papers */
 
 void performSvf (TzNode* n, TzProcessInfo* info) {
-    const double v0 = (double)getNodeInput(n, 0, 0.f);
-    const double cut = (double)getNodeInput(n, 1, 1100.f);
-    const double res = (double)getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
-    const double g = tan(M_PI * cut / (double)(info->samplerate));
-    const double k = 2.0 - 2.0 * res;
-    const double a1 = 1.0 / (1.0 + g * (g + k));
-    const double a2 = g * a1;
-    const double a3 = g * a2;
-    const double ic1eq = n->memory[0];
-    const double ic2eq = n->memory[1];
-    const double v3 = v0 - ic2eq;
-    const double v1 = a1 * ic1eq + a2 * v3;
-    const double v2 = ic2eq + a2 * ic1eq + a3 * v3;
+    float in = getNodeInput(n, 0, 0.f);
+    float cut = getNodeInput(n, 1, 1100.f);
+    float res = getNodeInputClipped(n, 2, 0.5f, 0.f, 1.f);
+    float* ic1eq = &(n->memory[0]);
+    float* ic2eq = &(n->memory[1]);
     float* low = &(n->outputs[0]);
     float* band = &(n->outputs[1]);
     float* high = &(n->outputs[2]);
     float* notch = &(n->outputs[3]);
+    TZSvfOutputs svfOut;
 
-    n->memory[0] = 2.0 * v1 - ic1eq; /* ic1eq */
-    n->memory[1] = 2.0 * v2 - ic2eq; /* ic2eq */
-
-    *low = v2;
-    *band = v1;
-    *high = v0 - k * v1 - v2;
-    *notch = v0 - k * v1;
+    svfOut = tzStateVariableFilter(in, cut, res, info->samplerate, ic1eq, ic2eq);
+    *low = svfOut.lowpass;
+    *band = svfOut.bandpass;
+    *high = svfOut.highpass;
+    *notch = svfOut.notch;
 }
 
 TzNode* createSvfNode () {

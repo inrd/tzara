@@ -354,3 +354,27 @@ float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1) {
 }
 
 
+TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq) {
+    const double v0 = (double)in;
+    const double g = tan(M_PI * cut / (double)samplerate);
+    const double k = 2.0 - 2.0 * (double)res;
+    const double a1 = 1.0 / (1.0 + g * (g + k));
+    const double a2 = g * a1;
+    const double a3 = g * a2;
+    const double v3 = v0 - (double)(*ic2eq);
+    const double v1 = a1 * (double)(*ic1eq) + a2 * v3;
+    const double v2 = (double)(*ic2eq) + a2 * (double)(*ic1eq) + a3 * v3;
+    TZSvfOutputs out;
+
+    *ic1eq = (float)(2.0 * v1 - (double)(*ic1eq)); 
+    *ic2eq = (float)(2.0 * v2 - (double)(*ic2eq)); 
+
+    out.lowpass = v2;
+    out.bandpass = v1;
+    out.highpass = v0 - k * v1 - v2;
+    out.notch = v0 - k * v1;
+
+    return out;
+}
+
+
