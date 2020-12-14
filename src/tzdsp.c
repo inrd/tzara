@@ -426,7 +426,7 @@ float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate,
 }
 
 
-float tzAllpassFilter (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos) {
+float tzAllpassDelay (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos) {
     float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
     float rp = *pos - stime;
     int irp = 0;

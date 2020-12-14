@@ -2023,7 +2023,7 @@ void performAllpass (TzNode* n, TzProcessInfo* info) {
         *startupFlag = 1.f;
     }
 
-    n->outputs[0] = tzAllpassFilter(in, time, gain, info->samplerate, n->buffers[0], (int)(*maxpos), pos);
+    n->outputs[0] = tzAllpassDelay(in, time, gain, info->samplerate, n->buffers[0], (int)(*maxpos), pos);
 }
 
 TzNode* createAllpassNode () {

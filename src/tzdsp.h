@@ -136,6 +136,6 @@ float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate,
 /* requires an externally allocated delay buffer and an external variable to store pos */
 /* maxpos = delay buffer length minus 1 */
 /* gain in range [0..1] */
-float tzAllpassFilter (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos);
+float tzAllpassDelay (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos);
 
 #endif
