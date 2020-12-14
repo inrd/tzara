@@ -578,6 +578,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSahNode(), name, isModule);
             break;
 
+        case GATE_NODE:
+            printf("Creating gate : %s\n", name);
+            addEngineNode(tz, createGateNode(), name, isModule);
+            break;
+
         case TIMEPOINT_NODE:
             printf("Creating timepoint : %s\n", name);
             addEngineNode(tz, createTimepointNode(), name, isModule);

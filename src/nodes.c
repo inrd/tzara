@@ -76,14 +76,15 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
     {"route", "if {index} is greater than 0 and lower than 9, outputs {in} to the corresponding {out}.", "in, index", "out1, out2, out3, out4, out5, out6, out7, out8"},
-    {"sah", "samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value", "in clock", "out"},
+    {"sah", "samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value.", "in clock", "out"},
+    {"gate", "outputs 1 for the duration specified at {dur} when it receives a non-zero signal (pulse) at {clock}. Outputs 0 the rest of the time.", "clock, dur(Ms)", "out"},
     {"timepoint", "outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.", "time(Ms)", "out"},
     {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
     {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
     {"svf", "a state variable filter. Outputs lowpass, bandpass, highpass and notch.", "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch"},
     {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
     {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"},
-    {"allpass", "an allpass filter (up to 2 seconds of delay time).", "in, time(Ms) gain([0..1])", "out"}
+    {"allpass", "an allpass delay (up to 2 seconds of delay time).", "in, time(Ms) gain([0..1])", "out"}
 };
 
 int initMatrix (TzMatrix* m, const int numRows, const int numCols) {
@@ -1824,6 +1825,43 @@ TzNode* createSahNode () {
     strcpy(n->outputsNames[0], "out");
     n->memory[0] = 0.f;
     n->perform = &performSah;
+    return n;
+}
+
+void performGate (TzNode* n, TzProcessInfo* info) {
+    const float clock = getNodeInput(n, 0, 0.f);
+    const float dur = getNodeInput(n, 1, 10.f);
+    float* count = &(n->memory[0]);
+    float length = 0.f;
+
+    if (dur > 0.f) {
+        length = tzMsToSamples(dur, info->samplerate);
+        if (clock != 0.f) {
+            *count = 0.f;
+        }
+
+        if (*count < length) {
+            n->outputs[0] = 1.f;
+            ++(*count);
+        }
+        else {
+            n->outputs[0] = 0.f;
+        }
+    }
+    else {
+        n->outputs[0] = 0.f;
+    }
+}
+
+TzNode* createGateNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 2;
+    strcpy(n->inputsNames[0], "clock");
+    strcpy(n->inputsNames[1], "dur");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->perform = &performGate;
     return n;
 }
 

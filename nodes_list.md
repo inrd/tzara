@@ -186,8 +186,11 @@
 - [route] : if {index} is greater than 0 and lower than 9, outputs {in} to the corresponding {out}.
 	- inputs: in, index
 	- outputs: out1, out2, out3, out4, out5, out6, out7, out8
-- [sah] : samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value
+- [sah] : samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value.
 	- inputs: in clock
+	- outputs: out
+- [gate] : outputs 1 for the duration specified at {dur} when it receives a non-zero signal (pulse) at {clock}. Outputs 0 the rest of the time.
+	- inputs: clock, dur(Ms)
 	- outputs: out
 - [timepoint] : outputs a pulse at a specific timepoint defined by {time} (in milliseconds). Outputs a pulse on startup if {time} is not set.
 	- inputs: time(Ms)
@@ -207,7 +210,7 @@
 - [fdelay] : a delay line with feedback (up to 2 seconds).
 	- inputs: in, time(Ms) feed([0..1])
 	- outputs: out
-- [allpass] : an allpass filter (up to 2 seconds of delay time).
+- [allpass] : an allpass delay (up to 2 seconds of delay time).
 	- inputs: in, time(Ms) gain([0..1])
 	- outputs: out
 

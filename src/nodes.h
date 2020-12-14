@@ -78,6 +78,7 @@ enum NodeTypes {
     SELECT_NODE,
     ROUTE_NODE,
     SAH_NODE,
+    GATE_NODE,
     TIMEPOINT_NODE,
     LOWPASS_NODE,
     HIGHPASS_NODE,
@@ -384,6 +385,9 @@ TzNode* createRouteNode ();
 
 void performSah (TzNode* n, TzProcessInfo* info);
 TzNode* createSahNode ();
+
+void performGate (TzNode* n, TzProcessInfo* info);
+TzNode* createGateNode ();
 
 void performTimepoint (TzNode* n, TzProcessInfo* info);
 TzNode* createTimepointNode ();
