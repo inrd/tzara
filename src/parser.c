@@ -76,7 +76,7 @@ void parseCommentInstruction (char* instr) {
 void parseMetadataInstruction (void* engine, char** tokens, int numTokens, int isModule) {
     int duration = 0;
 
-    if (numTokens == 3) {
+    if (numTokens >= 3) {
         if (strncmp(tokens[1], "duration", strlen(tokens[1])) == 0) {
             if (isModule != 0) {
                 printf("Duration metadata is not valid in a module...\n");

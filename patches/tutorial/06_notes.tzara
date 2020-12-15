@@ -1,0 +1,93 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 06. Notes 
+# =========
+#
+# Let's take the patch from tutorial 5 and refine it while 
+# testing out some new nodes.
+
+! duration 15
+
++ var step 
+= 400 $step
+
++ pulse beat
+> $step beat@rate
+
++ seq8 arp
+= 4 arp@length
+
+# In tutorial 5 we passed raw frequencies in Hertz to the 
+# seq8 node steps.
+# Here we will use MIDI note values : these are integers that
+# range from 0 to 127.
+# However it would be cumbersome to type the numbers without
+# previewing the results. Fortunately, Tzara will recognize
+# note names in the for c3 or a#-1 (the letters have to be lowercase).
+
+= c4 arp@step1
+= d5 arp@step2
+= d#5 arp@step3
+= g5 arp@step4
+
+> beat@out arp@clock
+
+# The problem is that our sinosc node only undertands frequencies in Hertz.
+# We have to translate from MIDI note values to frequencies.
+# This is done using the miditofreq node.
+
++ miditofreq freq
+> arp@out freq@in
+
+# So we have to change the connection to the {freq} input here :
+
++ sinosc osc
+> freq@out osc@freq
+> beat@out osc@reset
+
++ segment env
+> $step env@dur
+= 1 env@val1
+= 0 env@val2
+> beat@out env@clock
+
++ mult vca
+> osc@out vca@in1
+> env@out vca@in2
+
+# A small refinement : we will add some echoes to the signal.
+# First we want to have a meaningful value for the delay time :
+
++ mult dtime
+> $step dtime@in1
+= 0.75 dtime@in2
+
+# Our delay node : 
+
++ fdelay echoes
+> vca@out echoes@in
+
+# As one would expect from a delay node (fdelay stands for feedback delay),
+# our echoes node has a {time} input and a {feed} input.
+
+> dtime@out echoes@time
+= 0.6 echoes@feed
+
+# You will notice in the rendered audio that the fdelay node gently saturates its
+# feedback path if it clips.
+
+# If we connect the fdelay node straight to the main output we will loose the 
+# original signal so we need to mix both signals :
+
++ mix drywet
+> vca@out drywet@in1
+> echoes@out drywet@in2
+= 0.5 drywet@coeff
+
+> drywet@out _out_@l
+> drywet@out _out_@r
+
