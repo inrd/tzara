@@ -1,0 +1,78 @@
+# This module is used by tutorial 7.
+# It encapsulates the synth sequence from tutorial 6.
+
+# Inputs and outputs could be declared anywhere in the 
+# patch as long as they are declared before being used.
+# It's cleaner to declare them at the top of the patch,
+# especially to quickly look up the names when using the
+# module.
+
+# You can declare up to 16 inputs and up to 16 outputs.
+
+# Declare 6 inputs
+@ in clock
+@ in decay
+@ in s1
+@ in s2
+@ in s3
+@ in s4
+
+# Declare 1 output named out
+@ out out
+
+# The actual patch
++ seq8 arp
+= 4 arp@length
+
+# IMPORTANT : module inputs are actually symbolic names linking to a
+# specific node input (the one it is connected to).
+# if you want to route an input to multiple node inputs,
+# cache it through a var first :
++ var clk
+> _in_@clock $clk
+
+# Instead of setting the step values, we route the inputs to the 
+# seq8 node steps.
+> _in_@s1 arp@step1
+> _in_@s2 arp@step2
+> _in_@s3 arp@step3
+> _in_@s4 arp@step4
+
+# In the same way, we connect the clock input to trigger the 
+# seq8 steps.
+> $clk arp@clock
+
++ miditofreq freq
+> arp@out freq@in
+
++ sinosc osc
+> freq@out osc@freq
+
+# Another connection to change :
+> $clk osc@reset
+
+# If you want to prevent an unpatched input to send 0 by default,
+# you can use a special node type called defaultval to set a custom
+# default value :
++ defaultval dec
+> _in_@decay dec@in
+= 120 dec@val
+
++ segment env
+# Instead of routing the input directly, we route the corresponding
+# defaultval node
+> dec@out env@dur
+
+= 1 env@val1
+= 0 env@val2
+
+# Again, route the clock input :
+> $clk env@clock
+
++ mult vca
+> osc@out vca@in1
+> env@out vca@in2
+
+# Don't forget to connect to the module outputs as needed :
+> vca@out _out_@out
+

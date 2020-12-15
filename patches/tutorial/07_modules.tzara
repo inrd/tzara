@@ -1,0 +1,108 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 07. Modules 
+# ===========
+#
+# This tutorial introduces a major concept.
+# Modules are reusable tzara patches that can be loaded into
+# other patches.
+# As they are tzara patches they follow the same syntax and you
+# can use the same nodes except for the _out_ node :
+# the _out_@l and _out_@r connection points are only available
+# in the main patch (the one which loads the modules).
+#
+# A module has to declare its own set of inputs and outputs using
+# the module IO operator (@).
+# To declare a module input you use the syntax :
+#     @ in myinput
+# where "myinput" is the name you want to give to your input.
+# To declare an output :
+#     @ out myoutput
+#
+# Once you have declared your inputs and outputs, you can connect them
+# like regular nodes by calling _in_@myinput or _out_@myoutput.
+#
+# When you load a module into a patch you use its inputs and outputs like
+# you would do for built-in nodes :
+#      > mymodule@myoutput amp@in1
+#
+# Note that modules can be loaded into other modules!
+#
+# In this tutorial we take the patch from tutorial 6 but everything from
+# the instantiation of the arp node to the connections of the vca node 
+# has been extracted to a module.
+# You can open the file arpsine.tzara located in the modules subfolder (relative 
+# to the folder where this tutorial is located) in your editor to see
+# what was needed make it a module (hint : not much).
+#
+# We are going to load 2 instances of this module in the main patch (this one)
+# and give them different parameters.
+
+! duration 30
+
++ var step1
+= 400 $step1
+
++ pulse beat1
+> $step1 beat1@rate
+
+# Here we load our module using the syntax :
+#     + module mymod <path_to_module_file/modulefile.tzara>
+# At the time of this writing, if you want to load a module using a relative path,
+# make sure to call the tzara executable from the main patch (the one loading the module)
+# directory.
+# This quirk will be fixed in the future...
+
++ module synth1 <modules/arpsine.tzara>
+
+# As we saw in the introduction, once the module has been loaded it behaves like any other node.
+> beat1@out synth1@clock
+= 200 synth1@decay
+= c4 synth1@s1
+= c5 synth1@s2
+= a4 synth1@s3
+= a5 synth1@s4
+
+# Another clock and another synth :
+
++ mult step2
+> $step1 step2@in1
+= 1.5 step2@in2
+
++ pulse beat2
+> step2@out beat2@rate
+
++ module synth2 <modules/arpsine.tzara>
+> beat2@out synth2@clock
+= 100 synth1@decay
+= c6 synth2@s1
+= d6 synth2@s2
+= d#6 synth2@s3
+= g6 synth2@s4
+
+# mix both synth lines
++ mix mx
+> synth1@out mx@in1
+> synth2@out mx@in2
+
++ mult dtime
+> $step1 dtime@in1
+= 0.75 dtime@in2
+
++ fdelay echoes
+> mx@out echoes@in
+> dtime@out echoes@time
+= 0.6 echoes@feed
+
++ mix drywet
+> mx@out drywet@in1
+> echoes@out drywet@in2
+= 0.5 drywet@coeff
+
+> drywet@out _out_@l
+> drywet@out _out_@r
+
