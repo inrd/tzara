@@ -27,7 +27,7 @@
 # range from 0 to 127.
 # However it would be cumbersome to type the numbers without
 # previewing the results. Fortunately, Tzara will recognize
-# note names in the for c3 or a#-1 (the letters have to be lowercase).
+# note names like c3 or a#-1 (the letters have to be lowercase).
 
 = c4 arp@step1
 = d5 arp@step2
