@@ -1,0 +1,118 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 05. Time
+# ========
+#
+# Let's check ways to make a patch evolve over time.
+# We have seen in tutorial 04 that we could use a signal to modulate
+# the parameters of a node but this didn't give us fine control over
+# events.
+#
+# As everything in Tzara happens at audio rate you don't have control
+# rate nodes that would send a message once in a while.
+# Instead, a 1 sample impulse of value 1 is interpreted by many nodes
+# as a clock signal.
+# 
+#    1 |  |       |       | <------ This is an impulse, its value is 1
+#      |  |       |       |         for 1 sample and then it drops to 0.
+#    0 |--|-------|-------|---->
+#      |                    time
+# 
+# Here we will present the pulse node that sends such a periodic signal
+# as well as some nodes that offer a clock input.
+
+# First you may not want to end up with a 1 minute long boring file while
+# you are experimenting.
+# There is a special metadata value that can be set via the metadata
+# operator (!) to set the render duration (in seconds)
+
+! duration 15 
+
+# We will start a fresh patch using nodes we have previously seen and try
+# to make things a bit more interesting over time.
+
+# We define a var called step (this will be our time step size) and assign it
+# the value 400.
+# This will be useful to share the value between nodes.
+
++ var step 
+= 400 $step
+
+# Now here is our main clock :
+
++ pulse beat
+
+# The pulse node has a rate input that expects a value in milliseconds.
+# We assign it our step value so that we get pulses with a period of 400ms.
+
+> $step beat@rate
+
+# We want to sequence the frequency of an oscillator so that it changes on every
+# pulse.
+# We can do this using the seq8 node which provides a quick way to make a little
+# sequence (we will see way more powerful approaches to sequencing later when will
+# present the matrix node).
+
++ seq8 arp
+
+# The seq8 node can have up to 8 steps but we only want 4 here :
+
+= 4 arp@length
+
+# Then we assign values to each step. These values will be sent sequentially to the
+# output {out} when the seq8 node receives an impulse at its {clock} input.
+
+= 220 arp@step1
+= 440 arp@step2
+= 880 arp@step3
+= 440 arp@step4
+
+# Last but not least we connect the output of beat (our pulse node) to the {clock} of arp :
+
+> beat@out arp@clock
+
+# We then create our now traditional sinosc node and connect the sequence output to its
+# {freq} input.
+
++ sinosc osc
+> arp@out osc@freq
+
+# It could be good to reset the oscillator phase on each new trigger :
+
+> beat@out osc@reset
+
+# While we are at it we would like to have some control over the amplitude of our synth.
+# The segment node is a good building block for envelopes.
+# Let's add one to create a decay ramp :
+
++ segment env
+
+# Here we simply set its duration to our step size :
+
+> $step env@dur
+
+# We want the amplitude to go from 1 to 0 :
+
+= 1 env@val1
+= 0 env@val2
+
+# Don't forget to connect the clock :
+
+> beat@out env@clock
+
+# Like we have seen in tutorial 4, we use a mult node to alter the amplitude
+# of our oscillator :
+
++ mult vca
+> osc@out vca@in1
+> env@out vca@in2
+
+# And finally we connect the output of our "vca" to the main output
+
+> vca@out _out_@l
+> vca@out _out_@r
+

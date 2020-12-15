@@ -19,15 +19,14 @@
 # - you then call the tzara executable to build the patch from the file
 # - finally the engine renders the patch as a wav file
 #
-# You can think of it as a crossover between Csound and Pure Data.
-# While, like Csound, it does not operate in realtime, you connect nodes in 
-# a way that is reminiscent of Pure Data.
-# 
 # It may feel awkward at first to operate blindly and listen to the results 
-# afterwards, but it offers significant advantages in terms of signal chaining, 
-# integration in scripts (for example to generate sounds in batch), and it can run on 
-# lower end hardware. It can be useful to generate samples, make full blown musical 
-# pieces or prototype DSP algorithms.
+# afterwards, but it offers some  advantages :
+#     - all the processing can happen at audio rate (including all modulations) 
+#       offering a vast creative palette without having to worry about performance.
+#     - for the same reason, it can run on lower end hardware. 
+#     - it can be integrated in scripts (for example to generate sounds in batch).
+# 
+# It can be useful to generate samples, make full blown musical pieces or prototype DSP algorithms.
 #
 # The requirements to build and run Tzara are a POSIX compliant system and a C compiler.
 #
