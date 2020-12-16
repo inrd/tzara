@@ -123,6 +123,11 @@ struct TZSvfOutputs {
 /* resonance in range [0..1] */
 TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq);
 
+/* returns the linearly interpolated value for a given position in a circular buffer */
+/* make sure the position passed in is valid */
+/* maxPos = bufferLength - 1 */
+float tzReadFromCirularBuffer (float* buffer, int maxPos, float pos);
+
 /* requires an externally allocated delay buffer and an external variable to store pos */
 /* maxpos = delay buffer length minus 1 */
 float tzDelay (float in, float timeMs, float samplerate, float* delayBuf, int maxPos, float* pos);
