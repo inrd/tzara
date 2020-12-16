@@ -75,8 +75,9 @@ float tzMapFrom0_1 (float val, float min, float max) {
 }
 
 
-float tzMapToRange (float val, float imin, float imax, float omin, float omax) {
+float tzMapToRange (float val, float imin, float imax, float omin, float omax, float curve) {
     val = tzMapTo0_1(val, imin, imax);
+    val = curve > 0.f ? pow(val, curve) : 0.f;
     return tzMapFrom0_1(val, omin, omax);
 }
 

@@ -108,8 +108,8 @@
 - [pmerge] : combines all of its inputs (pulses) into a single pulse output (works like a giant or node). To combine regular signals, see merge.
 	- inputs: in1, in2, ..., in16
 	- outputs: out
-- [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].
-	- inputs: in, imin, imax, omin, omax
+- [map] : maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}]. An optional curve factor can be set via {curve} (must be > 0, 1 is linear, a value below 1 skews the result towards omax, a value above 1 skews the result towards omin).
+	- inputs: in, imin, imax, omin, omax, curve
 	- outputs: out
 - [from0_1] : maps {in} from the range [0..1] to the range [{min}..{max}].
 	- inputs: in, min, max

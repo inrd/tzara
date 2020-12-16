@@ -48,7 +48,8 @@ float tzMapTo0_1 (float val, float min, float max);
 float tzMapFrom0_1 (float val, float min, float max);
 
 /* maps val from the range [imin..imax] to the range [omin..omax] */
-float tzMapToRange (float val, float imin, float imax, float omin, float omax);
+/* curve factor must be > 0, 1 is linear, a value below 1 skews the result towards omax, a value above 1 skews the result towards omin */
+float tzMapToRange (float val, float imin, float imax, float omin, float omax, float curve);
 
 float tzMsToSamples (float ms, float samplerate);
 

@@ -50,7 +50,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"mix", "interpolates between {in1} and {in2} according to {coeff} in range [0..1].", "in1, in2, coeff", "out"},
     {"merge", "combines all of its inputs into a single signal. To combine pulses, see pmerge.", "in1, in2, ..., in16", "out"},
     {"pmerge", "combines all of its inputs (pulses) into a single pulse output (works like a giant or node). To combine regular signals, see merge.", "in1, in2, ..., in16", "out"},
-    {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}].", "in, imin, imax, omin, omax", "out"}, 
+    {"map", "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}]. An optional curve factor can be set via {curve} (must be > 0, 1 is linear, a value below 1 skews the result towards omax, a value above 1 skews the result towards omin).", "in, imin, imax, omin, omax, curve", "out"}, 
     {"from0_1", "maps {in} from the range [0..1] to the range [{min}..{max}].", "in, min, max", "out"}, 
     {"to0_1", "maps {in} from the range [{min}..{max}] to the range [0..1].", "in, min, max", "out"}, 
     {"smooth", "smooth value changes at {in} in {dur} milliseconds and outputs the smoothed value.", "in, dur", "out"},
@@ -1111,18 +1111,20 @@ void performMap (TzNode* n, TzProcessInfo* info) {
     float imax = getNodeInput(n, 2, 1.f);
     float omin = getNodeInput(n, 3, 0.f);
     float omax = getNodeInput(n, 4, 1.f);
+    float curve = getNodeInput(n, 5, 1.f);
 
-    n->outputs[0] = tzMapToRange(in, imin, imax, omin, omax);
+    n->outputs[0] = tzMapToRange(in, imin, imax, omin, omax, curve);
 }
 
 TzNode* createMapNode () {
     TzNode* n = allocateNewNode();
-    n->numInputs = 5;
+    n->numInputs = 6;
     strcpy(n->inputsNames[0], "in");
     strcpy(n->inputsNames[1], "imin");
     strcpy(n->inputsNames[2], "imax");
     strcpy(n->inputsNames[3], "omin");
     strcpy(n->inputsNames[4], "omax");
+    strcpy(n->inputsNames[5], "curve");
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performMap;
