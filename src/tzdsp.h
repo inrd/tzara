@@ -92,6 +92,8 @@ float tzSinewave (float freq, float samplerate, float* phase);
 
 /* polyblep oscillators : based on http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/ */
 
+float tzCalculatePolyblep (float phaseIncr, float t);
+
 /* requires an external variable to store the phase */
 float tzPolyblepSaw (float freq, float samplerate, float* phase);
 
