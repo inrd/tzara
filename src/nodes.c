@@ -59,6 +59,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"mstohz", "converts a duration  in milliseconds to a frequency in Hertz.", "in", "out"},
     {"hztoms", "converts a frequency in Hertz to a duration  in milliseconds.", "in", "out"},
     {"samplerate", "outputs the current samplerate.", "-", "out"},
+    {"duration", "outputs the render duration in milliseconds.", "-", "out"},
     {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out"},
     {"fixnan", "zeroes NaN in the signal.", "in", "out"},
     {"count", "outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).", "clock max", "out"},
@@ -1286,6 +1287,19 @@ TzNode* createSamplerateNode () {
     n->numOutputs = 1;
     strcpy(n->outputsNames[0], "out");
     n->perform = &performSamplerate;
+    return n;
+}
+
+void performDuration (TzNode* n, TzProcessInfo* info) {
+    n->outputs[0] = info->duration;
+}
+
+TzNode* createDurationNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 0;
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->perform = &performDuration;
     return n;
 }
 

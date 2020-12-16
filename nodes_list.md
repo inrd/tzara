@@ -135,6 +135,9 @@
 - [samplerate] : outputs the current samplerate.
 	- inputs: -
 	- outputs: out
+- [duration] : outputs the render duration in milliseconds.
+	- inputs: -
+	- outputs: out
 - [fixdenorm] : zeroes denormal numbers in the signal.
 	- inputs: in
 	- outputs: out

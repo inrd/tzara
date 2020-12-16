@@ -68,6 +68,7 @@ void process (Tzara* tz, float** out, int numChans, int numSamps, float samplera
         
         TzProcessInfo info;
         info.samplerate = samplerate;
+        info.duration = (float)(tz->renderDuration) * 1000.f;
 
         for (n = 0; n < tz->numNodes; ++n) {
             tz->nodes[n]->perform(tz->nodes[n], &info);

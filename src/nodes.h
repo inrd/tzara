@@ -60,6 +60,7 @@ enum NodeTypes {
     MSTOHZ_NODE,
     HZTOMS_NODE,
     SAMPLERATE_NODE,
+    DURATION_NODE,
     FIXDENORM_NODE,
     FIXNAN_NODE,
     COUNT_NODE,
@@ -126,6 +127,7 @@ typedef struct TzProcessInfo TzProcessInfo;
 
 struct TzProcessInfo {
     float samplerate;
+    float duration;
 };
 
 struct TzMatrix {
@@ -321,6 +323,9 @@ TzNode* createHztomsNode ();
 
 void performSamplerate (TzNode* n, TzProcessInfo* info);
 TzNode* createSamplerateNode ();
+
+void performDuration (TzNode* n, TzProcessInfo* info);
+TzNode* createDurationNode ();
 
 void performFixdenorm (TzNode* n, TzProcessInfo* info);
 TzNode* createFixdenormNode ();
