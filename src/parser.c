@@ -603,6 +603,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createHighpassNode(), name, isModule);
             break;
 
+        case LOWPASS2_NODE:
+            printf("Creating lowpass2 : %s\n", name);
+            addEngineNode(tz, createLowpass2Node(), name, isModule);
+            break;
+
         case SVF_NODE:
             printf("Creating svf : %s\n", name);
             addEngineNode(tz, createSvfNode(), name, isModule);

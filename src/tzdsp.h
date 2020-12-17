@@ -21,6 +21,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 #ifndef TZDSP_H
 #define TZDSP_H
 
+typedef struct TZBiquadCoefficients TZBiquadCoefficients;
 typedef struct TZSvfOutputs TZSvfOutputs;
 
 void tzSwap (float* a, float* b);
@@ -112,6 +113,20 @@ float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1);
 /* requires an external variable to store z1 */
 float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1);
 
+/* biquad related functions  based on https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/ */
+
+struct TZBiquadCoefficients {
+    double a0;
+    double a1;
+    double a2;
+    double b1;
+    double b2;
+};
+
+/* requires external variables to store z1 and z2 */
+float tzBiquad (float in, TZBiquadCoefficients coeffs, float* z1, float* z2);
+
+TZBiquadCoefficients tzBiquadLowpassCoeffs (float cut, float Q, float samplerate);
 
 struct TZSvfOutputs {
     float lowpass;

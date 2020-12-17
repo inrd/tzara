@@ -308,6 +308,29 @@ float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1) {
 }
 
 
+float tzBiquad (float in, TZBiquadCoefficients coeffs, float* z1, float* z2) {
+    double out = (double)in * coeffs.a0 + (double)(*z1);
+    *z1 = (float)((double)in * coeffs.a1 + (double)(*z2) - coeffs.b1 * out);
+    *z2 = (float)((double)in * coeffs.a2 - coeffs.b2 * out);
+    return (float)out;
+}
+
+
+TZBiquadCoefficients tzBiquadLowpassCoeffs (float cut, float Q, float samplerate) {
+    double K = tan(M_PI * (double)cut / (double)samplerate);
+    double norm = 1.0 / (1.0 + K / (double)Q + K * K);
+    TZBiquadCoefficients coeffs;
+
+    coeffs.a0 = K * K * norm;
+    coeffs.a1 = 2.0 * coeffs.a0;
+    coeffs.a2 = coeffs.a0;
+    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
+
+    return coeffs;
+}
+
+
 TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq) {
     const double v0 = (double)in;
     const double g = tan(M_PI * cut / (double)samplerate);
