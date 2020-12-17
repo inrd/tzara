@@ -216,6 +216,9 @@
 - [notch] : a notch (band-reject) filter. {res} >= 0.1.
 	- inputs: in, cut(Hz), res(Hz)
 	- outputs: out
+- [peak] : a peak filter. {res} >= 0.1.
+	- inputs: in, cut(Hz), res(Hz), gain(dB)
+	- outputs: out
 - [svf] : a state variable filter. Outputs lowpass, bandpass, highpass and notch.
 	- inputs: in, cut, res[0..1]
 	- outputs: lowpass, bandpass, highpass, notch

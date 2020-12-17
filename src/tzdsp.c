@@ -376,6 +376,33 @@ TZBiquadCoefficients tzBiquadNotchCoeffs (float cut, float Q, float samplerate) 
 }
 
 
+TZBiquadCoefficients tzBiquadPeakCoeffs (float cut, float Q, float peakGain, float samplerate) {
+    double K = tan(M_PI * (double)cut / (double)samplerate);
+    double V = (double)tzDecibelsToAmp(fabs(peakGain));
+    double norm = 0.0;
+    TZBiquadCoefficients coeffs;
+
+    if (peakGain >= 0.f) {
+        norm = 1.0 / (1.0 + 1.0 / (double)Q * K + K * K);
+        coeffs.a0 = (1.0 + V / (double)Q * K + K * K) * norm;
+        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+        coeffs.a2 = (1.0 - V / (double)Q * K + K * K) * norm;
+        coeffs.b1 = coeffs.a1;
+        coeffs.b2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
+    }
+    else {
+        norm = 1.0 / (1.0 + V / (double)Q * K + K * K);
+        coeffs.a0 = (1.0 + 1.0 / (double)Q * K + K * K) * norm;
+        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+        coeffs.a2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
+        coeffs.b1 = coeffs.a1;
+        coeffs.b2 = (1.0 - V / (double)Q * K + K * K) * norm;
+    }
+
+    return coeffs;
+}
+
+
 TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq) {
     const double v0 = (double)in;
     const double g = tan(M_PI * cut / (double)samplerate);

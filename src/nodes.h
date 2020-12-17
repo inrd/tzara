@@ -87,6 +87,7 @@ enum NodeTypes {
     HIGHPASS2_NODE,
     BANDPASS_NODE,
     NOTCH_NODE,
+    PEAK_NODE,
     SVF_NODE,
     DELAY_NODE,
     FDELAY_NODE,
@@ -421,6 +422,9 @@ TzNode* createBandpassNode ();
 
 void performNotch (TzNode* n, TzProcessInfo* info);
 TzNode* createNotchNode ();
+
+void performPeak (TzNode* n, TzProcessInfo* info);
+TzNode* createPeakNode ();
 
 void performSvf (TzNode* n, TzProcessInfo* info);
 TzNode* createSvfNode ();
