@@ -52,6 +52,7 @@ int main (int argc, char** argv) {
     unsigned long int numFrames = (unsigned long int)samplerate * 60;
     char patchName[TZARA_FILE_NAME_MAX_LENGTH];
     char wavName[TZARA_FILE_NAME_MAX_LENGTH + 5];
+    char* ext = NULL;
 
     memset(wavName, '\0', TZARA_FILE_NAME_MAX_LENGTH);
 
@@ -78,7 +79,15 @@ int main (int argc, char** argv) {
         }
         else {
             strncpy(patchName, argv[1], TZARA_FILE_NAME_MAX_LENGTH - 5);
-            sprintf(wavName, "%s.wav", patchName);
+            strcpy(wavName, patchName);
+            /* replace extension if any */
+            ext = strrchr(wavName, '.');
+            if (ext != NULL) {
+                strcpy(ext, ".wav");
+            }
+            else {
+                sprintf(wavName, "%s.wav", patchName);
+            }
         }
     }
     else if (argc == 3) {

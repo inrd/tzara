@@ -123,7 +123,7 @@
 # If things go well you should see these comments printed to the standard output as well
 # as some additional informations.
 #
-# A one minute long stereo wav file name 01_welcome.tzara.wav should have been generated next to the patch.
+# A one minute long stereo wav file name 01_welcome.wav should have been generated next to the patch.
 #
 # Open it with an audio player or editor to enjoy one minute of 220 Hz purity.
 #
