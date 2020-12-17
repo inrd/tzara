@@ -1,0 +1,81 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 09. Scales 
+# ==========
+#
+# Here we take the patch from tutorial 8 and tame the randomness a little.
+
+! duration 30 
+
++ pulse clock
+= 400 clock@rate
+
++ irandom notes
+= c1 notes@min
+= b2 notes@max
+> clock@out notes@clock
+
+# Here is our new node : 
++ notescale scaler
+
+# As usual, run tzara --nodes to find out more.
+# Here are the informations you will get :
+#     [notescale] : conforms a note value ({note}) to a musical {scale} according 
+#     to a {root} note. Run tzara --scales to get a list of the available scales. 
+#         - inputs: note, scale, root
+#         - outputs: out
+
+# we pass the random note value through it :
+> notes@out scaler@note
+
+# let's use C as our root note :
+= c scaler@root
+
+# to get a list of the available scales, run tzara --scales
+= raga_bilwadala scaler@scale
+
+# we use the conformed value
++ miditofreq freq
+> scaler@out freq@in
+
++ sawosc osc
+> freq@out osc@freq
+
++ random rnd
+> clock@out rnd@clock
+
+# another small enhancement (more verbose than in the previous version) :
+# we use the map node to scale our cutoff value, which allows us to set a
+# curve factor.
+# Here the reulting frequency values will lean towards the lower range value.
++ map cut
+= 0 cut@imin
+= 1 cut@imax
+= 60 cut@omin
+= 1200 cut@omax
+= 3 cut@curve
+> rnd@out cut@in
+
++ smooth smoothcut
+= 400 smoothcut@dur
+> cut@out smoothcut@in
+
++ svf filter
+> smoothcut@out filter@cut
+= 0.9 filter@res
+> osc@out filter@in
+
++ tanh saturate
+> filter@lowpass saturate@in
+
+> saturate@out _out_@l
+> saturate@out _out_@r
+
+# Build the patch and you will have a more coherent version of the
+# 8th tutorial 
+
+
