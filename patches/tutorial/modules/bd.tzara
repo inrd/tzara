@@ -1,0 +1,42 @@
+# A simple bassdrum synth
+
+@ in trig
+# pitch decay
+@ in pdecay
+# amp decay
+@ in adecay
+
+@ out out
+
++ var t
+> _in_@trig $t
+
++ segment ps
+= 1 ps@val1
+= 0 ps@val2
+> _in_@pdecay ps@dur
+> $t ps@clock
+
++ map pmod
+= 0 pmod@imin
+= 1 pmod@imax
+= 60 pmod@omin
+= 1000 pmod@omax
+= 4 pmod@curve
+> ps@out pmod@in
+
++ sinosc osc
+> pmod@out osc@freq
+
++ segment as
+= 1 as@val1
+= 0 as@val2
+> _in_@adecay as@dur
+> $t as@clock
+
++ mult vca
+> osc@out vca@in1
+> as@out  vca@in2
+
+> vca@out _out_@out
+

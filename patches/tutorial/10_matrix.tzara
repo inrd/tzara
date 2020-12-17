@@ -1,0 +1,89 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 09. Matrix 
+# ==========
+#
+# The matrix node is a special one :
+# it can be used for many things but here we will focus on sequencing.
+#
+# The matrix node holds a 2 dimensional array from which you can read values
+# and to which you can write values.
+# You can create an empty matrix from scratch but usually you will want to load
+# some data from a file. 
+#
+# The file syntax is very simple : 
+# each line represents a row and, inside a row, columns are delimited by a space.
+# So for example, a 4 by 4 matrix could look like this :
+#     10 20 30 40
+#     50 60 70 80
+#     c3 d4 e5 g6
+#     0.5 0.8 -0.5 -0.8
+#
+# As you can see in the example above, any character string that is a valid tzara
+# constant (note values, scale names etc...) can be used inside a matrix.
+#
+# In this tutorial we will use a single row matrix (so a basic array) that is stored
+# in the file matrices/bdseq.txt to sequence a bassdrum.
+#
+# For clarity, the bassdrum is generated in a submodule (modules/bd.tzara).
+
+! duration 40 
+
++ pulse clock
+= 200 clock@rate
+
+# We create a counter that will be our playhead :
++ count phead 
+= 16 phead@max
+> clock@out phead@clock
+
+# We need a value between 0 and 15 for our purpose (see below) :
++ sub column
+> phead@out column@in1
+= 1 column@in2
+
+# To load a matrix from a file you use the syntax :
+#
+#     + matrix mysequence 4 16 <mymatrixfile.txt>
+#
+# where 4 is the number of rows to create and 16 the number of columns to create.
+# If you specify more cells than what exists in the file, the cells that are not 
+# present in the file will be filled with zeroes.
+# If you specify a grid size that is smaller than the contents of the file, 
+# only the cells for the requested size will be loaded from the file.
+#
+# Let's load our sequence data (1 row and 16 columns):
+
++ matrix seq 1 16 <matrices/bdseq.txt>
+
+# now we want to read what is at the playhead position in our sequence data.
+# As there is only one row we will always read from the same one so we map a
+# constant.
+# Important : matrices indexes start from 0 !
+# That's why we subtracted 1 from the playhead value earlier.
+= 0 seq@getrow
+> column@out seq@getcol
+
+# The matrix node will continuously output the cell value.
+# If you open the sequence file you will see that our data are just 0s and 1s
+# (e.g. a step sequencer).
+# We want to use these as clocks (1 sample peaks) when a new pulse is emitted.
+# To do this, we combine the sequence output and the clock node output using
+# a and node :
++ and trigs
+> clock@out trigs@in1
+> seq@out trigs@in2
+
+# Our bassdrum module
++ module bd <modules/bd.tzara>
+= 80 bd@pdecay
+= 160 bd@adecay
+> trigs@out bd@trig
+
+> bd@out _out_@l
+> bd@out _out_@r
+
