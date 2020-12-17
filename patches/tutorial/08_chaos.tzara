@@ -1,0 +1,72 @@
+# ====================================================== #
+#                                                        #
+#     | TZARA | Text Based Modular Synthesizer |         #
+#                                                        # 
+# ====================================================== #
+#
+# 08. Chaos 
+# =========
+#
+# Time to bring some unpredictability to our patches.
+# This is easily done thanks to the random and irandom nodes.
+
+! duration 15 
+
++ pulse clock
+= 400 clock@rate
+
+# The irandom node generates a random integer value when it receives a pulse
+# and outputs that value until it receives another pulse.
++ irandom notes
+
+# Set the output range (remember we can use note names instead of raw numbers):
+= c1 notes@min
+= b2 notes@max
+
+# connect a signal to trigger a new value :
+> clock@out notes@clock
+
+# then use the value :
+
++ miditofreq freq
+> notes@out freq@in
+
++ sawosc osc
+> freq@out osc@freq
+
+# now let's generate a random floating point value between 0 an 1
++ random rnd
+> clock@out rnd@clock
+
+# and convert that value to the range we want :
++ from0_1 cut
+= 60 cut@min
+= 800 cut@max
+> rnd@out cut@in
+
+# Bonus tip : run tzara --nodes and check the documentation for the following nodes :
+#     - from0_1
+#     - to0_1
+#     - map
+# These are very handy to scale signals for different input ranges
+
+# glide between random values :
++ smooth smoothcut
+= 400 smoothcut@dur
+> cut@out smoothcut@in
+
+# Now we create a filter and pass our randomized value
++ svf filter
+> smoothcut@out filter@cut
+= 0.9 filter@res
+> osc@out filter@in
+
+# Preventive clipping of the output:
++ tanh saturate
+
+# notice that the svf node offers 4 outputs, here we just want the lowpass :
+> filter@lowpass saturate@in
+
+> saturate@out _out_@l
+> saturate@out _out_@r
+
