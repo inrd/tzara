@@ -132,6 +132,7 @@ TZBiquadCoefficients tzBiquadBandpassCoeffs (float cut, float Q, float samplerat
 TZBiquadCoefficients tzBiquadNotchCoeffs (float cut, float Q, float samplerate);
 /* peakGain is expressed in dB */
 TZBiquadCoefficients tzBiquadPeakCoeffs (float cut, float Q, float peakGain, float samplerate);
+TZBiquadCoefficients tzBiquadLowshelfCoeffs (float cut, float peakGain, float samplerate);
 
 struct TZSvfOutputs {
     float lowpass;
