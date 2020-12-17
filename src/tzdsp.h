@@ -127,6 +127,7 @@ struct TZBiquadCoefficients {
 float tzBiquad (float in, TZBiquadCoefficients coeffs, float* z1, float* z2);
 
 TZBiquadCoefficients tzBiquadLowpassCoeffs (float cut, float Q, float samplerate);
+TZBiquadCoefficients tzBiquadHighpassCoeffs (float cut, float Q, float samplerate);
 
 struct TZSvfOutputs {
     float lowpass;

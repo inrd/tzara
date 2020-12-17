@@ -84,6 +84,7 @@ enum NodeTypes {
     LOWPASS_NODE,
     HIGHPASS_NODE,
     LOWPASS2_NODE,
+    HIGHPASS2_NODE,
     SVF_NODE,
     DELAY_NODE,
     FDELAY_NODE,
@@ -409,6 +410,9 @@ TzNode* createHighpassNode ();
 
 void performLowpass2 (TzNode* n, TzProcessInfo* info);
 TzNode* createLowpass2Node ();
+
+void performHighpass2 (TzNode* n, TzProcessInfo* info);
+TzNode* createHighpass2Node ();
 
 void performSvf (TzNode* n, TzProcessInfo* info);
 TzNode* createSvfNode ();
