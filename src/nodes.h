@@ -89,6 +89,7 @@ enum NodeTypes {
     NOTCH_NODE,
     PEAK_NODE,
     LOWSHELF_NODE,
+    HIGHSHELF_NODE,
     SVF_NODE,
     DELAY_NODE,
     FDELAY_NODE,
@@ -429,6 +430,9 @@ TzNode* createPeakNode ();
 
 void performLowshelf (TzNode* n, TzProcessInfo* info);
 TzNode* createLowshelfNode ();
+
+void performHighshelf (TzNode* n, TzProcessInfo* info);
+TzNode* createHighshelfNode ();
 
 void performSvf (TzNode* n, TzProcessInfo* info);
 TzNode* createSvfNode ();

@@ -633,6 +633,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createLowshelfNode(), name, isModule);
             break;
 
+        case HIGHSHELF_NODE:
+            printf("Creating highshelf : %s\n", name);
+            addEngineNode(tz, createHighshelfNode(), name, isModule);
+            break;
+
         case SVF_NODE:
             printf("Creating svf : %s\n", name);
             addEngineNode(tz, createSvfNode(), name, isModule);

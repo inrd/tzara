@@ -222,6 +222,9 @@
 - [lowshelf] : a lowshelf filter.
 	- inputs: in, cut(Hz), gain(dB)
 	- outputs: out
+- [highshelf] : a highshelf filter.
+	- inputs: in, cut(Hz), gain(dB)
+	- outputs: out
 - [svf] : a state variable filter. Outputs lowpass, bandpass, highpass and notch.
 	- inputs: in, cut, res[0..1]
 	- outputs: lowpass, bandpass, highpass, notch

@@ -113,7 +113,8 @@ float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1);
 /* requires an external variable to store z1 */
 float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1);
 
-/* biquad related functions  based on https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/ */
+/* biquad related functions based on Nigel Redmon's code : */
+/* https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/ */
 
 struct TZBiquadCoefficients {
     double a0;
@@ -133,6 +134,7 @@ TZBiquadCoefficients tzBiquadNotchCoeffs (float cut, float Q, float samplerate);
 /* peakGain is expressed in dB */
 TZBiquadCoefficients tzBiquadPeakCoeffs (float cut, float Q, float peakGain, float samplerate);
 TZBiquadCoefficients tzBiquadLowshelfCoeffs (float cut, float peakGain, float samplerate);
+TZBiquadCoefficients tzBiquadHighshelfCoeffs (float cut, float peakGain, float samplerate);
 
 struct TZSvfOutputs {
     float lowpass;
