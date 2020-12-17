@@ -210,6 +210,9 @@
 - [highpass2] : a 2 poles highpass filter. {res} >= 0.1.
 	- inputs: in, cut(Hz), res(Hz)
 	- outputs: out
+- [bandpass] : a bandpass filter. {res} >= 0.1.
+	- inputs: in, cut(Hz), res(Hz)
+	- outputs: out
 - [svf] : a state variable filter. Outputs lowpass, bandpass, highpass and notch.
 	- inputs: in, cut, res[0..1]
 	- outputs: lowpass, bandpass, highpass, notch

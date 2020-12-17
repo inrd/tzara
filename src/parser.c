@@ -613,6 +613,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createHighpass2Node(), name, isModule);
             break;
 
+        case BANDPASS_NODE:
+            printf("Creating bandpass : %s\n", name);
+            addEngineNode(tz, createBandpassNode(), name, isModule);
+            break;
+
         case SVF_NODE:
             printf("Creating svf : %s\n", name);
             addEngineNode(tz, createSvfNode(), name, isModule);
