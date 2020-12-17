@@ -85,6 +85,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"lowpass2", "a 2 poles lowpass filter. {res} >= 0.1.", "in, cut(Hz), res(Hz)", "out"},
     {"highpass2", "a 2 poles highpass filter. {res} >= 0.1.", "in, cut(Hz), res(Hz)", "out"},
     {"bandpass", "a bandpass filter. {res} >= 0.1.", "in, cut(Hz), res(Hz)", "out"},
+    {"notch", "a notch (band-reject) filter. {res} >= 0.1.", "in, cut(Hz), res(Hz)", "out"},
     {"svf", "a state variable filter. Outputs lowpass, bandpass, highpass and notch.", "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch"},
     {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
     {"fdelay", "a delay line with feedback (up to 2 seconds).", "in, time(Ms) feed([0..1])", "out"},
@@ -2025,6 +2026,33 @@ TzNode* createBandpassNode () {
     n->memory[0] = 0.f;
     n->memory[1] = 0.f;
     n->perform = &performBandpass;
+    return n;
+}
+
+
+void performNotch (TzNode* n, TzProcessInfo* info) {
+    float in = getNodeInput(n, 0, 0.f);
+    float cut = getNodeInput(n, 1, 11000.f);
+    float res = getNodeInput(n, 2, 0.5f);
+    float* z1 = &(n->memory[0]);
+    float* z2 = &(n->memory[1]);
+
+    if (res < 0.1f) res = 0.1f;
+
+    n->outputs[0] =  tzBiquad(in, tzBiquadNotchCoeffs(cut, res, info->samplerate), z1, z2);
+}
+
+TzNode* createNotchNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 3;
+    strcpy(n->inputsNames[0], "in");
+    strcpy(n->inputsNames[1], "cut");
+    strcpy(n->inputsNames[2], "res");
+    n->numOutputs = 1;
+    strcpy(n->outputsNames[0], "out");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->perform = &performNotch;
     return n;
 }
 
