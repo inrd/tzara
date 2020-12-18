@@ -568,6 +568,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createSegmentNode(), name, isModule);
             break;
 
+        case ADENV_NODE:
+            printf("Creating adenv : %s\n", name);
+            addEngineNode(tz, createADenvNode(), name, isModule);
+            break;
+
         case SELECT_NODE:
             printf("Creating select : %s\n", name);
             addEngineNode(tz, createSelectNode(), name, isModule);

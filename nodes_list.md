@@ -183,6 +183,9 @@
 - [segment] : outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.
 	- inputs: clock, val1, val2, dur
 	- outputs: out, end(pulse)
+- [adenv] : an attack/decay envelope generator. Outputs a value in range [0..1] at output {env}. When it receives a pulse at {clock}, it starts the attack stage and when the envelope reaches 1, it starts the decay stage until it reaches 0. An optional VCA is built-in so you can route a signal to the {vca} input and get the scaled version of that signal at the {vca} output.
+	- inputs: clock, attack(Ms), decay(Ms), vca
+	- outputs: env, vca
 - [select] : if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.
 	- inputs: index, in1, in2, in3, in4, in5, in6, in7, in8
 	- outputs: out
