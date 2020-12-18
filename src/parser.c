@@ -573,6 +573,11 @@ int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isMo
             addEngineNode(tz, createADenvNode(), name, isModule);
             break;
 
+        case ASRENV_NODE:
+            printf("Creating asrenv : %s\n", name);
+            addEngineNode(tz, createASRenvNode(), name, isModule);
+            break;
+
         case SELECT_NODE:
             printf("Creating select : %s\n", name);
             addEngineNode(tz, createSelectNode(), name, isModule);

@@ -76,6 +76,7 @@ const TzNodeDoc nodesDoc [NUM_NODE_TYPES] = {
     {"notescale", "conforms a note value ({note}) to a musical {scale} according to a {root} note. Run tzara --scales to get a list of the available scales.", "note, scale, root", "out"},
     {"segment", "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse at {clock}. Outputs a pulse at {end} when reaching the end of the segment for chaining segments.", "clock, val1, val2, dur", "out, end(pulse)"},
     {"adenv", "an attack/decay envelope generator. Outputs a value in range [0..1] at output {env}. When it receives a pulse at {clock}, it starts the attack stage and when the envelope reaches 1, it starts the decay stage until it reaches 0. An optional VCA is built-in so you can route a signal to the {vca} input and get the scaled version of that signal at the {vca} output.", "clock, attack(Ms), decay(Ms), vca", "env, vca"},
+    {"asrenv", "an attack/sustain/release envelope generator. Outputs a value in range [0..1] at output {env}. When it receives a non-zero value at {gate}, it starts the attack stage. When the envelope reaches the value of {gate} (between 0 and 1 to act as velocity), it holds the value as long as {gate} is not zero, and then it starts the release stage until it reaches 0. An optional VCA is built-in so you can route a signal to the {vca} input and get the scaled version of that signal at the {vca} output.", "gate, attack(Ms), release(Ms), vca", "env, vca"},
     {"select", "if {index} is 0, outputs 0 otherwise ouputs the value of the corresponding input.", "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
     {"route", "if {index} is greater than 0 and lower than 9, outputs {in} to the corresponding {out}.", "in, index", "out1, out2, out3, out4, out5, out6, out7, out8"},
     {"sah", "samples the value at {in} when receiving a non-zero signal (pulse) at {clock}. Outputs the sampled value.", "in clock", "out"},
@@ -1832,6 +1833,105 @@ TzNode* createADenvNode () {
     n->memory[0] = 0.f;
     n->memory[1] = 0.f;
     n->perform = &performADenv;
+    return n;
+}
+
+
+void performASRenv (TzNode* n, TzProcessInfo* info) {
+    float gate = getNodeInputClipped(n, 0, 0.f, 0.f, 1.f);
+    float att = tzMsToSamples(getNodeInput(n, 1, 0.f), info->samplerate);
+    float rel = tzMsToSamples(getNodeInput(n, 2, 60.f), info->samplerate);
+    float sig = getNodeInput(n, 3, 0.f);
+    float out = 0.f;
+    float* env = &(n->memory[0]);
+    /* stages : 
+     * 0 = off
+     * 1 = attack
+     * 2 = sustain
+     * 3 = release */
+    float* stage = &(n->memory[1]);
+    float* g1 = &(n->memory[2]);
+    /* store the last velocity for release stage */
+    float* endVel = &(n->memory[3]); 
+
+    if (*g1 <= 0.f && gate > 0.f) {
+        /* trigger */
+        /* jump to sustain if no attack */
+        *stage = att > 0.f ? 1.f : 2.f; 
+        *env = *stage == 2.f ? gate : 0.f;
+    }
+
+    /*  cache last velocity for release */
+    if (gate > 0.f) *endVel = gate;
+    /* cache gate state to detect triggers */
+    *g1 = gate;
+
+
+    if (*stage == 1.f) {
+        out = pow(*env, 0.5);
+    }
+    else if (*stage == 2.f) {
+        out = *env;
+    }
+    else if (*stage == 3.f) {
+        out = pow(*env, 2.f);
+    }
+
+    out *= *endVel;
+
+    n->outputs[0] = out;
+    n->outputs[1] = sig * out;
+
+    if (*stage == 1.f) {
+        if (gate > 0.f) {
+            *env += 1.f / att;
+            if (*env >= 1.f) {
+                *env = 1.f;
+                *stage = 2.f;
+            }
+        }
+        else {
+            *env = 0.f;
+            *stage = 0.f;
+        }
+    }
+    if (*stage == 2.f) {
+        *env = 1.f;
+        if (gate <= 0.f) *stage = 3.f;
+    }
+    if (*stage == 3.f) {
+        if (rel > 0.f) {
+            *env -= 1.f / rel;
+            if (*env <= 0.f) {
+                *env = 0.f;
+                *stage = 0.f;
+            }
+        }
+        else {
+            *env = 0.f;
+            *stage = 0.f;
+        }
+    }
+    if (*stage == 0.f) {
+        *env = 0.f;
+    }
+}
+
+TzNode* createASRenvNode () {
+    TzNode* n = allocateNewNode();
+    n->numInputs = 4;
+    strcpy(n->inputsNames[0], "gate");
+    strcpy(n->inputsNames[1], "attack");
+    strcpy(n->inputsNames[2], "release");
+    strcpy(n->inputsNames[3], "vca");
+    n->numOutputs = 2;
+    strcpy(n->outputsNames[0], "env");
+    strcpy(n->outputsNames[1], "vca");
+    n->memory[0] = 0.f;
+    n->memory[1] = 0.f;
+    n->memory[2] = 0.f;
+    n->memory[3] = 0.f;
+    n->perform = &performASRenv;
     return n;
 }
 

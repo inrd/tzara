@@ -77,6 +77,7 @@ enum NodeTypes {
     NOTESCALE_NODE,
     SEGMENT_NODE,
     ADENV_NODE,
+    ASRENV_NODE,
     SELECT_NODE,
     ROUTE_NODE,
     SAH_NODE,
@@ -392,6 +393,9 @@ TzNode* createSegmentNode ();
 
 void performADenv (TzNode* n, TzProcessInfo* info);
 TzNode* createADenvNode ();
+
+void performASRenv (TzNode* n, TzProcessInfo* info);
+TzNode* createASRenvNode ();
 
 void performSelect (TzNode* n, TzProcessInfo* info);
 TzNode* createSelectNode ();
