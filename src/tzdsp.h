@@ -3,11 +3,23 @@ MIT License
 
 Copyright (c) 2020 Thomas Hennebert
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
 
-The above copyright notice and this permission notice (including the next paragraph) shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice (including the next
+paragraph) shall be included in all copies or substantial portions of the
+Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 /*
@@ -24,149 +36,171 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 typedef struct TZBiquadCoefficients TZBiquadCoefficients;
 typedef struct TZSvfOutputs TZSvfOutputs;
 
-void tzSwap (float* a, float* b);
+void tzSwap(float *a, float *b);
 
-float tzClip (float val, float min, float max);
+float tzClip(float val, float min, float max);
 
-float tzWrap (float val, float min, float max);
+float tzWrap(float val, float min, float max);
 
-float tzMin (float a, float b);
+float tzMin(float a, float b);
 
-float tzMax (float a, float b);
+float tzMax(float a, float b);
 
-int tzRoundToInt (float val);
+int tzRoundToInt(float val);
 
 /* returns only the fractional part of val */
-float tzFrac (float val);
+float tzFrac(float val);
 
 /* ratio is expected to be in range [0..1] */
-float tzLinInterp (float a, float b, float ratio);
+float tzLinInterp(float a, float b, float ratio);
 
 /* maps val from the range [min..max] to the range [0..1] */
-float tzMapTo0_1 (float val, float min, float max);
+float tzMapTo0_1(float val, float min, float max);
 
 /* maps val from the range [0..1] to the range [min..max] */
-float tzMapFrom0_1 (float val, float min, float max);
+float tzMapFrom0_1(float val, float min, float max);
 
 /* maps val from the range [imin..imax] to the range [omin..omax] */
-/* curve factor must be > 0, 1 is linear, a value below 1 skews the result towards omax, a value above 1 skews the result towards omin */
-float tzMapToRange (float val, float imin, float imax, float omin, float omax, float curve);
+/* curve factor must be > 0, 1 is linear, a value below 1 skews the result
+ * towards omax, a value above 1 skews the result towards omin */
+float tzMapToRange(float val, float imin, float imax, float omin, float omax,
+                   float curve);
 
-float tzMsToSamples (float ms, float samplerate);
+float tzMsToSamples(float ms, float samplerate);
 
 /* accepts float value for fine tuning */
-float tzMIDIToFreq (float note);
+float tzMIDIToFreq(float note);
 
-float tzDecibelsToAmp (float db);
+float tzDecibelsToAmp(float db);
 
-float tzMsToHz (float ms);
+float tzMsToHz(float ms);
 
-float tzHzToMs (float hz);
+float tzHzToMs(float hz);
 
-int tzConformNoteToScale (int note, const int scale[12], int root);
+int tzConformNoteToScale(int note, const int scale[12], int root);
 
-void tzFixDenormals (float* x);
+void tzFixDenormals(float *x);
 
-void tzFixNaN (float* x);
+void tzFixNaN(float *x);
 
-void tzGenRandomSeed ();
-void tzSetRandomSeed (unsigned int seed);
+void tzGenRandomSeed();
+void tzSetRandomSeed(unsigned int seed);
 
 /* returns a random value in range [0..1] */
-float tzRandom ();
+float tzRandom();
 
 /* returns a random floating point value in range [min..max] */
-float tzRandomFloat (float min, float max);
+float tzRandomFloat(float min, float max);
 
 /* returns a random integer value in range [min..max] */
-int tzRandomInt (int min, int max);
+int tzRandomInt(int min, int max);
 
-float tzWhiteNoise ();
+float tzWhiteNoise();
 
 /* smooth value changes requires an external variable to store the value */
-void tzSmooth (float* val, float target, float rampTimeMs, float samplerate);
+void tzSmooth(float *val, float target, float rampTimeMs, float samplerate);
 
 /* requires an external variable to store the phase */
-float tzPhasor (float freq, float samplerate, float* phase);
+float tzPhasor(float freq, float samplerate, float *phase);
 
 /* requires an external variable to store the phase */
-float tzSinewave (float freq, float samplerate, float* phase);
+float tzSinewave(float freq, float samplerate, float *phase);
 
-/* polyblep oscillators : based on http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/ */
+/* polyblep oscillators : based on
+ * http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/
+ */
 
-float tzCalculatePolyblep (float phaseIncr, float t);
+float tzCalculatePolyblep(float phaseIncr, float t);
 
 /* requires an external variable to store the phase */
-float tzPolyblepSaw (float freq, float samplerate, float* phase);
+float tzPolyblepSaw(float freq, float samplerate, float *phase);
 
 /* requires an external variable to store the phase */
 /* pw in range [0..1] */
-float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase);
+float tzPolyblepSquare(float freq, float pw, float samplerate, float *phase);
 
-/* requires external variables to store the phase and the previous output (z1) */
+/* requires external variables to store the phase and the previous output (z1)
+ */
 /* pw in range [0..1] */
-float tzPolyblepTriangle (float freq, float pw, float samplerate, float* phase, float* z1);
+float tzPolyblepTriangle(float freq, float pw, float samplerate, float *phase,
+                         float *z1);
 
 /* requires an external variable to store z1 */
-float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1);
+float tzOnePoleLowpass(float in, float cut, float samplerate, float *z1);
 
 /* requires an external variable to store z1 */
-float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1);
+float tzOnePoleHighpass(float in, float cut, float samplerate, float *z1);
 
 /* biquad related functions based on Nigel Redmon's code : */
 /* https://www.earlevel.com/main/2012/11/26/biquad-c-source-code/ */
 
 struct TZBiquadCoefficients {
-    double a0;
-    double a1;
-    double a2;
-    double b1;
-    double b2;
+  double a0;
+  double a1;
+  double a2;
+  double b1;
+  double b2;
 };
 
 /* requires external variables to store z1 and z2 */
-float tzBiquad (float in, TZBiquadCoefficients coeffs, float* z1, float* z2);
+float tzBiquad(float in, TZBiquadCoefficients coeffs, float *z1, float *z2);
 
-TZBiquadCoefficients tzBiquadLowpassCoeffs (float cut, float Q, float samplerate);
-TZBiquadCoefficients tzBiquadHighpassCoeffs (float cut, float Q, float samplerate);
-TZBiquadCoefficients tzBiquadBandpassCoeffs (float cut, float Q, float samplerate);
-TZBiquadCoefficients tzBiquadNotchCoeffs (float cut, float Q, float samplerate);
+TZBiquadCoefficients tzBiquadLowpassCoeffs(float cut, float Q,
+                                           float samplerate);
+TZBiquadCoefficients tzBiquadHighpassCoeffs(float cut, float Q,
+                                            float samplerate);
+TZBiquadCoefficients tzBiquadBandpassCoeffs(float cut, float Q,
+                                            float samplerate);
+TZBiquadCoefficients tzBiquadNotchCoeffs(float cut, float Q, float samplerate);
 /* peakGain is expressed in dB */
-TZBiquadCoefficients tzBiquadPeakCoeffs (float cut, float Q, float peakGain, float samplerate);
-TZBiquadCoefficients tzBiquadLowshelfCoeffs (float cut, float peakGain, float samplerate);
-TZBiquadCoefficients tzBiquadHighshelfCoeffs (float cut, float peakGain, float samplerate);
+TZBiquadCoefficients tzBiquadPeakCoeffs(float cut, float Q, float peakGain,
+                                        float samplerate);
+TZBiquadCoefficients tzBiquadLowshelfCoeffs(float cut, float peakGain,
+                                            float samplerate);
+TZBiquadCoefficients tzBiquadHighshelfCoeffs(float cut, float peakGain,
+                                             float samplerate);
 
 struct TZSvfOutputs {
-    float lowpass;
-    float bandpass;
-    float highpass;
-    float notch;
+  float lowpass;
+  float bandpass;
+  float highpass;
+  float notch;
 };
 
-/* SVF based on Andrew Simper's paper : https://cytomic.com/index.php?q=technical-papers */
+/* SVF based on Andrew Simper's paper :
+ * https://cytomic.com/index.php?q=technical-papers */
 /* requires external variables to store ic1eq and ic2eq */
 /* returns 4 outputs at once */
 /* resonance in range [0..1] */
-TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq);
+TZSvfOutputs tzStateVariableFilter(float in, float cut, float res,
+                                   float samplerate, float *ic1eq,
+                                   float *ic2eq);
 
-/* returns the linearly interpolated value for a given position in a circular buffer */
+/* returns the linearly interpolated value for a given position in a circular
+ * buffer */
 /* make sure the position passed in is valid */
 /* maxPos = bufferLength - 1 */
-float tzReadFromCirularBuffer (float* buffer, int maxPos, float pos);
+float tzReadFromCirularBuffer(float *buffer, int maxPos, float pos);
 
-/* requires an externally allocated delay buffer and an external variable to store pos */
+/* requires an externally allocated delay buffer and an external variable to
+ * store pos */
 /* maxpos = delay buffer length minus 1 */
-float tzDelay (float in, float timeMs, float samplerate, float* delayBuf, int maxPos, float* pos);
+float tzDelay(float in, float timeMs, float samplerate, float *delayBuf,
+              int maxPos, float *pos);
 
 /* Same as tzDelay but with an internal feedback path */
-/* requires an externally allocated delay buffer and an external variable to store pos */
+/* requires an externally allocated delay buffer and an external variable to
+ * store pos */
 /* maxpos = delay buffer length minus 1 */
 /* feedback in range [0..1] */
-float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate, float* delayBuf, int maxPos, float* pos);
+float tzFeedbackDelay(float in, float timeMs, float feedback, float samplerate,
+                      float *delayBuf, int maxPos, float *pos);
 
-/* requires an externally allocated delay buffer and an external variable to store pos */
+/* requires an externally allocated delay buffer and an external variable to
+ * store pos */
 /* maxpos = delay buffer length minus 1 */
 /* gain in range [0..1] */
-float tzAllpassDelay (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos);
+float tzAllpassDelay(float in, float timeMs, float gain, float samplerate,
+                     float *delayBuf, int maxPos, float *pos);
 
 #endif

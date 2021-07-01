@@ -4,546 +4,497 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-void tzSwap (float* a, float* b) {
-    float tmp = *a;
-    *a = *b;
-    *b = tmp;
+void tzSwap(float *a, float *b) {
+  float tmp = *a;
+  *a = *b;
+  *b = tmp;
 }
 
+float tzClip(float val, float min, float max) {
+  if (min > max)
+    tzSwap(&min, &max);
 
-float tzClip (float val, float min, float max) {
-    if (min > max) tzSwap(&min, &max);
-
-    if (val < min) val = min;
-    if (val > max) val = max;
-    return val;
+  if (val < min)
+    val = min;
+  if (val > max)
+    val = max;
+  return val;
 }
 
+float tzWrap(float val, float min, float max) {
+  float rng = max - min;
+  if (rng == 0.f)
+    return min;
 
-float tzWrap (float val, float min, float max) {
-    float rng = max - min;
-    if (rng == 0.f) return min;
+  if (rng < 0.f)
+    tzSwap(&min, &max);
 
-    if (rng < 0.f) tzSwap(&min, &max);
-
-    while (val < min) val += rng;
-    while (val > max) val -= rng;
-    return val;
+  while (val < min)
+    val += rng;
+  while (val > max)
+    val -= rng;
+  return val;
 }
 
+float tzMin(float a, float b) { return a < b ? a : b; }
 
-float tzMin (float a, float b) {
-    return a < b ? a : b;
+float tzMax(float a, float b) { return a > b ? a : b; }
+
+int tzRoundToInt(float val) {
+  return val < 0.f ? (int)(val - 0.5) : (int)(val + 0.5);
 }
 
-
-float tzMax (float a, float b) {
-    return a > b ? a : b;
+float tzFrac(float val) {
+  float av = fabs(val);
+  return av - (float)((int)av);
 }
 
+float tzLinInterp(float a, float b, float ratio) { return a + ratio * (b - a); }
 
-int tzRoundToInt (float val) {
-    return val < 0.f ? (int)(val - 0.5) : (int)(val + 0.5);
+float tzMapTo0_1(float val, float min, float max) {
+  if (min == max)
+    return 0.f;
+  if (min > max)
+    tzSwap(&min, &max);
+  val = tzClip(val, min, max);
+
+  return (val - min) / (max - min);
 }
 
-float tzFrac (float val) {
-    float av = fabs(val);
-    return av - (float)((int)av);
+float tzMapFrom0_1(float val, float min, float max) {
+  if (min == max)
+    return min;
+  if (min > max)
+    tzSwap(&min, &max);
+
+  return min + (val * (max - min));
 }
 
-
-float tzLinInterp (float a, float b, float ratio) {
-    return a + ratio * (b - a);
+float tzMapToRange(float val, float imin, float imax, float omin, float omax,
+                   float curve) {
+  val = tzMapTo0_1(val, imin, imax);
+  val = curve > 0.f ? pow(val, curve) : 0.f;
+  return tzMapFrom0_1(val, omin, omax);
 }
 
-
-float tzMapTo0_1 (float val, float min, float max) {
-    if (min == max) return 0.f;
-    if (min > max) tzSwap(&min, &max);
-    val = tzClip(val, min, max);
-
-    return (val - min) / (max - min);
+float tzMsToSamples(float ms, float samplerate) {
+  return ms * 0.001f * samplerate;
 }
 
-
-float tzMapFrom0_1 (float val, float min, float max) {
-    if (min == max) return min;
-    if (min > max) tzSwap(&min, &max);
-
-    return min + (val * (max - min));
+float tzMIDIToFreq(float note) {
+  return 440.f * pow(2.f, (note - 69.f) / 12.f);
 }
 
+float tzDecibelsToAmp(float db) { return pow(10.f, db / 20.f); }
 
-float tzMapToRange (float val, float imin, float imax, float omin, float omax, float curve) {
-    val = tzMapTo0_1(val, imin, imax);
-    val = curve > 0.f ? pow(val, curve) : 0.f;
-    return tzMapFrom0_1(val, omin, omax);
+float tzMsToHz(float ms) { return ms != 0.f ? 1000.f / ms : 0.f; }
+
+float tzHzToMs(float hz) { return hz != 0.f ? 1000.f / hz : 0.f; }
+
+int tzConformNoteToScale(int note, const int scale[12], int root) {
+  const int oct = note / 12;
+  const int base = note % 12;
+  const int offset = base + root;
+  const int octshift = offset / 12;
+  const int conformed = scale[offset % 12] - root;
+
+  return conformed + ((oct + octshift) * 12);
 }
 
-
-float tzMsToSamples (float ms, float samplerate) {
-    return ms * 0.001f * samplerate;
+void tzFixDenormals(float *x) {
+  static const float z = 1e-18;
+  *x += z;
+  *x -= z;
 }
 
-
-float tzMIDIToFreq (float note) {
-    return 440.f * pow(2.f, (note - 69.f) / 12.f);
+void tzFixNaN(float *x) {
+  if (*x != *x)
+    *x = 0.f;
 }
 
+void tzGenRandomSeed() { srand((unsigned int)time(NULL)); }
 
-float tzDecibelsToAmp (float db) {
-    return pow(10.f, db / 20.f);
+void tzSetRandomSeed(unsigned int seed) { srand(seed); }
+
+float tzRandom() { return (float)rand() / (float)(RAND_MAX); }
+
+float tzRandomFloat(float min, float max) {
+  return tzMapFrom0_1(tzRandom(), min, max);
 }
 
-
-float tzMsToHz (float ms) {
-    return ms != 0.f ? 1000.f / ms : 0.f;
+int tzRandomInt(int min, int max) {
+  return tzRoundToInt(tzRandomFloat((float)min, (float)max));
 }
 
+float tzWhiteNoise() { return tzRandomFloat(-1.f, 1.f); }
 
-float tzHzToMs (float hz) {
-    return hz != 0.f ? 1000.f / hz : 0.f;
+void tzSmooth(float *val, float target, float rampTimeMs, float samplerate) {
+  float dur = tzMsToSamples(rampTimeMs, samplerate);
+  float delta = (target - *val) / dur;
+
+  if (delta >= 0.f) {
+    *val += delta;
+    if (*val > target)
+      *val = target;
+  } else {
+    *val += delta;
+    if (*val < target)
+      *val = target;
+  }
 }
 
+float tzPhasor(float freq, float samplerate, float *phase) {
+  const float out = *phase;
 
-int tzConformNoteToScale (int note, const int scale[12], int root) {
-    const int oct =  note / 12;
-    const int base = note % 12;
-    const int offset = base + root;
-    const int octshift = offset / 12;
-    const int conformed = scale[offset % 12] - root;
+  *phase += (freq / samplerate);
+  *phase = tzWrap(*phase, 0.f, 1.f);
 
-    return conformed + ((oct + octshift) * 12);
+  return out;
 }
 
+float tzSinewave(float freq, float samplerate, float *phase) {
+  const float out = sin(*phase);
+  const float twopi = 2.f * M_PI;
 
-void tzFixDenormals (float* x) {
-    static const float z = 1e-18;
-    *x += z;
-    *x -= z;
+  *phase += freq * twopi / samplerate;
+  *phase = tzWrap(*phase, 0.f, twopi);
+
+  return out;
 }
 
+float tzCalculatePolyblep(float phaseIncr, float t) {
+  float dt = phaseIncr / (2.f * M_PI);
 
-void tzFixNaN (float* x) {
-    if (*x != *x) *x = 0.f;
+  if (t < dt) {
+    t = t / dt;
+    return (t + t) - (t * t) - 1.f;
+  } else if (t > (1.f - dt)) {
+    t = (t - 1.f) / dt;
+    return (t * t) + (t + t) + 1.f;
+  } else {
+    return 0.f;
+  }
 }
 
+float tzPolyblepSaw(float freq, float samplerate, float *phase) {
+  const float twopi = 2.f * M_PI;
+  float incr = freq * twopi / samplerate;
+  float t = *phase / twopi;
+  float pblep = tzCalculatePolyblep(incr, t);
+  float wv = (2.f * (*phase) / twopi) - 1.f;
 
-void tzGenRandomSeed () {
-    srand((unsigned int)time(NULL));
+  wv -= pblep;
+
+  *phase += incr;
+  *phase = tzWrap(*phase, 0.f, twopi);
+
+  return wv;
 }
 
+float tzPolyblepSquare(float freq, float pw, float samplerate, float *phase) {
+  const float twopi = 2.f * M_PI;
+  float incr = freq * twopi / samplerate;
+  float t1 = *phase / twopi;
+  float t2 = fmod((t1 + pw), 1.f);
+  float pblep1 = tzCalculatePolyblep(incr, t1);
+  float pblep2 = tzCalculatePolyblep(incr, t2);
+  float c = pw * twopi;
+  float wv = 0.f;
 
-void tzSetRandomSeed (unsigned int seed) {
-    srand(seed);
+  if (*phase < c) {
+    wv = 1.f;
+  } else {
+    wv = -1.f;
+  }
+  wv += pblep1;
+  wv -= pblep2;
+
+  *phase += incr;
+  *phase = tzWrap(*phase, 0.f, twopi);
+
+  return wv;
 }
 
+float tzPolyblepTriangle(float freq, float pw, float samplerate, float *phase,
+                         float *z1) {
+  const float twopi = 2.f * M_PI;
+  float incr = freq * twopi / samplerate;
+  float t1 = *phase / twopi;
+  float t2 = fmod((t1 + pw), 1.f);
+  float pblep1 = tzCalculatePolyblep(incr, t1);
+  float pblep2 = tzCalculatePolyblep(incr, t2);
+  float c = pw * twopi;
+  float wv = 0.f;
 
-float tzRandom () {
-    return (float)rand()/(float)(RAND_MAX);
+  if (*phase < c) {
+    wv = 1.f;
+  } else {
+    wv = -1.f;
+  }
+  wv += pblep1;
+  wv -= pblep2;
+
+  /* make triangle out of square */
+  wv = (incr * wv) + ((1.f - incr) * (*z1));
+
+  *z1 = wv;
+
+  *phase += incr;
+  *phase = tzWrap(*phase, 0.f, twopi);
+
+  return wv;
 }
 
+float tzOnePoleLowpass(float in, float cut, float samplerate, float *z1) {
+  const double costh = 2.0 - cos(2.0 * M_PI * (double)cut / (double)samplerate);
+  const double coeff = sqrt(costh * costh - 1.0) - costh;
 
-float tzRandomFloat (float min, float max) {
-    return tzMapFrom0_1(tzRandom(), min, max);
+  const double out = (double)in * (1.0 + coeff) - (double)(*z1) * coeff;
+  *z1 = (float)out;
+
+  return (float)out;
 }
 
+float tzOnePoleHighpass(float in, float cut, float samplerate, float *z1) {
+  const double costh = 2.0 - cos(2.0 * M_PI * (double)cut / (double)samplerate);
+  const double coeff = costh - sqrt(costh * costh - 1.0);
 
-int tzRandomInt (int min, int max) {
-    return tzRoundToInt(tzRandomFloat((float)min, (float)max));
+  const double out = (double)in * (1.0 - coeff) - (double)(*z1) * coeff;
+  *z1 = (float)out;
+
+  return out;
 }
 
-
-float tzWhiteNoise () {
-    return tzRandomFloat(-1.f, 1.f);
+float tzBiquad(float in, TZBiquadCoefficients coeffs, float *z1, float *z2) {
+  double out = (double)in * coeffs.a0 + (double)(*z1);
+  *z1 = (float)((double)in * coeffs.a1 + (double)(*z2) - coeffs.b1 * out);
+  *z2 = (float)((double)in * coeffs.a2 - coeffs.b2 * out);
+  return (float)out;
 }
 
+TZBiquadCoefficients tzBiquadLowpassCoeffs(float cut, float Q,
+                                           float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double norm = 1.0 / (1.0 + K / (double)Q + K * K);
+  TZBiquadCoefficients coeffs;
 
-void tzSmooth (float* val, float target, float rampTimeMs, float samplerate) {
-    float dur = tzMsToSamples(rampTimeMs, samplerate);
-    float delta = (target - *val) / dur;
+  coeffs.a0 = K * K * norm;
+  coeffs.a1 = 2.0 * coeffs.a0;
+  coeffs.a2 = coeffs.a0;
+  coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+  coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
 
-    if (delta >= 0.f) {
-        *val += delta;
-        if (*val > target) *val = target;
-    }
-    else {
-        *val += delta;
-        if (*val < target) *val = target;
-    }
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadHighpassCoeffs(float cut, float Q,
+                                            float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double norm = 1.0 / (1.0 + K / (double)Q + K * K);
+  TZBiquadCoefficients coeffs;
 
-float tzPhasor (float freq, float samplerate, float* phase) {
-    const float out = *phase;
+  coeffs.a0 = 1.0 * norm;
+  coeffs.a1 = -2.0 * coeffs.a0;
+  coeffs.a2 = coeffs.a0;
+  coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+  coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
 
-    *phase += (freq / samplerate);
-    *phase = tzWrap(*phase, 0.f, 1.f);
-
-    return out;
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadBandpassCoeffs(float cut, float Q,
+                                            float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double norm = 1.0 / (1.0 + K / (double)Q + K * K);
+  TZBiquadCoefficients coeffs;
 
-float tzSinewave (float freq, float samplerate, float* phase) {
-    const float out = sin(*phase);
-    const float twopi = 2.f * M_PI;
+  coeffs.a0 = K / (double)Q * norm;
+  coeffs.a1 = 0;
+  coeffs.a2 = -(coeffs.a0);
+  coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+  coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
 
-    *phase += freq * twopi / samplerate;
-    *phase = tzWrap(*phase, 0.f, twopi);
-
-    return out;
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadNotchCoeffs(float cut, float Q, float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double norm = 1.0 / (1.0 + K / (double)Q + K * K);
+  TZBiquadCoefficients coeffs;
 
-float tzCalculatePolyblep (float phaseIncr, float t) {
-    float dt = phaseIncr / (2.f * M_PI);
+  coeffs.a0 = (1.0 + K * K) * norm;
+  coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+  coeffs.a2 = coeffs.a0;
+  coeffs.b1 = coeffs.a1;
+  coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
 
-    if (t < dt) {
-        t = t / dt;
-        return (t + t) - (t * t) - 1.f;
-    }
-    else if (t > (1.f - dt)) {
-        t = (t - 1.f) / dt;
-        return (t * t) + (t + t) + 1.f;
-    }
-    else {
-        return 0.f;
-    }
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadPeakCoeffs(float cut, float Q, float peakGain,
+                                        float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double V = (double)tzDecibelsToAmp(fabs(peakGain));
+  double norm = 0.0;
+  TZBiquadCoefficients coeffs;
 
-float tzPolyblepSaw (float freq, float samplerate, float* phase) {
-    const float twopi = 2.f * M_PI;
-    float incr = freq * twopi / samplerate;
-    float t = *phase / twopi;
-    float pblep = tzCalculatePolyblep(incr, t);
-    float wv = (2.f * (*phase) / twopi) - 1.f;
-
-    wv -= pblep;
-
-    *phase += incr;
-    *phase = tzWrap(*phase, 0.f, twopi);
-
-    return wv;
-}
-
-
-float tzPolyblepSquare (float freq, float pw, float samplerate, float* phase) {
-    const float twopi = 2.f * M_PI;
-    float incr = freq * twopi / samplerate;
-    float t1 = *phase / twopi;
-    float t2 = fmod((t1 + pw), 1.f);
-    float pblep1 = tzCalculatePolyblep(incr, t1);
-    float pblep2 = tzCalculatePolyblep(incr, t2);
-    float c = pw * twopi;
-    float wv = 0.f;
-
-    if (*phase < c) {
-        wv = 1.f;
-    }
-    else {
-        wv = -1.f;
-    }
-    wv += pblep1;
-    wv -= pblep2;
-
-    *phase += incr;
-    *phase = tzWrap(*phase, 0.f, twopi);
-
-    return wv;
-}
-
-
-float tzPolyblepTriangle (float freq, float pw, float samplerate, float* phase, float* z1) {
-    const float twopi = 2.f * M_PI;
-    float incr = freq * twopi / samplerate;
-    float t1 = *phase / twopi;
-    float t2 = fmod((t1 + pw), 1.f);
-    float pblep1 = tzCalculatePolyblep(incr, t1);
-    float pblep2 = tzCalculatePolyblep(incr, t2);
-    float c = pw * twopi;
-    float wv = 0.f;
-
-    if (*phase < c) {
-        wv = 1.f;
-    }
-    else {
-        wv = -1.f;
-    }
-    wv += pblep1;
-    wv -= pblep2;
-
-    /* make triangle out of square */
-    wv = (incr * wv) + ((1.f - incr) * (*z1));
-
-    *z1 = wv;
-
-    *phase += incr;
-    *phase = tzWrap(*phase, 0.f, twopi);
-
-    return wv;
-}
-
-
-float tzOnePoleLowpass (float in, float cut, float samplerate, float* z1) {
-    const double costh = 2.0 - cos(2.0 * M_PI * (double)cut /  (double)samplerate);
-    const double coeff = sqrt(costh * costh - 1.0) - costh;
-
-    const double out = (double)in * (1.0 + coeff) - (double)(*z1) * coeff;
-    *z1 = (float)out;
-
-    return (float)out;
-}
-
-
-float tzOnePoleHighpass (float in, float cut, float samplerate, float* z1) {
-    const double costh = 2.0 - cos(2.0 * M_PI * (double)cut /  (double)samplerate);
-    const double coeff = costh - sqrt(costh * costh - 1.0);
-
-    const double out = (double)in * (1.0 - coeff) - (double)(*z1) * coeff;
-    *z1 = (float)out; 
-
-    return out;
-}
-
-
-float tzBiquad (float in, TZBiquadCoefficients coeffs, float* z1, float* z2) {
-    double out = (double)in * coeffs.a0 + (double)(*z1);
-    *z1 = (float)((double)in * coeffs.a1 + (double)(*z2) - coeffs.b1 * out);
-    *z2 = (float)((double)in * coeffs.a2 - coeffs.b2 * out);
-    return (float)out;
-}
-
-
-TZBiquadCoefficients tzBiquadLowpassCoeffs (float cut, float Q, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double norm = 1.0 / (1.0 + K / (double)Q + K * K);
-    TZBiquadCoefficients coeffs;
-
-    coeffs.a0 = K * K * norm;
-    coeffs.a1 = 2.0 * coeffs.a0;
-    coeffs.a2 = coeffs.a0;
-    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
-    coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
-
-    return coeffs;
-}
-
-
-TZBiquadCoefficients tzBiquadHighpassCoeffs (float cut, float Q, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double norm = 1.0 / (1.0 + K / (double)Q + K * K);
-    TZBiquadCoefficients coeffs;
-
-    coeffs.a0 = 1.0 * norm;
-    coeffs.a1 = -2.0 * coeffs.a0;
-    coeffs.a2 = coeffs.a0;
-    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
-    coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
-
-    return coeffs;
-}
-
-
-TZBiquadCoefficients tzBiquadBandpassCoeffs (float cut, float Q, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double norm = 1.0 / (1.0 + K / (double)Q + K * K);
-    TZBiquadCoefficients coeffs;
-
-    coeffs.a0 = K / (double)Q * norm;
-    coeffs.a1 = 0;
-    coeffs.a2 = -(coeffs.a0);
-    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
-    coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
-
-    return coeffs;
-}
-
-
-TZBiquadCoefficients tzBiquadNotchCoeffs (float cut, float Q, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double norm = 1.0 / (1.0 + K / (double)Q + K * K);
-    TZBiquadCoefficients coeffs;
-
-    coeffs.a0 = (1.0 + K * K) * norm;
+  if (peakGain >= 0.f) {
+    norm = 1.0 / (1.0 + 1.0 / (double)Q * K + K * K);
+    coeffs.a0 = (1.0 + V / (double)Q * K + K * K) * norm;
     coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
-    coeffs.a2 = coeffs.a0;
+    coeffs.a2 = (1.0 - V / (double)Q * K + K * K) * norm;
     coeffs.b1 = coeffs.a1;
-    coeffs.b2 = (1.0 - K / (double)Q + K * K) * norm;
+    coeffs.b2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
+  } else {
+    norm = 1.0 / (1.0 + V / (double)Q * K + K * K);
+    coeffs.a0 = (1.0 + 1.0 / (double)Q * K + K * K) * norm;
+    coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.a2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
+    coeffs.b1 = coeffs.a1;
+    coeffs.b2 = (1.0 - V / (double)Q * K + K * K) * norm;
+  }
 
-    return coeffs;
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadLowshelfCoeffs(float cut, float peakGain,
+                                            float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double V = (double)tzDecibelsToAmp(fabs(peakGain));
+  double norm = 0.0;
+  TZBiquadCoefficients coeffs;
 
-TZBiquadCoefficients tzBiquadPeakCoeffs (float cut, float Q, float peakGain, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double V = (double)tzDecibelsToAmp(fabs(peakGain));
-    double norm = 0.0;
-    TZBiquadCoefficients coeffs;
+  if (peakGain >= 0.f) {
+    norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
+    coeffs.a0 = (1.0 + sqrt(2.0 * V) * K + V * K * K) * norm;
+    coeffs.a1 = 2.0 * (V * K * K - 1.0) * norm;
+    coeffs.a2 = (1.0 - sqrt(2.0 * V) * K + V * K * K) * norm;
+    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.b2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
+  } else {
+    norm = 1.0 / (1.0 + sqrt(2.0 * V) * K + V * K * K);
+    coeffs.a0 = (1.0 + sqrt(2.0) * K + K * K) * norm;
+    coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.a2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
+    coeffs.b1 = 2.0 * (V * K * K - 1.0) * norm;
+    coeffs.b2 = (1.0 - sqrt(2.0 * V) * K + V * K * K) * norm;
+  }
 
-    if (peakGain >= 0.f) {
-        norm = 1.0 / (1.0 + 1.0 / (double)Q * K + K * K);
-        coeffs.a0 = (1.0 + V / (double)Q * K + K * K) * norm;
-        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.a2 = (1.0 - V / (double)Q * K + K * K) * norm;
-        coeffs.b1 = coeffs.a1;
-        coeffs.b2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
-    }
-    else {
-        norm = 1.0 / (1.0 + V / (double)Q * K + K * K);
-        coeffs.a0 = (1.0 + 1.0 / (double)Q * K + K * K) * norm;
-        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.a2 = (1.0 - 1.0 / (double)Q * K + K * K) * norm;
-        coeffs.b1 = coeffs.a1;
-        coeffs.b2 = (1.0 - V / (double)Q * K + K * K) * norm;
-    }
-
-    return coeffs;
+  return coeffs;
 }
 
+TZBiquadCoefficients tzBiquadHighshelfCoeffs(float cut, float peakGain,
+                                             float samplerate) {
+  double K = tan(M_PI * (double)cut / (double)samplerate);
+  double V = (double)tzDecibelsToAmp(fabs(peakGain));
+  double norm = 0.0;
+  TZBiquadCoefficients coeffs;
 
-TZBiquadCoefficients tzBiquadLowshelfCoeffs (float cut, float peakGain, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double V = (double)tzDecibelsToAmp(fabs(peakGain));
-    double norm = 0.0;
-    TZBiquadCoefficients coeffs;
+  if (peakGain >= 0.f) {
+    norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
+    coeffs.a0 = (V + sqrt(2.0 * V) * K + K * K) * norm;
+    coeffs.a1 = 2.0 * (K * K - V) * norm;
+    coeffs.a2 = (V - sqrt(2.0 * V) * K + K * K) * norm;
+    coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.b2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
+  } else {
+    norm = 1.0 / (V + sqrt(2.0 * V) * K + K * K);
+    coeffs.a0 = (1.0 + sqrt(2.0) * K + K * K) * norm;
+    coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
+    coeffs.a2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
+    coeffs.b1 = 2.0 * (K * K - V) * norm;
+    coeffs.b2 = (V - sqrt(2.0 * V) * K + K * K) * norm;
+  }
 
-    if (peakGain >= 0.f) {
-        norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
-        coeffs.a0 = (1.0 + sqrt(2.0 * V) * K + V * K * K) * norm;
-        coeffs.a1 = 2.0 * (V * K * K - 1.0) * norm;
-        coeffs.a2 = (1.0 - sqrt(2.0 * V) * K + V * K * K) * norm;
-        coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.b2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
-    }
-    else {
-        norm = 1.0 / (1.0 + sqrt(2.0 * V) * K + V * K * K);
-        coeffs.a0 = (1.0 + sqrt(2.0) * K + K * K) * norm;
-        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.a2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
-        coeffs.b1 = 2.0 * (V * K * K - 1.0) * norm;
-        coeffs.b2 = (1.0 - sqrt(2.0 * V) * K + V * K * K) * norm;
-    }
-
-    return coeffs;
+  return coeffs;
 }
 
+TZSvfOutputs tzStateVariableFilter(float in, float cut, float res,
+                                   float samplerate, float *ic1eq,
+                                   float *ic2eq) {
+  const double v0 = (double)in;
+  const double g = tan(M_PI * cut / (double)samplerate);
+  const double k = 2.0 - 2.0 * (double)res;
+  const double a1 = 1.0 / (1.0 + g * (g + k));
+  const double a2 = g * a1;
+  const double a3 = g * a2;
+  const double v3 = v0 - (double)(*ic2eq);
+  const double v1 = a1 * (double)(*ic1eq) + a2 * v3;
+  const double v2 = (double)(*ic2eq) + a2 * (double)(*ic1eq) + a3 * v3;
+  TZSvfOutputs out;
 
-TZBiquadCoefficients tzBiquadHighshelfCoeffs (float cut, float peakGain, float samplerate) {
-    double K = tan(M_PI * (double)cut / (double)samplerate);
-    double V = (double)tzDecibelsToAmp(fabs(peakGain));
-    double norm = 0.0;
-    TZBiquadCoefficients coeffs;
+  *ic1eq = (float)(2.0 * v1 - (double)(*ic1eq));
+  *ic2eq = (float)(2.0 * v2 - (double)(*ic2eq));
 
-    if (peakGain >= 0.f) {
-        norm = 1.0 / (1.0 + sqrt(2.0) * K + K * K);
-        coeffs.a0 = (V + sqrt(2.0 * V) * K + K * K) * norm;
-        coeffs.a1 = 2.0 * (K * K - V) * norm;
-        coeffs.a2 = (V - sqrt(2.0 * V) * K + K * K) * norm;
-        coeffs.b1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.b2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
-    }
-    else {
-        norm = 1.0 / (V + sqrt(2.0 * V) * K + K * K);
-        coeffs.a0 = (1.0 + sqrt(2.0) * K + K * K) * norm;
-        coeffs.a1 = 2.0 * (K * K - 1.0) * norm;
-        coeffs.a2 = (1.0 - sqrt(2.0) * K + K * K) * norm;
-        coeffs.b1 = 2.0 * (K * K - V) * norm;
-        coeffs.b2 = (V - sqrt(2.0 * V) * K + K * K) * norm;
-    }
+  out.lowpass = v2;
+  out.bandpass = v1;
+  out.highpass = v0 - k * v1 - v2;
+  out.notch = v0 - k * v1;
 
-    return coeffs;
+  return out;
 }
 
+float tzReadFromCirularBuffer(float *buffer, int maxPos, float pos) {
+  int ip = (int)pos;
+  float frac = pos - (float)ip;
+  int ip1 = ip + 1 > maxPos ? 0 : ip + 1;
 
-TZSvfOutputs tzStateVariableFilter (float in, float cut, float res, float samplerate, float* ic1eq, float* ic2eq) {
-    const double v0 = (double)in;
-    const double g = tan(M_PI * cut / (double)samplerate);
-    const double k = 2.0 - 2.0 * (double)res;
-    const double a1 = 1.0 / (1.0 + g * (g + k));
-    const double a2 = g * a1;
-    const double a3 = g * a2;
-    const double v3 = v0 - (double)(*ic2eq);
-    const double v1 = a1 * (double)(*ic1eq) + a2 * v3;
-    const double v2 = (double)(*ic2eq) + a2 * (double)(*ic1eq) + a3 * v3;
-    TZSvfOutputs out;
-
-    *ic1eq = (float)(2.0 * v1 - (double)(*ic1eq)); 
-    *ic2eq = (float)(2.0 * v2 - (double)(*ic2eq)); 
-
-    out.lowpass = v2;
-    out.bandpass = v1;
-    out.highpass = v0 - k * v1 - v2;
-    out.notch = v0 - k * v1;
-
-    return out;
+  return tzLinInterp(buffer[ip], buffer[ip1], frac);
 }
 
+float tzDelay(float in, float timeMs, float samplerate, float *delayBuf,
+              int maxPos, float *pos) {
+  float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+  float rp = *pos - stime;
+  float out = 0.f;
 
-float tzReadFromCirularBuffer (float* buffer, int maxPos, float pos) {
-    int ip = (int)pos;
-    float frac = pos - (float)ip;
-    int ip1 = ip + 1 > maxPos ? 0 : ip + 1;
+  rp = tzWrap(rp, 0.f, (float)maxPos);
+  out = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
 
-    return tzLinInterp(buffer[ip], buffer[ip1], frac);
+  delayBuf[(int)(*pos)] = in;
+  ++(*pos);
+  *pos = tzWrap(*pos, 0.f, (float)maxPos);
+
+  return out;
 }
 
+float tzFeedbackDelay(float in, float timeMs, float feedback, float samplerate,
+                      float *delayBuf, int maxPos, float *pos) {
+  float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+  float rp = *pos - stime;
+  float out = 0.f;
 
-float tzDelay (float in, float timeMs, float samplerate, float* delayBuf, int maxPos, float* pos) {
-    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
-    float rp = *pos - stime;
-    float out = 0.f;
+  rp = tzWrap(rp, 0.f, (float)maxPos);
+  out = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
 
-    rp = tzWrap(rp, 0.f, (float)maxPos);
-    out = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
+  delayBuf[(int)(*pos)] = tanh(in + (out * feedback));
+  ++(*pos);
+  *pos = tzWrap(*pos, 0.f, (float)maxPos);
 
-    delayBuf[(int)(*pos)] = in;
-    ++(*pos);
-    *pos = tzWrap(*pos, 0.f, (float)maxPos);
-
-    return out;
+  return out;
 }
 
+float tzAllpassDelay(float in, float timeMs, float gain, float samplerate,
+                     float *delayBuf, int maxPos, float *pos) {
+  float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
+  float rp = *pos - stime;
+  float g = tzClip(gain, 0.f, 1.f);
+  float fbck, ffwd = 0.f;
+  float v = 0.f;
+  float dl = 0.f;
+  float out = 0.f;
 
-float tzFeedbackDelay (float in, float timeMs, float feedback, float samplerate, float* delayBuf, int maxPos, float* pos) {
-    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
-    float rp = *pos - stime;
-    float out = 0.f;
+  rp = tzWrap(rp, 0.f, (float)maxPos);
+  dl = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
 
-    rp = tzWrap(rp, 0.f, (float)maxPos);
-    out = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
+  fbck = dl * (-g);
+  v = in + fbck;
+  ffwd = v * g;
+  out = dl + ffwd;
 
-    delayBuf[(int)(*pos)] = tanh(in + (out * feedback));
-    ++(*pos);
-    *pos = tzWrap(*pos, 0.f, (float)maxPos);
+  delayBuf[(int)(*pos)] = v;
+  ++(*pos);
+  *pos = tzWrap(*pos, 0.f, (float)maxPos);
 
-    return out;
+  return out;
 }
-
-
-float tzAllpassDelay (float in, float timeMs, float gain, float samplerate, float* delayBuf, int maxPos, float* pos) {
-    float stime = tzClip(tzMsToSamples(timeMs, samplerate), 0.f, (float)maxPos);
-    float rp = *pos - stime;
-    float g = tzClip(gain, 0.f, 1.f);
-    float fbck, ffwd = 0.f;
-    float v = 0.f;
-    float dl = 0.f;
-    float out = 0.f;
-
-    rp = tzWrap(rp, 0.f, (float)maxPos);
-    dl = tzReadFromCirularBuffer(delayBuf, maxPos, rp);
-
-    fbck = dl * (-g);
-    v = in + fbck;
-    ffwd = v * g;
-    out = dl + ffwd;
-
-    delayBuf[(int)(*pos)] = v;
-    ++(*pos);
-    *pos = tzWrap(*pos, 0.f, (float)maxPos);
-
-    return out;
-}
-
-

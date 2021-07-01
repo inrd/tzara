@@ -1,11 +1,11 @@
 #ifndef TZARA_NODES_H
 #define TZARA_NODES_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
-#define TZNODE_MAX_INPUTS 16 
+#define TZNODE_MAX_INPUTS 16
 #define TZNODE_MAX_OUTPUTS 16
 #define TZNODE_MEMORY_SIZE 32
 #define TZNODE_NUM_BUFFERS 16
@@ -14,445 +14,439 @@
 #define TZMODULE_MAX_NODES 1024
 
 enum NodeTypes {
-    INVALID_NODE_TYPE = 0,
-    MODULE_NODE,
-    MATRIX_NODE,
-    MGET_NODE,
-    MSET_NODE,
-    DEFAULTVAL_NODE,
-    VAR_NODE,
-    ADDER_NODE,
-    SUB_NODE,
-    MULT_NODE,
-    DIV_NODE,
-    MODULO_NODE,
-    POW_NODE,
-    SQRT_NODE,
-    ABS_NODE,
-    SIN_NODE,
-    COS_NODE,
-    TAN_NODE,
-    TANH_NODE,
-    CLIP_NODE,
-    WRAP_NODE,
-    EQUAL_NODE,
-    NEQUAL_NODE,
-    LOWER_NODE,
-    GREATER_NODE,
-    MIN_NODE,
-    MAX_NODE,
-    ROUND_NODE,
-    CEIL_NODE,
-    FLOOR_NODE,
-    FRAC_NODE,
-    AND_NODE,
-    OR_NODE,
-    XOR_NODE,
-    MIX_NODE,
-    MERGE_NODE,
-    PMERGE_NODE,
-    MAP_NODE,
-    FROM01_NODE,
-    TO01_NODE,
-    SMOOTH_NODE,
-    MIDITOFREQ_NODE,
-    DBTOAMP_NODE,
-    MSTOHZ_NODE,
-    HZTOMS_NODE,
-    SAMPLERATE_NODE,
-    DURATION_NODE,
-    FIXDENORM_NODE,
-    FIXNAN_NODE,
-    COUNT_NODE,
-    PHASOR_NODE,
-    PULSE_NODE,
-    SINOSC_NODE,
-    SAWOSC_NODE,
-    SQROSC_NODE,
-    TRIOSC_NODE,
-    NOISE_NODE,
-    SEQ8_NODE,
-    RANDOM_NODE,
-    IRANDOM_NODE,
-    NOTESCALE_NODE,
-    SEGMENT_NODE,
-    ADENV_NODE,
-    ASRENV_NODE,
-    SELECT_NODE,
-    ROUTE_NODE,
-    SAH_NODE,
-    GATE_NODE,
-    TIMEPOINT_NODE,
-    LOWPASS_NODE,
-    HIGHPASS_NODE,
-    LOWPASS2_NODE,
-    HIGHPASS2_NODE,
-    BANDPASS_NODE,
-    NOTCH_NODE,
-    PEAK_NODE,
-    LOWSHELF_NODE,
-    HIGHSHELF_NODE,
-    SVF_NODE,
-    DELAY_NODE,
-    FDELAY_NODE,
-    ALLPASS_NODE,
-    NUM_NODE_TYPES
+  INVALID_NODE_TYPE = 0,
+  MODULE_NODE,
+  MATRIX_NODE,
+  MGET_NODE,
+  MSET_NODE,
+  DEFAULTVAL_NODE,
+  VAR_NODE,
+  ADDER_NODE,
+  SUB_NODE,
+  MULT_NODE,
+  DIV_NODE,
+  MODULO_NODE,
+  POW_NODE,
+  SQRT_NODE,
+  ABS_NODE,
+  SIN_NODE,
+  COS_NODE,
+  TAN_NODE,
+  TANH_NODE,
+  CLIP_NODE,
+  WRAP_NODE,
+  EQUAL_NODE,
+  NEQUAL_NODE,
+  LOWER_NODE,
+  GREATER_NODE,
+  MIN_NODE,
+  MAX_NODE,
+  ROUND_NODE,
+  CEIL_NODE,
+  FLOOR_NODE,
+  FRAC_NODE,
+  AND_NODE,
+  OR_NODE,
+  XOR_NODE,
+  MIX_NODE,
+  MERGE_NODE,
+  PMERGE_NODE,
+  MAP_NODE,
+  FROM01_NODE,
+  TO01_NODE,
+  SMOOTH_NODE,
+  MIDITOFREQ_NODE,
+  DBTOAMP_NODE,
+  MSTOHZ_NODE,
+  HZTOMS_NODE,
+  SAMPLERATE_NODE,
+  DURATION_NODE,
+  FIXDENORM_NODE,
+  FIXNAN_NODE,
+  COUNT_NODE,
+  PHASOR_NODE,
+  PULSE_NODE,
+  SINOSC_NODE,
+  SAWOSC_NODE,
+  SQROSC_NODE,
+  TRIOSC_NODE,
+  NOISE_NODE,
+  SEQ8_NODE,
+  RANDOM_NODE,
+  IRANDOM_NODE,
+  NOTESCALE_NODE,
+  SEGMENT_NODE,
+  ADENV_NODE,
+  ASRENV_NODE,
+  SELECT_NODE,
+  ROUTE_NODE,
+  SAH_NODE,
+  GATE_NODE,
+  TIMEPOINT_NODE,
+  LOWPASS_NODE,
+  HIGHPASS_NODE,
+  LOWPASS2_NODE,
+  HIGHPASS2_NODE,
+  BANDPASS_NODE,
+  NOTCH_NODE,
+  PEAK_NODE,
+  LOWSHELF_NODE,
+  HIGHSHELF_NODE,
+  SVF_NODE,
+  DELAY_NODE,
+  FDELAY_NODE,
+  ALLPASS_NODE,
+  NUM_NODE_TYPES
 };
-
 
 enum NoteScales {
-    CHROMATIC_SCALE = 0,
-    MAJOR_SCALE,
-    MINOR_SCALE,
-    HARMONIC_MAJOR_SCALE,
-    HARMONIC_MINOR_SCALE,
-    LOCRIAN_SCALE,
-    PYRAMID_HEXATONIC_SCALE,
-    KUNG_SCALE,
-    HIRA_JOSHI_SCALE,
-    RITSU_SCALE,
-    MELA_CITRAMBARI_SCALE,
-    RAGA_BILWADALA_SCALE,
-    MAQAM_HIJAZ_SCALE,
-    GNOSSIENNES_SCALE,
-    NUM_SCALES
+  CHROMATIC_SCALE = 0,
+  MAJOR_SCALE,
+  MINOR_SCALE,
+  HARMONIC_MAJOR_SCALE,
+  HARMONIC_MINOR_SCALE,
+  LOCRIAN_SCALE,
+  PYRAMID_HEXATONIC_SCALE,
+  KUNG_SCALE,
+  HIRA_JOSHI_SCALE,
+  RITSU_SCALE,
+  MELA_CITRAMBARI_SCALE,
+  RAGA_BILWADALA_SCALE,
+  MAQAM_HIJAZ_SCALE,
+  GNOSSIENNES_SCALE,
+  NUM_SCALES
 };
-
-
 
 typedef struct TzNodeDoc TzNodeDoc;
 struct TzNodeDoc {
-    const char* name;
-    const char* summary;
-    const char* inputs;
-    const char* outputs;
+  const char *name;
+  const char *summary;
+  const char *inputs;
+  const char *outputs;
 };
 
-extern const TzNodeDoc nodesDoc [NUM_NODE_TYPES];
+extern const TzNodeDoc nodesDoc[NUM_NODE_TYPES];
 
 typedef struct TzModule TzModule;
 typedef struct TzMatrix TzMatrix;
 typedef struct TzProcessInfo TzProcessInfo;
 
 struct TzProcessInfo {
-    float samplerate;
-    float duration;
+  float samplerate;
+  float duration;
 };
 
 struct TzMatrix {
-    float** matrix;
-    int numRows;
-    int numCols;
+  float **matrix;
+  int numRows;
+  int numCols;
 };
 
-int initMatrix (TzMatrix* m, const int numRows, const int numCols);
-void releaseMatrix (TzMatrix* m);
-void populateMatrixFromFile (FILE* f, TzMatrix* m);
+int initMatrix(TzMatrix *m, const int numRows, const int numCols);
+void releaseMatrix(TzMatrix *m);
+void populateMatrixFromFile(FILE *f, TzMatrix *m);
 
 typedef struct TzNode TzNode;
 struct TzNode {
-    float* inputs[TZNODE_MAX_INPUTS];
-    int numInputs;
-    float outputs[TZNODE_MAX_OUTPUTS];
-    int numOutputs;
-    void (*perform)(TzNode*, TzProcessInfo*);
-    float memory[TZNODE_MEMORY_SIZE];
-    float* buffers[TZNODE_NUM_BUFFERS];
-    char name[TZNODE_NAME_SIZE];
-    char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
-    char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
-    TzModule* submodule;
-    TzMatrix* matrix;
-    TzMatrix* matrixRef;
-}; 
-
-void flush (TzNode* n);
-
-TzNode* allocateNewNode ();
-
-void releaseNode (TzNode* n);
-
-float getNodeInput (TzNode* n, int inputIndex, float defaultValue);
-float getNodeInputClipped (TzNode* n, int inputIndex, float defaultValue, float min, float max);
-
-struct TzModule {
-    TzNode* nodes[TZMODULE_MAX_NODES];
-    int numNodes;
-    float** inputs[TZNODE_MAX_INPUTS];
-    int numInputs;
-    float* outputs[TZNODE_MAX_OUTPUTS];
-    int numOutputs;
-    char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
-    char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+  float *inputs[TZNODE_MAX_INPUTS];
+  int numInputs;
+  float outputs[TZNODE_MAX_OUTPUTS];
+  int numOutputs;
+  void (*perform)(TzNode *, TzProcessInfo *);
+  float memory[TZNODE_MEMORY_SIZE];
+  float *buffers[TZNODE_NUM_BUFFERS];
+  char name[TZNODE_NAME_SIZE];
+  char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
+  char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+  TzModule *submodule;
+  TzMatrix *matrix;
+  TzMatrix *matrixRef;
 };
 
-int addModuleNode (TzModule* m, TzNode* n, const char* name);
+void flush(TzNode *n);
 
-void connectModuleNodes (TzModule* m, int inModule, int inOutput, int outModule, int outInput);
+TzNode *allocateNewNode();
 
-void createModuleInlet (TzModule* m, const char* name);
-void createModuleOutlet  (TzModule* m, const char* name);
+void releaseNode(TzNode *n);
 
-void connectModuleInlet (TzModule* m, int srcNode, int srcInput, int inletIndex);
-void connectModuleOutlet (TzModule* m, int srcNode, int srcOutput, int outletIndex);
+float getNodeInput(TzNode *n, int inputIndex, float defaultValue);
+float getNodeInputClipped(TzNode *n, int inputIndex, float defaultValue,
+                          float min, float max);
 
-/* =========================================== */
+struct TzModule {
+  TzNode *nodes[TZMODULE_MAX_NODES];
+  int numNodes;
+  float **inputs[TZNODE_MAX_INPUTS];
+  int numInputs;
+  float *outputs[TZNODE_MAX_OUTPUTS];
+  int numOutputs;
+  char inputsNames[TZNODE_MAX_INPUTS][TZNODE_NAME_SIZE];
+  char outputsNames[TZNODE_MAX_OUTPUTS][TZNODE_NAME_SIZE];
+};
 
-void performModule (TzNode* n, TzProcessInfo* info);
-TzNode* createModuleNode (const char* filename);
+int addModuleNode(TzModule *m, TzNode *n, const char *name);
 
-void performMatrix (TzNode* n, TzProcessInfo* info);
-TzNode* createMatrixNode (int numRows, int numCols, char* filename);
+void connectModuleNodes(TzModule *m, int inModule, int inOutput, int outModule,
+                        int outInput);
 
-void performMget (TzNode* n, TzProcessInfo* info);
-TzNode* createMgetNode (TzMatrix* parentMatrix);
+void createModuleInlet(TzModule *m, const char *name);
+void createModuleOutlet(TzModule *m, const char *name);
 
-void performMset (TzNode* n, TzProcessInfo* info);
-TzNode* createMsetNode (TzMatrix* parentMatrix);
-
-void performDefaultval (TzNode* n, TzProcessInfo* info);
-TzNode* createDefaultvalNode ();
-
-void performVar (TzNode* n, TzProcessInfo* info);
-TzNode* createVarNode ();
-
-void performAdder (TzNode* n, TzProcessInfo* info);
-TzNode* createAdderNode ();
-
-void performSub (TzNode* n, TzProcessInfo* info);
-TzNode* createSubNode ();
-
-void performMult (TzNode* n, TzProcessInfo* info);
-TzNode* createMultNode ();
-
-void performDiv (TzNode* n, TzProcessInfo* info);
-TzNode* createDivNode ();
-
-void performModulo (TzNode* n, TzProcessInfo* info);
-TzNode* createModuloNode ();
-
-void performPow (TzNode* n, TzProcessInfo* info);
-TzNode* createPowNode ();
-
-void performSqrt (TzNode* n, TzProcessInfo* info);
-TzNode* createSqrtNode ();
-
-void performAbs (TzNode* n, TzProcessInfo* info);
-TzNode* createAbsNode ();
-
-void performSin (TzNode* n, TzProcessInfo* info);
-TzNode* createSinNode ();
-
-void performCos (TzNode* n, TzProcessInfo* info);
-TzNode* createCosNode ();
-
-void performTan (TzNode* n, TzProcessInfo* info);
-TzNode* createTanNode ();
-
-void performTanh (TzNode* n, TzProcessInfo* info);
-TzNode* createTanhNode ();
-
-void performClip (TzNode* n, TzProcessInfo* info);
-TzNode* createClipNode ();
-
-void performWrap (TzNode* n, TzProcessInfo* info);
-TzNode* createWrapNode ();
-
-void performEqual (TzNode* n, TzProcessInfo* info);
-TzNode* createEqualNode ();
-
-void performNequal (TzNode* n, TzProcessInfo* info);
-TzNode* createNequalNode ();
-
-void performLower (TzNode* n, TzProcessInfo* info);
-TzNode* createLowerNode ();
-
-void performGreater (TzNode* n, TzProcessInfo* info);
-TzNode* createGreaterNode ();
-
-void performMin (TzNode* n, TzProcessInfo* info);
-TzNode* createMinNode ();
-
-void performMax (TzNode* n, TzProcessInfo* info);
-TzNode* createMaxNode ();
-
-void performRound (TzNode* n, TzProcessInfo* info);
-TzNode* createRoundNode ();
-
-void performCeil (TzNode* n, TzProcessInfo* info);
-TzNode* createCeilNode ();
-
-void performFloor (TzNode* n, TzProcessInfo* info);
-TzNode* createFloorNode ();
-
-void performFrac (TzNode* n, TzProcessInfo* info);
-TzNode* createFracNode ();
-
-void performAnd (TzNode* n, TzProcessInfo* info);
-TzNode* createAndNode ();
-
-void performOr (TzNode* n, TzProcessInfo* info);
-TzNode* createOrNode ();
-
-void performXor (TzNode* n, TzProcessInfo* info);
-TzNode* createXorNode ();
-
-void performMix (TzNode* n, TzProcessInfo* info);
-TzNode* createMixNode ();
-
-void performMerge (TzNode* n, TzProcessInfo* info);
-TzNode* createMergeNode ();
-
-void performPmerge (TzNode* n, TzProcessInfo* info);
-TzNode* createPmergeNode ();
-
-void performMap (TzNode* n, TzProcessInfo* info);
-TzNode* createMapNode ();
-
-void performFrom0_1 (TzNode* n, TzProcessInfo* info);
-TzNode* createFrom0_1Node ();
-
-void performTo0_1 (TzNode* n, TzProcessInfo* info);
-TzNode* createTo0_1Node ();
-
-void performSmooth (TzNode* n, TzProcessInfo* info);
-TzNode* createSmoothNode ();
-
-void performMiditofreq (TzNode* n, TzProcessInfo* info);
-TzNode* createMiditofreqNode ();
-
-void performDbtoamp (TzNode* n, TzProcessInfo* info);
-TzNode* createDbtoampNode ();
-
-void performMstohz (TzNode* n, TzProcessInfo* info);
-TzNode* createMstohzNode ();
-
-void performHztoms (TzNode* n, TzProcessInfo* info);
-TzNode* createHztomsNode ();
-
-void performSamplerate (TzNode* n, TzProcessInfo* info);
-TzNode* createSamplerateNode ();
-
-void performDuration (TzNode* n, TzProcessInfo* info);
-TzNode* createDurationNode ();
-
-void performFixdenorm (TzNode* n, TzProcessInfo* info);
-TzNode* createFixdenormNode ();
-
-void performFixnan (TzNode* n, TzProcessInfo* info);
-TzNode* createFixnanNode ();
-
-void performCount (TzNode* n, TzProcessInfo* info);
-TzNode* createCountNode ();
-
+void connectModuleInlet(TzModule *m, int srcNode, int srcInput, int inletIndex);
+void connectModuleOutlet(TzModule *m, int srcNode, int srcOutput,
+                         int outletIndex);
 
 /* =========================================== */
 
-void performConstant (TzNode* n, TzProcessInfo* info);
-TzNode* createConstantNode (float val);
+void performModule(TzNode *n, TzProcessInfo *info);
+TzNode *createModuleNode(const char *filename);
+
+void performMatrix(TzNode *n, TzProcessInfo *info);
+TzNode *createMatrixNode(int numRows, int numCols, char *filename);
+
+void performMget(TzNode *n, TzProcessInfo *info);
+TzNode *createMgetNode(TzMatrix *parentMatrix);
+
+void performMset(TzNode *n, TzProcessInfo *info);
+TzNode *createMsetNode(TzMatrix *parentMatrix);
+
+void performDefaultval(TzNode *n, TzProcessInfo *info);
+TzNode *createDefaultvalNode();
+
+void performVar(TzNode *n, TzProcessInfo *info);
+TzNode *createVarNode();
+
+void performAdder(TzNode *n, TzProcessInfo *info);
+TzNode *createAdderNode();
+
+void performSub(TzNode *n, TzProcessInfo *info);
+TzNode *createSubNode();
+
+void performMult(TzNode *n, TzProcessInfo *info);
+TzNode *createMultNode();
+
+void performDiv(TzNode *n, TzProcessInfo *info);
+TzNode *createDivNode();
+
+void performModulo(TzNode *n, TzProcessInfo *info);
+TzNode *createModuloNode();
+
+void performPow(TzNode *n, TzProcessInfo *info);
+TzNode *createPowNode();
+
+void performSqrt(TzNode *n, TzProcessInfo *info);
+TzNode *createSqrtNode();
+
+void performAbs(TzNode *n, TzProcessInfo *info);
+TzNode *createAbsNode();
+
+void performSin(TzNode *n, TzProcessInfo *info);
+TzNode *createSinNode();
+
+void performCos(TzNode *n, TzProcessInfo *info);
+TzNode *createCosNode();
+
+void performTan(TzNode *n, TzProcessInfo *info);
+TzNode *createTanNode();
+
+void performTanh(TzNode *n, TzProcessInfo *info);
+TzNode *createTanhNode();
+
+void performClip(TzNode *n, TzProcessInfo *info);
+TzNode *createClipNode();
+
+void performWrap(TzNode *n, TzProcessInfo *info);
+TzNode *createWrapNode();
+
+void performEqual(TzNode *n, TzProcessInfo *info);
+TzNode *createEqualNode();
+
+void performNequal(TzNode *n, TzProcessInfo *info);
+TzNode *createNequalNode();
+
+void performLower(TzNode *n, TzProcessInfo *info);
+TzNode *createLowerNode();
+
+void performGreater(TzNode *n, TzProcessInfo *info);
+TzNode *createGreaterNode();
+
+void performMin(TzNode *n, TzProcessInfo *info);
+TzNode *createMinNode();
+
+void performMax(TzNode *n, TzProcessInfo *info);
+TzNode *createMaxNode();
+
+void performRound(TzNode *n, TzProcessInfo *info);
+TzNode *createRoundNode();
+
+void performCeil(TzNode *n, TzProcessInfo *info);
+TzNode *createCeilNode();
+
+void performFloor(TzNode *n, TzProcessInfo *info);
+TzNode *createFloorNode();
+
+void performFrac(TzNode *n, TzProcessInfo *info);
+TzNode *createFracNode();
+
+void performAnd(TzNode *n, TzProcessInfo *info);
+TzNode *createAndNode();
+
+void performOr(TzNode *n, TzProcessInfo *info);
+TzNode *createOrNode();
+
+void performXor(TzNode *n, TzProcessInfo *info);
+TzNode *createXorNode();
+
+void performMix(TzNode *n, TzProcessInfo *info);
+TzNode *createMixNode();
+
+void performMerge(TzNode *n, TzProcessInfo *info);
+TzNode *createMergeNode();
+
+void performPmerge(TzNode *n, TzProcessInfo *info);
+TzNode *createPmergeNode();
+
+void performMap(TzNode *n, TzProcessInfo *info);
+TzNode *createMapNode();
+
+void performFrom0_1(TzNode *n, TzProcessInfo *info);
+TzNode *createFrom0_1Node();
+
+void performTo0_1(TzNode *n, TzProcessInfo *info);
+TzNode *createTo0_1Node();
+
+void performSmooth(TzNode *n, TzProcessInfo *info);
+TzNode *createSmoothNode();
+
+void performMiditofreq(TzNode *n, TzProcessInfo *info);
+TzNode *createMiditofreqNode();
+
+void performDbtoamp(TzNode *n, TzProcessInfo *info);
+TzNode *createDbtoampNode();
+
+void performMstohz(TzNode *n, TzProcessInfo *info);
+TzNode *createMstohzNode();
+
+void performHztoms(TzNode *n, TzProcessInfo *info);
+TzNode *createHztomsNode();
+
+void performSamplerate(TzNode *n, TzProcessInfo *info);
+TzNode *createSamplerateNode();
+
+void performDuration(TzNode *n, TzProcessInfo *info);
+TzNode *createDurationNode();
+
+void performFixdenorm(TzNode *n, TzProcessInfo *info);
+TzNode *createFixdenormNode();
+
+void performFixnan(TzNode *n, TzProcessInfo *info);
+TzNode *createFixnanNode();
+
+void performCount(TzNode *n, TzProcessInfo *info);
+TzNode *createCountNode();
 
 /* =========================================== */
 
+void performConstant(TzNode *n, TzProcessInfo *info);
+TzNode *createConstantNode(float val);
 
-void performPhasor (TzNode* n, TzProcessInfo* info);
-TzNode* createPhasorNode ();
+/* =========================================== */
 
-void performPulse (TzNode* n, TzProcessInfo* info);
-TzNode* createPulseNode ();
+void performPhasor(TzNode *n, TzProcessInfo *info);
+TzNode *createPhasorNode();
 
-void performSinosc (TzNode* n, TzProcessInfo* info);
-TzNode* createSinoscNode ();
+void performPulse(TzNode *n, TzProcessInfo *info);
+TzNode *createPulseNode();
 
-void performSawosc (TzNode* n, TzProcessInfo* info);
-TzNode* createSawoscNode ();
+void performSinosc(TzNode *n, TzProcessInfo *info);
+TzNode *createSinoscNode();
 
-void performSqrosc (TzNode* n, TzProcessInfo* info);
-TzNode* createSqroscNode ();
+void performSawosc(TzNode *n, TzProcessInfo *info);
+TzNode *createSawoscNode();
 
-void performTriosc (TzNode* n, TzProcessInfo* info);
-TzNode* createTrioscNode ();
+void performSqrosc(TzNode *n, TzProcessInfo *info);
+TzNode *createSqroscNode();
 
-void performNoise (TzNode* n, TzProcessInfo* info);
-TzNode* createNoiseNode ();
+void performTriosc(TzNode *n, TzProcessInfo *info);
+TzNode *createTrioscNode();
 
-void performSeq8 (TzNode* n, TzProcessInfo* info);
-TzNode* createSeq8Node ();
+void performNoise(TzNode *n, TzProcessInfo *info);
+TzNode *createNoiseNode();
 
-void performRandom (TzNode* n, TzProcessInfo* info);
-TzNode* createRandomNode ();
+void performSeq8(TzNode *n, TzProcessInfo *info);
+TzNode *createSeq8Node();
 
-void performIrandom (TzNode* n, TzProcessInfo* info);
-TzNode* createIrandomNode ();
+void performRandom(TzNode *n, TzProcessInfo *info);
+TzNode *createRandomNode();
 
-extern const int musicalScales [NUM_SCALES][12];
-void performNotescale (TzNode* n, TzProcessInfo* info);
-TzNode* createNotescaleNode ();
+void performIrandom(TzNode *n, TzProcessInfo *info);
+TzNode *createIrandomNode();
 
-void performSegment (TzNode* n, TzProcessInfo* info);
-TzNode* createSegmentNode ();
+extern const int musicalScales[NUM_SCALES][12];
+void performNotescale(TzNode *n, TzProcessInfo *info);
+TzNode *createNotescaleNode();
 
-void performADenv (TzNode* n, TzProcessInfo* info);
-TzNode* createADenvNode ();
+void performSegment(TzNode *n, TzProcessInfo *info);
+TzNode *createSegmentNode();
 
-void performASRenv (TzNode* n, TzProcessInfo* info);
-TzNode* createASRenvNode ();
+void performADenv(TzNode *n, TzProcessInfo *info);
+TzNode *createADenvNode();
 
-void performSelect (TzNode* n, TzProcessInfo* info);
-TzNode* createSelectNode ();
+void performASRenv(TzNode *n, TzProcessInfo *info);
+TzNode *createASRenvNode();
 
-void performRoute (TzNode* n, TzProcessInfo* info);
-TzNode* createRouteNode ();
+void performSelect(TzNode *n, TzProcessInfo *info);
+TzNode *createSelectNode();
 
-void performSah (TzNode* n, TzProcessInfo* info);
-TzNode* createSahNode ();
+void performRoute(TzNode *n, TzProcessInfo *info);
+TzNode *createRouteNode();
 
-void performGate (TzNode* n, TzProcessInfo* info);
-TzNode* createGateNode ();
+void performSah(TzNode *n, TzProcessInfo *info);
+TzNode *createSahNode();
 
-void performTimepoint (TzNode* n, TzProcessInfo* info);
-TzNode* createTimepointNode ();
+void performGate(TzNode *n, TzProcessInfo *info);
+TzNode *createGateNode();
 
+void performTimepoint(TzNode *n, TzProcessInfo *info);
+TzNode *createTimepointNode();
 
+void performLowpass(TzNode *n, TzProcessInfo *info);
+TzNode *createLowpassNode();
 
+void performHighpass(TzNode *n, TzProcessInfo *info);
+TzNode *createHighpassNode();
 
-void performLowpass (TzNode* n, TzProcessInfo* info);
-TzNode* createLowpassNode ();
+void performLowpass2(TzNode *n, TzProcessInfo *info);
+TzNode *createLowpass2Node();
 
-void performHighpass (TzNode* n, TzProcessInfo* info);
-TzNode* createHighpassNode ();
+void performHighpass2(TzNode *n, TzProcessInfo *info);
+TzNode *createHighpass2Node();
 
-void performLowpass2 (TzNode* n, TzProcessInfo* info);
-TzNode* createLowpass2Node ();
+void performBandpass(TzNode *n, TzProcessInfo *info);
+TzNode *createBandpassNode();
 
-void performHighpass2 (TzNode* n, TzProcessInfo* info);
-TzNode* createHighpass2Node ();
+void performNotch(TzNode *n, TzProcessInfo *info);
+TzNode *createNotchNode();
 
-void performBandpass (TzNode* n, TzProcessInfo* info);
-TzNode* createBandpassNode ();
+void performPeak(TzNode *n, TzProcessInfo *info);
+TzNode *createPeakNode();
 
-void performNotch (TzNode* n, TzProcessInfo* info);
-TzNode* createNotchNode ();
+void performLowshelf(TzNode *n, TzProcessInfo *info);
+TzNode *createLowshelfNode();
 
-void performPeak (TzNode* n, TzProcessInfo* info);
-TzNode* createPeakNode ();
+void performHighshelf(TzNode *n, TzProcessInfo *info);
+TzNode *createHighshelfNode();
 
-void performLowshelf (TzNode* n, TzProcessInfo* info);
-TzNode* createLowshelfNode ();
+void performSvf(TzNode *n, TzProcessInfo *info);
+TzNode *createSvfNode();
 
-void performHighshelf (TzNode* n, TzProcessInfo* info);
-TzNode* createHighshelfNode ();
+void performDelay(TzNode *n, TzProcessInfo *info);
+TzNode *createDelayNode();
 
-void performSvf (TzNode* n, TzProcessInfo* info);
-TzNode* createSvfNode ();
+void performFdelay(TzNode *n, TzProcessInfo *info);
+TzNode *createFdelayNode();
 
-void performDelay (TzNode* n, TzProcessInfo* info);
-TzNode* createDelayNode ();
-
-void performFdelay (TzNode* n, TzProcessInfo* info);
-TzNode* createFdelayNode ();
-
-void performAllpass (TzNode* n, TzProcessInfo* info);
-TzNode* createAllpassNode ();
-
+void performAllpass(TzNode *n, TzProcessInfo *info);
+TzNode *createAllpassNode();
 
 #endif

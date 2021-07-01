@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "tzara.h"
 #include "nodes.h"
+#include "tzara.h"
 
 #define PARSER_CACHE_SIZE 1024
 
@@ -15,71 +15,80 @@
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
 #define TZARA_OUTPUT_RIGHT_INDEX -0xcc
 
-
 #define MODULE_INPUTS_NODE_INDEX -0xdd
 #define MODULE_OUTPUTS_NODE_INDEX -0xee
 
-extern const char* midiNotes[128];
+extern const char *midiNotes[128];
 
-extern const char* noteNames[12];
+extern const char *noteNames[12];
 
-extern const char* scaleNames[NUM_SCALES];
+extern const char *scaleNames[NUM_SCALES];
 
 enum Operators {
-    NO_OP = 0,
-    COMMENT_OP,
-    CREATE_NODE_OP,
-    CREATE_CONSTANT_OP,
-    CONNECT_OP,
-    MODULE_IO_OP,
-    METADATA_OP
+  NO_OP = 0,
+  COMMENT_OP,
+  CREATE_NODE_OP,
+  CREATE_CONSTANT_OP,
+  CONNECT_OP,
+  MODULE_IO_OP,
+  METADATA_OP
 };
 
-int parseOperator (char op);
+int parseOperator(char op);
 
-void parseCommentInstruction (char* instr);
+void parseCommentInstruction(char *instr);
 
-void parseMetadataInstruction (void* engine, char** tokens, int numTokens, int isModule);
+void parseMetadataInstruction(void *engine, char **tokens, int numTokens,
+                              int isModule);
 
-int parseNodeType (const char* name);
+int parseNodeType(const char *name);
 
-void trimNewLine (char* str);
+void trimNewLine(char *str);
 
-TzNode* parseAndCreateModule (char** tokens, int numTokens);
+TzNode *parseAndCreateModule(char **tokens, int numTokens);
 
-TzNode* parseAndCreateMatrix (char** tokens, int numTokens);
+TzNode *parseAndCreateMatrix(char **tokens, int numTokens);
 
-TzNode* parseAndCreateMget (void* tz, char** tokens, int numTokens, int isModule);
-TzNode* parseAndCreateMset (void* tz, char** tokens, int numTokens, int isModule);
+TzNode *parseAndCreateMget(void *tz, char **tokens, int numTokens,
+                           int isModule);
+TzNode *parseAndCreateMset(void *tz, char **tokens, int numTokens,
+                           int isModule);
 
-void addEngineNode (void* engine, TzNode* n, char* name, int isModule);
+void addEngineNode(void *engine, TzNode *n, char *name, int isModule);
 
-int parseCreateNodeInstruction (void* tz, char** tokens, int numTokens, int isModule);
+int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
+                               int isModule);
 
-int searchNode (void* tz, const char* name, int isModule);
+int searchNode(void *tz, const char *name, int isModule);
 
-int searchInput (TzNode* node, const char* name);
+int searchInput(TzNode *node, const char *name);
 
-int searchOutput (TzNode* node, const char* name);
+int searchOutput(TzNode *node, const char *name);
 
-int searchModuleInput (TzModule* m, const char* name);
+int searchModuleInput(TzModule *m, const char *name);
 
-int searchModuleOutput (TzModule* m, const char* name);
+int searchModuleOutput(TzModule *m, const char *name);
 
-void parseNodeInputString (void* tz, char* str, int* node, int* input, int isModule);
+void parseNodeInputString(void *tz, char *str, int *node, int *input,
+                          int isModule);
 
-void parseNodeOutputString (void* tz, char* str, int* node, int* output, int isModule);
+void parseNodeOutputString(void *tz, char *str, int *node, int *output,
+                           int isModule);
 
-float getConstantValue (char* token);
+float getConstantValue(char *token);
 
-int parseCreateConstantInstruction (void* tz, char** tokens, int numTokens, int isModule);
+int parseCreateConstantInstruction(void *tz, char **tokens, int numTokens,
+                                   int isModule);
 
-int parseConnectInstruction (void* tz, char** tokens, int numTokens, int isModule);
+int parseConnectInstruction(void *tz, char **tokens, int numTokens,
+                            int isModule);
 
-int parseModuleIOInstruction (void* tz, char** tokens, int numTokens, int isModule);
+int parseModuleIOInstruction(void *tz, char **tokens, int numTokens,
+                             int isModule);
 
-int parseInstruction (void* tz, char* instr,  char** tokens, int numTokens, int isModule);
+int parseInstruction(void *tz, char *instr, char **tokens, int numTokens,
+                     int isModule);
 
-int parsePatch (void* engine, FILE* patch, const char* filename, int isModule);
+int parsePatch(void *engine, FILE *patch, const char *filename, int isModule);
 
 #endif

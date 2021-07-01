@@ -34,6 +34,9 @@ clean:
 install:
 	cp tzara /usr/local/bin/tzara
 
+format:
+	clang-format -i src/main.c src/nodes.* src/parser.* src/tzara.* src/tzdsp.*
+
 vimsyntax:
 	@echo "Copying tzara syntax plugin to ~/.vim"
 	@test -d ~/.vim/syntax || mkdir ~/.vim/syntax
