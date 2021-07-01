@@ -12,6 +12,9 @@
 
 #define TZARA_FILE_NAME_MAX_LENGTH 512
 
+#define TZARA_RENDER_SR 44100.0
+#define TZARA_RENDER_BITDEPTH 32
+
 void normalize (float** buf, const unsigned long int numSamples, const int numChannels) {
     float peak = 0.f;
     float ratio = 1.f;
@@ -41,12 +44,39 @@ void normalize (float** buf, const unsigned long int numSamples, const int numCh
 
 }
 
+void printNodesHelp () {
+    int i;
+    for (i = 1; i < NUM_NODE_TYPES; ++i) {
+        printf("- [%s] : %s\n\t- inputs: %s\n\t- outputs: %s\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
+    }
+    printf("\n");
+}
+
+void printScalesHelp () {
+    int i;
+    printf("Available scales for the notescale node :\n");
+    for (i = 0; i < NUM_SCALES; ++i) {
+        printf("- %s\n", scaleNames[i]);
+    }
+    printf("\n");
+}
+
+void initWavFormat (drwav_data_format *f, int sr) {
+    f->container = drwav_container_riff;     
+    f->format = DR_WAVE_FORMAT_IEEE_FLOAT;
+    f->channels = 2;
+    f->sampleRate = sr;
+    f->bitsPerSample = TZARA_RENDER_BITDEPTH;
+}
+
+
 int main (int argc, char** argv) {
     float* data[TZARA_MAX_OUTPUT_CHANS];
     FILE* patch = NULL;
     Tzara tz;
-    const float samplerate = 44100.f;
+    const float samplerate = TZARA_RENDER_SR;
     drwav wav;
+    drwav_data_format format;
     float* outData;
     unsigned long int i, j = 0;
     unsigned long int numFrames = (unsigned long int)samplerate * 60;
@@ -63,18 +93,11 @@ int main (int argc, char** argv) {
 
     if (argc == 2) {
         if (strncmp(argv[1], "--nodes", strlen(argv[1])) == 0) {
-            for (i = 1; i < NUM_NODE_TYPES; ++i) {
-                printf("- [%s] : %s\n\t- inputs: %s\n\t- outputs: %s\n", nodesDoc[i].name, nodesDoc[i].summary, nodesDoc[i].inputs, nodesDoc[i].outputs);
-            }
-            printf("\n");
+            printNodesHelp();
             return 0;
         }
         else if (strncmp(argv[1], "--scales", strlen(argv[1])) == 0) {
-            printf("Available scales for the notescale node :\n");
-            for (i = 0; i < NUM_SCALES; ++i) {
-                printf("- %s\n", scaleNames[i]);
-            }
-            printf("\n");
+            printScalesHelp();
             return 0;
         }
         else {
@@ -128,12 +151,7 @@ int main (int argc, char** argv) {
 
     printf("Writing to file...\n");
 
-    drwav_data_format format;
-    format.container = drwav_container_riff;     
-    format.format = DR_WAVE_FORMAT_IEEE_FLOAT;
-    format.channels = 2;
-    format.sampleRate = (int)samplerate;
-    format.bitsPerSample = 32;
+    initWavFormat(&format, (int)samplerate);
 
     if (!drwav_init_file_write(&wav, wavName, &format, NULL)) {
         fprintf(stderr, "Error writing %s...\nAborting...\n\n", wavName);
