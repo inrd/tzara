@@ -246,23 +246,16 @@ float tzPolyblepTriangle(float freq, float pw, float samplerate, float *phase,
 }
 
 float tzOnePoleLowpass(float in, float cut, float samplerate, float *z1) {
-  const double costh = 2.0 - cos(2.0 * M_PI * (double)cut / (double)samplerate);
-  const double coeff = sqrt(costh * costh - 1.0) - costh;
+  double b1 = exp(-2.0 * M_PI * ((double)cut / (double)samplerate));
+  double a0 = 1.0 - b1;
 
-  const double out = (double)in * (1.0 + coeff) - (double)(*z1) * coeff;
+  double out = in * a0 + (*z1) * b1;
   *z1 = (float)out;
-
   return (float)out;
 }
 
 float tzOnePoleHighpass(float in, float cut, float samplerate, float *z1) {
-  const double costh = 2.0 - cos(2.0 * M_PI * (double)cut / (double)samplerate);
-  const double coeff = costh - sqrt(costh * costh - 1.0);
-
-  const double out = (double)in * (1.0 - coeff) - (double)(*z1) * coeff;
-  *z1 = (float)out;
-
-  return out;
+  return in - tzOnePoleLowpass(in, cut, samplerate, z1);
 }
 
 float tzBiquad(float in, TZBiquadCoefficients coeffs, float *z1, float *z2) {

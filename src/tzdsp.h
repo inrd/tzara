@@ -125,6 +125,9 @@ float tzPolyblepSquare(float freq, float pw, float samplerate, float *phase);
 float tzPolyblepTriangle(float freq, float pw, float samplerate, float *phase,
                          float *z1);
 
+/* one pole related functions based on Nigel Redmon's code : */
+/* https://www.earlevel.com/main/2012/12/15/a-one-pole-filter/ */
+
 /* requires an external variable to store z1 */
 float tzOnePoleLowpass(float in, float cut, float samplerate, float *z1);
 
