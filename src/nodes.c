@@ -1893,17 +1893,37 @@ void performSegment(TzNode *n, TzProcessInfo *info) {
   const int clock = (int)getNodeInput(n, 0, 0.f);
 
   float *out = &(n->memory[0]);
+  float *fired = &(n->memory[1]);
+  /* sample counter since last clock: -1 means no clock has armed it yet */
+  float *tickCount = &(n->memory[2]);
   n->outputs[1] = 0.f;
 
   if (clock != 0) {
     *out = v1;
-    n->memory[1] = 0.f;
+    *fired = 0.f;
+    *tickCount = 0.f;
   }
 
-  if ((delta > 0.f && *out >= v2) || (delta < 0.f && *out <= v2)) {
-    if ((int)(n->memory[1]) != 1) {
+  /* segment is inert until first clock arms it */
+  if (*tickCount < 0.f) {
+    n->outputs[0] = *out;
+    return;
+  }
+
+  if ((int)(*fired) != 1) {
+    int reachedEnd = 0;
+    if (delta == 0.f) {
+      /* hold segment: wait `length` samples then fire end pulse */
+      *tickCount += 1.f;
+      if (*tickCount >= length) {
+        reachedEnd = 1;
+      }
+    } else if ((delta > 0.f && *out >= v2) || (delta < 0.f && *out <= v2)) {
+      reachedEnd = 1;
+    }
+    if (reachedEnd) {
       n->outputs[1] = 1.f;
-      n->memory[1] = 1.f;
+      *fired = 1.f;
     }
   }
 
@@ -1926,6 +1946,7 @@ TzNode *createSegmentNode() {
   strcpy(n->outputsNames[1], "end");
   n->memory[0] = 0.f;
   n->memory[1] = 0.f;
+  n->memory[2] = -1.f;
   n->perform = &performSegment;
   return n;
 }
