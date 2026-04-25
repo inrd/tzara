@@ -76,7 +76,7 @@ void parseMetadataInstruction(void *engine, char **tokens, int numTokens,
   int duration = 0;
 
   if (numTokens >= 3) {
-    if (strncmp(tokens[1], "duration", strlen(tokens[1])) == 0) {
+    if (strcmp(tokens[1], "duration") == 0) {
       if (isModule != 0) {
         printf("Duration metadata is not valid in a module...\n");
       } else {
@@ -97,11 +97,10 @@ void parseMetadataInstruction(void *engine, char **tokens, int numTokens,
 }
 
 int parseNodeType(const char *name) {
-  const int nameLength = strlen(name);
   int i = 0;
 
   for (i = 1; i < NUM_NODE_TYPES; ++i) {
-    if (strncmp(name, nodesDoc[i].name, nameLength) == 0) {
+    if (strcmp(name, nodesDoc[i].name) == 0) {
       return i;
     }
   }
@@ -944,25 +943,25 @@ void parseNodeOutputString(void *tz, char *str, int *node, int *output,
 
 float getConstantValue(char *token) {
   int i = 0;
-  if (strncmp(token, "pi", strlen(token)) == 0) {
+  if (strcmp(token, "pi") == 0) {
     return M_PI;
-  } else if (strncmp(token, "twopi", strlen(token)) == 0) {
+  } else if (strcmp(token, "twopi") == 0) {
     return 2.f * M_PI;
   } else {
     for (i = 0; i < 128; ++i) {
-      if (strncmp(token, midiNotes[i], strlen(token)) == 0) {
+      if (strcmp(token, midiNotes[i]) == 0) {
         return (float)i;
       }
     }
 
     for (i = 0; i < 12; ++i) {
-      if (strncmp(token, noteNames[i], strlen(token)) == 0) {
+      if (strcmp(token, noteNames[i]) == 0) {
         return (float)i;
       }
     }
 
     for (i = 0; i < NUM_SCALES; ++i) {
-      if (strncmp(token, scaleNames[i], strlen(token)) == 0) {
+      if (strcmp(token, scaleNames[i]) == 0) {
         return (float)i;
       }
     }
@@ -1201,8 +1200,8 @@ int parseModuleIOInstruction(void *tz, char **tokens, int numTokens,
     return 1;
   }
 
-  isIn = strncmp(tokens[1], "in", strlen(tokens[1])) == 0 ? 1 : 0;
-  isOut = strncmp(tokens[1], "out", strlen(tokens[1])) == 0 ? 1 : 0;
+  isIn = strcmp(tokens[1], "in") == 0 ? 1 : 0;
+  isOut = strcmp(tokens[1], "out") == 0 ? 1 : 0;
   strcpy(name, tokens[2]);
   trimNewLine(name);
 
