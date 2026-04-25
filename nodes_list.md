@@ -144,7 +144,7 @@
 - [fixnan] : zeroes NaN in the signal.
 	- inputs: in
 	- outputs: out
-- [count] : outputs the count of non zero signals received at {clock}. Loops back to 0 after reaching {max} (inclusive, defaults to 16).
+- [count] : outputs the count of non zero signals received at {clock}. Counts from 1 and loops back to 1 after reaching {max} (inclusive, defaults to 16).
 	- inputs: clock max
 	- outputs: out
 - [phasor] : generates a ramp in the range [0..1]. A pulse at {reset} resets the phase.

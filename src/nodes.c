@@ -121,8 +121,8 @@ const TzNodeDoc nodesDoc[NUM_NODE_TYPES] = {
     {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out"},
     {"fixnan", "zeroes NaN in the signal.", "in", "out"},
     {"count",
-     "outputs the count of non zero signals received at {clock}. Loops back to "
-     "0 after reaching {max} (inclusive, defaults to 16).",
+     "outputs the count of non zero signals received at {clock}. Counts from "
+     "1 and loops back to 1 after reaching {max} (inclusive, defaults to 16).",
      "clock max", "out"},
     {"phasor",
      "generates a ramp in the range [0..1]. A pulse at {reset} resets the "
