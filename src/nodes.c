@@ -818,8 +818,9 @@ void performSqrt(TzNode *n, TzProcessInfo *info) {
   const float in = getNodeInput(n, 0, 0.f);
   if (in < 0.f) {
     n->outputs[0] = 0.f;
+  } else {
+    n->outputs[0] = sqrt(in);
   }
-  n->outputs[0] = sqrt(in);
 }
 
 TzNode *createSqrtNode() {
