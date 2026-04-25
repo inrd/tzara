@@ -117,12 +117,15 @@ enum NoteScales {
   NUM_SCALES
 };
 
+typedef struct TzNode TzNode;
+
 typedef struct TzNodeDoc TzNodeDoc;
 struct TzNodeDoc {
   const char *name;
   const char *summary;
   const char *inputs;
   const char *outputs;
+  TzNode *(*ctor)(void);
 };
 
 extern const TzNodeDoc nodesDoc[NUM_NODE_TYPES];
@@ -146,7 +149,6 @@ int initMatrix(TzMatrix *m, const int numRows, const int numCols);
 void releaseMatrix(TzMatrix *m);
 void populateMatrixFromFile(FILE *f, TzMatrix *m);
 
-typedef struct TzNode TzNode;
 struct TzNode {
   float *inputs[TZNODE_MAX_INPUTS];
   int numInputs;

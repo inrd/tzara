@@ -12,11 +12,11 @@
 #define TZMATRIX_PARSER_CACHE_SIZE 4096
 
 const TzNodeDoc nodesDoc[NUM_NODE_TYPES] = {
-    {"-", "-", "-", "-"},
+    {"-", "-", "-", "-", NULL},
     {"module",
      "special node that processes a patch internally and exposes up to 16 "
      "inputs and up to 16 outputs.",
-     "user declared inputs", "user declared outputs"},
+     "user declared inputs", "user declared outputs", NULL},
     {"matrix",
      "special node that stores a matrix (optionally loaded from a file). Use "
      "{getrow} and {getcol} to retrieve values at {out}. Set {write} to a non "
@@ -24,159 +24,174 @@ const TzNodeDoc nodesDoc[NUM_NODE_TYPES] = {
      "Get operations have precedence over set operations : if you write a "
      "value to a cell and poll that same cell concurrently, the previous value "
      "of the cell will be sent to {out}.",
-     "getrow, getcol, setrow, setcol, setval, write", "out"},
+     "getrow, getcol, setrow, setcol, setval, write", "out", NULL},
     {"mget",
      "gets a value from a matrix. Useful to access a matrix at different "
      "positions during the same processing frame. Create a mget node pointing "
      "to a matrix and access the desired value by setting {row} and {col}.",
-     "row col", "out"},
+     "row col", "out", NULL},
     {"mset",
      "sets a value in a matrix. Useful to access a matrix at different "
      "positions during the same processing frame. Create a mset node pointing "
      "to a matrix and set the desired value by setting {val}, {row} and {col}. "
      "The value will be set when {write} receives a non zero value.",
-     "val, row, col, write", "-"},
+     "val, row, col, write", "-", NULL},
     {"defaultval",
      "outputs {val} if {in} is not connected, outputs {in} otherwise. Outputs0 "
      "if both {in} and {val} are not connected. Use to set a default value for "
      "a module input.",
-     "in, val", "out"},
+     "in, val", "out", createDefaultvalNode},
     {"var",
      "holds a variable that can be shared through the patch. Instead of using "
      "myvar@val for I/O, you can simply use $myvar.",
-     "val", "val"},
-    {"add", "outputs {in1} + {in2}.", "in1, in2", "out"},
-    {"sub", "outputs {in1} - {in2}.", "in1, in2", "out"},
-    {"mult", "outputs {in1} * {in2}.", "in1, in2", "out"},
-    {"div", "outputs {in1} / {in2}.", "in1, in2", "out"},
-    {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out"},
-    {"pow", "outputs {base} raised to the power of {exp}.", "base, exp", "out"},
-    {"sqrt", "outputs the square root of {in}.", "in", "out"},
-    {"abs", "outputs the absolute value of {in}.", "in", "out"},
-    {"sin", "outputs the sine of {in}.", "in", "out"},
-    {"cos", "outputs the cosine of {in}.", "in", "out"},
-    {"tan", "outputs the tangent of {in}.", "in", "out"},
-    {"tanh", "outputs the hyperbolic tangent of {in}.", "in", "out"},
-    {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out"},
-    {"wrap", "wraps {in} in range [{min}..{max}].", "in, min, max", "out"},
+     "val", "val", createVarNode},
+    {"add", "outputs {in1} + {in2}.", "in1, in2", "out", createAdderNode},
+    {"sub", "outputs {in1} - {in2}.", "in1, in2", "out", createSubNode},
+    {"mult", "outputs {in1} * {in2}.", "in1, in2", "out", createMultNode},
+    {"div", "outputs {in1} / {in2}.", "in1, in2", "out", createDivNode},
+    {"modulo", "outputs {in1} % {in2}.", "in1, in2", "out", createModuloNode},
+    {"pow", "outputs {base} raised to the power of {exp}.", "base, exp", "out",
+     createPowNode},
+    {"sqrt", "outputs the square root of {in}.", "in", "out", createSqrtNode},
+    {"abs", "outputs the absolute value of {in}.", "in", "out", createAbsNode},
+    {"sin", "outputs the sine of {in}.", "in", "out", createSinNode},
+    {"cos", "outputs the cosine of {in}.", "in", "out", createCosNode},
+    {"tan", "outputs the tangent of {in}.", "in", "out", createTanNode},
+    {"tanh", "outputs the hyperbolic tangent of {in}.", "in", "out",
+     createTanhNode},
+    {"clip", "clips {in} in range [{min}..{max}].", "in, min, max", "out",
+     createClipNode},
+    {"wrap", "wraps {in} in range [{min}..{max}].", "in, min, max", "out",
+     createWrapNode},
     {"equal", "outputs 1 if {in1} and {in2} are equal, 0 otherwise.",
-     "in1, in2", "out"},
+     "in1, in2", "out", createEqualNode},
     {"nequal", "outputs 1 if {in1} and {in2} are not equal, 0 otherwise.",
-     "in1, in2", "out"},
-    {"lower", "outputs 1 if {in1} < {in2}, 0 otherwise.", "in1, in2", "out"},
-    {"greater", "outputs 1 if {in1} > {in2}, 0 otherwise.", "in1, in2", "out"},
+     "in1, in2", "out", createNequalNode},
+    {"lower", "outputs 1 if {in1} < {in2}, 0 otherwise.", "in1, in2", "out",
+     createLowerNode},
+    {"greater", "outputs 1 if {in1} > {in2}, 0 otherwise.", "in1, in2", "out",
+     createGreaterNode},
     {"min", "outputs the lowest value between {in1} and {in2}.", "in1, in2",
-     "out"},
+     "out", createMinNode},
     {"max", "outputs the highest value between {in1} and {in2}.", "in1, in2",
-     "out"},
-    {"round", "rounds {in} to the nearest integer value.", "in", "out"},
-    {"ceil", "rounds {in} up to the nearest higher integer.", "in", "out"},
-    {"floor", "rounds {in} down to the nearest lower integer.", "in", "out"},
+     "out", createMaxNode},
+    {"round", "rounds {in} to the nearest integer value.", "in", "out",
+     createRoundNode},
+    {"ceil", "rounds {in} up to the nearest higher integer.", "in", "out",
+     createCeilNode},
+    {"floor", "rounds {in} down to the nearest lower integer.", "in", "out",
+     createFloorNode},
     {"frac", "outputs the fractional part of {in} (e.g. 0.5 for 2.5).", "in",
-     "out"},
+     "out", createFracNode},
     {"and", "outputs 1 if both {in1} and {in2} are not 0, outputs 0 otherwise.",
-     "in1 in2", "out"},
+     "in1 in2", "out", createAndNode},
     {"or", "outputs 1 if either {in1} or {in2} are not 0, outputs 0 otherwise.",
-     "in1 in2", "out"},
+     "in1 in2", "out", createOrNode},
     {"xor",
      "outputs 1 if one of {in1} and {in2} is not 0, outputs 0 if both are 0 or "
      "both are not 0.",
-     "in1 in2", "out"},
+     "in1 in2", "out", createXorNode},
     {"mix",
      "interpolates between {in1} and {in2} according to {coeff} in range "
      "[0..1].",
-     "in1, in2, coeff", "out"},
+     "in1, in2, coeff", "out", createMixNode},
     {"merge",
      "combines all of its inputs into a single signal. To combine pulses, see "
      "pmerge.",
-     "in1, in2, ..., in16", "out"},
+     "in1, in2, ..., in16", "out", createMergeNode},
     {"pmerge",
      "combines all of its inputs (pulses) into a single pulse output (works "
      "like a giant or node). To combine regular signals, see merge.",
-     "in1, in2, ..., in16", "out"},
+     "in1, in2, ..., in16", "out", createPmergeNode},
     {"map",
      "maps {in} from the range [{imin}..{imax}] to the range [{omin}..{omax}]. "
      "An optional curve factor can be set via {curve} (must be > 0, 1 is "
      "linear, a value below 1 skews the result towards omax, a value above 1 "
      "skews the result towards omin).",
-     "in, imin, imax, omin, omax, curve", "out"},
+     "in, imin, imax, omin, omax, curve", "out", createMapNode},
     {"from0_1", "maps {in} from the range [0..1] to the range [{min}..{max}].",
-     "in, min, max", "out"},
+     "in, min, max", "out", createFrom0_1Node},
     {"to0_1", "maps {in} from the range [{min}..{max}] to the range [0..1].",
-     "in, min, max", "out"},
+     "in, min, max", "out", createTo0_1Node},
     {"smooth",
      "smooth value changes at {in} in {dur} milliseconds and outputs the "
      "smoothed value.",
-     "in, dur", "out"},
+     "in, dur", "out", createSmoothNode},
     {"miditofreq", "converts a MIDI note [0..127] to a frequency in Hertz.",
-     "in", "out"},
+     "in", "out", createMiditofreqNode},
     {"dbtoamp", "converts a deciBel value to a linear amplitude value.",
-     "in(dB)", "out"},
+     "in(dB)", "out", createDbtoampNode},
     {"mstohz", "converts a duration  in milliseconds to a frequency in Hertz.",
-     "in", "out"},
+     "in", "out", createMstohzNode},
     {"hztoms", "converts a frequency in Hertz to a duration  in milliseconds.",
-     "in", "out"},
-    {"samplerate", "outputs the current samplerate.", "-", "out"},
-    {"duration", "outputs the render duration in milliseconds.", "-", "out"},
-    {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out"},
-    {"fixnan", "zeroes NaN in the signal.", "in", "out"},
+     "in", "out", createHztomsNode},
+    {"samplerate", "outputs the current samplerate.", "-", "out",
+     createSamplerateNode},
+    {"duration", "outputs the render duration in milliseconds.", "-", "out",
+     createDurationNode},
+    {"fixdenorm", "zeroes denormal numbers in the signal.", "in", "out",
+     createFixdenormNode},
+    {"fixnan", "zeroes NaN in the signal.", "in", "out", createFixnanNode},
     {"count",
      "outputs the count of non zero signals received at {clock}. Counts from "
      "1 and loops back to 1 after reaching {max} (inclusive, defaults to 16).",
-     "clock max", "out"},
+     "clock max", "out", createCountNode},
     {"phasor",
      "generates a ramp in the range [0..1]. A pulse at {reset} resets the "
      "phase.",
-     "freq(Hz), reset(pulse)", "out"},
+     "freq(Hz), reset(pulse)", "out", createPhasorNode},
     {"pulse",
      "outputs a pulse (1 sample long signal whose value is 1) at a periodic "
      "rate. A pulse at {reset} resets the phase.",
-     "rate(Ms), reset(pulse)", "out"},
+     "rate(Ms), reset(pulse)", "out", createPulseNode},
     {"sinosc",
      "generates a sine wave. A pulse at {reset} resets the phase. A signal can "
      "be sent to {fm) for frequency modulation with the amount of modulation "
      "controled by {fmdepth}.",
-     "freq(Hz), reset(pulse), fm, fmdepth", "out"},
+     "freq(Hz), reset(pulse), fm, fmdepth", "out", createSinoscNode},
     {"sawosc",
      "a bandlimited sawtooth oscillator. A pulse at {reset} resets the phase. "
      "A signal can be sent to {fm) for frequency modulation with the amount of "
      "modulation controled by {fmdepth}.",
-     "freq(Hz), reset(pulse), fm, fmdepth", "out"},
+     "freq(Hz), reset(pulse), fm, fmdepth", "out", createSawoscNode},
     {"sqrosc",
      "a bandlimited square oscillator. A pulse at {reset} resets the phase. "
      "The pulse width can be  controlled via {pw}. A signal can be sent to "
      "{fm) for frequency modulation with the amount of modulation controled by "
      "{fmdepth}.",
-     "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out"},
+     "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out",
+     createSqroscNode},
     {"triosc",
      "a bandlimited triangle oscillator. A pulse at {reset} resets the phase. "
      "The pulse width can be  controlled via {pw}. A signal can be sent to "
      "{fm) for frequency modulation with the amount of modulation controled by "
      "{fmdepth}.",
-     "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out"},
-    {"noise", "generates white noise.", "-", "out"},
+     "freq(Hz), reset(pulse), pw([0..1]), fm, fmdepth", "out",
+     createTrioscNode},
+    {"noise", "generates white noise.", "-", "out", createNoiseNode},
     {"seq8",
      "outputs the values of inputs {step1} to {step8} sequentially when "
      "receiving a pulse at {clock}. The sequence length can be changed via "
      "input {length}. The output {pos} sends the playhead position.",
-     "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos"},
+     "clock(pulse), length(1..8), step1, step2, ..., step8", "out, pos",
+     createSeq8Node},
     {"random",
      "outputs a random value in the range [0..1] when receiving a pulse at "
      "{clock}.",
-     "clock", "out"},
+     "clock", "out", createRandomNode},
     {"irandom",
      "outputs a random integer value in the range [{min}..{max}] (inclusive) "
      "when receiving a pulse at {clock}.",
-     "clock, min, max", "out"},
+     "clock, min, max", "out", createIrandomNode},
     {"notescale",
      "conforms a note value ({note}) to a musical {scale} according to a "
      "{root} note. Run tzara --scales to get a list of the available scales.",
-     "note, scale, root", "out"},
+     "note, scale, root", "out", createNotescaleNode},
     {"segment",
      "outputs a ramp from {val1} to {val2} in {dur} Ms when receiving a pulse "
      "at {clock}. Outputs a pulse at {end} when reaching the end of the "
      "segment for chaining segments.",
-     "clock, val1, val2, dur", "out, end(pulse)"},
+     "clock, val1, val2, dur", "out, end(pulse)", createSegmentNode},
     {"adenv",
      "an attack/decay envelope generator. Outputs a value in range [0..1] at "
      "output {env}. When it receives a pulse at {clock}, it starts the attack "
@@ -184,7 +199,7 @@ const TzNodeDoc nodesDoc[NUM_NODE_TYPES] = {
      "it reaches 0. An optional VCA is built-in so you can route a signal to "
      "the {vca} input and get the scaled version of that signal at the {vca} "
      "output.",
-     "clock, attack(Ms), decay(Ms), vca", "env, vca"},
+     "clock, attack(Ms), decay(Ms), vca", "env, vca", createADenvNode},
     {"asrenv",
      "an attack/sustain/release envelope generator. Outputs a value in range "
      "[0..1] at output {env}. When it receives a non-zero value at {gate}, it "
@@ -194,49 +209,55 @@ const TzNodeDoc nodesDoc[NUM_NODE_TYPES] = {
      "reaches 0. An optional VCA is built-in so you can route a signal to the "
      "{vca} input and get the scaled version of that signal at the {vca} "
      "output.",
-     "gate, attack(Ms), release(Ms), vca", "env, vca"},
+     "gate, attack(Ms), release(Ms), vca", "env, vca", createASRenvNode},
     {"select",
      "if {index} is 0, outputs 0 otherwise ouputs the value of the "
      "corresponding input.",
-     "index, in1, in2, in3, in4, in5, in6, in7, in8", "out"},
+     "index, in1, in2, in3, in4, in5, in6, in7, in8", "out", createSelectNode},
     {"route",
      "if {index} is greater than 0 and lower than 9, outputs {in} to the "
      "corresponding {out}.",
-     "in, index", "out1, out2, out3, out4, out5, out6, out7, out8"},
+     "in, index", "out1, out2, out3, out4, out5, out6, out7, out8",
+     createRouteNode},
     {"sah",
      "samples the value at {in} when receiving a non-zero signal (pulse) at "
      "{clock}. Outputs the sampled value.",
-     "in clock", "out"},
+     "in clock", "out", createSahNode},
     {"gate",
      "outputs 1 for the duration specified at {dur} when it receives a "
      "non-zero signal (pulse) at {clock}. Outputs 0 the rest of the time.",
-     "clock, dur(Ms)", "out"},
+     "clock, dur(Ms)", "out", createGateNode},
     {"timepoint",
      "outputs a pulse at a specific timepoint defined by {time} (in "
      "milliseconds). Outputs a pulse on startup if {time} is not set.",
-     "time(Ms)", "out"},
-    {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out"},
-    {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out"},
+     "time(Ms)", "out", createTimepointNode},
+    {"lowpass", "a 1 pole lowpass filter.", "in, cut(Hz)", "out",
+     createLowpassNode},
+    {"highpass", "a 1 pole highpass filter.", "in, cut(Hz)", "out",
+     createHighpassNode},
     {"lowpass2", "a 2 poles lowpass filter. {res} >= 0.1.",
-     "in, cut(Hz), res(Hz)", "out"},
+     "in, cut(Hz), res(Hz)", "out", createLowpass2Node},
     {"highpass2", "a 2 poles highpass filter. {res} >= 0.1.",
-     "in, cut(Hz), res(Hz)", "out"},
+     "in, cut(Hz), res(Hz)", "out", createHighpass2Node},
     {"bandpass", "a bandpass filter. {res} >= 0.1.", "in, cut(Hz), res(Hz)",
-     "out"},
+     "out", createBandpassNode},
     {"notch", "a notch (band-reject) filter. {res} >= 0.1.",
-     "in, cut(Hz), res(Hz)", "out"},
+     "in, cut(Hz), res(Hz)", "out", createNotchNode},
     {"peak", "a peak filter. {res} >= 0.1.", "in, cut(Hz), res(Hz), gain(dB)",
-     "out"},
-    {"lowshelf", "a lowshelf filter.", "in, cut(Hz), gain(dB)", "out"},
-    {"highshelf", "a highshelf filter.", "in, cut(Hz), gain(dB)", "out"},
+     "out", createPeakNode},
+    {"lowshelf", "a lowshelf filter.", "in, cut(Hz), gain(dB)", "out",
+     createLowshelfNode},
+    {"highshelf", "a highshelf filter.", "in, cut(Hz), gain(dB)", "out",
+     createHighshelfNode},
     {"svf",
      "a state variable filter. Outputs lowpass, bandpass, highpass and notch.",
-     "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch"},
-    {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out"},
+     "in, cut, res[0..1]", "lowpass, bandpass, highpass, notch", createSvfNode},
+    {"delay", "a basic delay line (up to 2 seconds).", "in, time(Ms)", "out",
+     createDelayNode},
     {"fdelay", "a delay line with feedback (up to 2 seconds).",
-     "in, time(Ms) feed([0..1])", "out"},
+     "in, time(Ms) feed([0..1])", "out", createFdelayNode},
     {"allpass", "an allpass delay (up to 2 seconds of delay time).",
-     "in, time(Ms) gain([0..1])", "out"}};
+     "in, time(Ms) gain([0..1])", "out", createAllpassNode}};
 
 int initMatrix(TzMatrix *m, const int numRows, const int numCols) {
   int r = 0;
