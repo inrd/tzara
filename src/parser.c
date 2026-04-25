@@ -116,22 +116,68 @@ void trimNewLine(char *str) {
     *nl = '\0';
 }
 
-TzNode *parseAndCreateModule(char **tokens, int numTokens) {
+void getParentDir(const char *path, char *out, size_t outSize) {
+  const char *slash = NULL;
+  size_t len = 0;
+
+  if (out == NULL || outSize == 0)
+    return;
+
+  out[0] = '\0';
+  if (path == NULL)
+    return;
+
+  slash = strrchr(path, '/');
+  if (slash == NULL)
+    return;
+
+  len = (size_t)(slash - path);
+  if (len >= outSize)
+    len = outSize - 1;
+
+  memcpy(out, path, len);
+  out[len] = '\0';
+}
+
+void resolvePatchPath(const char *parentDir, const char *path, char *out,
+                      size_t outSize) {
+  if (out == NULL || outSize == 0)
+    return;
+
+  if (path == NULL || path[0] == '\0' || path[0] == '/' ||
+      parentDir == NULL || parentDir[0] == '\0') {
+    if (path == NULL) {
+      out[0] = '\0';
+    } else {
+      strncpy(out, path, outSize - 1);
+      out[outSize - 1] = '\0';
+    }
+    return;
+  }
+
+  snprintf(out, outSize, "%s/%s", parentDir, path);
+}
+
+TzNode *parseAndCreateModule(char **tokens, int numTokens,
+                             const char *parentDir) {
   int i = 0;
   int j = 1;
-  char filename[512];
+  char filename[PARSER_PATH_SIZE];
+  char resolved[PARSER_PATH_SIZE];
 
-  memset(filename, '\0', 512);
+  memset(filename, '\0', PARSER_PATH_SIZE);
 
   for (i = 0; i < numTokens; ++i) {
     if (tokens[i][0] == '<') {
 
-      while (tokens[i][j] != '>' && tokens[i][j] != '\0') {
+      while (tokens[i][j] != '>' && tokens[i][j] != '\0' &&
+             (size_t)(j - 1) < sizeof(filename) - 1) {
         filename[j - 1] = tokens[i][j];
         ++j;
       }
 
-      return createModuleNode(filename);
+      resolvePatchPath(parentDir, filename, resolved, sizeof(resolved));
+      return createModuleNode(resolved);
     }
   }
 
@@ -139,12 +185,14 @@ TzNode *parseAndCreateModule(char **tokens, int numTokens) {
   return NULL;
 }
 
-TzNode *parseAndCreateMatrix(char **tokens, int numTokens) {
+TzNode *parseAndCreateMatrix(char **tokens, int numTokens,
+                             const char *parentDir) {
   int i = 1;
-  char filename[512];
+  char filename[PARSER_PATH_SIZE];
+  char resolved[PARSER_PATH_SIZE];
   int numRows, numCols = 0;
 
-  memset(filename, '\0', 512);
+  memset(filename, '\0', PARSER_PATH_SIZE);
 
   if (numTokens < 5) {
     printf("Missing arguments!\nSyntax : + matrix node_name num_rows "
@@ -159,11 +207,13 @@ TzNode *parseAndCreateMatrix(char **tokens, int numTokens) {
     return createMatrixNode(numRows, numCols, NULL);
   } else {
     if (tokens[5][0] == '<') {
-      while (tokens[5][i] != '>' && tokens[5][i] != '\0') {
+      while (tokens[5][i] != '>' && tokens[5][i] != '\0' &&
+             (size_t)(i - 1) < sizeof(filename) - 1) {
         filename[i - 1] = tokens[5][i];
         ++i;
       }
-      return createMatrixNode(numRows, numCols, filename);
+      resolvePatchPath(parentDir, filename, resolved, sizeof(resolved));
+      return createMatrixNode(numRows, numCols, resolved);
     } else {
       printf("Invalid syntax.\n");
       return NULL;
@@ -243,7 +293,7 @@ int addEngineNode(void *engine, TzNode *n, char *name, int isModule) {
 }
 
 int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
-                               int isModule) {
+                               int isModule, const char *parentDir) {
   int nodeType = INVALID_NODE_TYPE;
   int err = 0;
   char name[TZNODE_NAME_SIZE];
@@ -261,14 +311,14 @@ int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
   switch (nodeType) {
   case MODULE_NODE:
     printf("Creating module : %s\n", name);
-    err = addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name,
-                        isModule);
+    err = addEngineNode(
+        tz, parseAndCreateModule(tokens, numTokens, parentDir), name, isModule);
     break;
 
   case MATRIX_NODE:
     printf("Creating matrix : %s\n", name);
-    err = addEngineNode(tz, parseAndCreateMatrix(tokens, numTokens), name,
-                        isModule);
+    err = addEngineNode(
+        tz, parseAndCreateMatrix(tokens, numTokens, parentDir), name, isModule);
     break;
 
   case MGET_NODE:
@@ -1177,7 +1227,7 @@ int parseModuleIOInstruction(void *tz, char **tokens, int numTokens,
 }
 
 int parseInstruction(void *tz, char *instr, char **tokens, int numTokens,
-                     int isModule) {
+                     int isModule, const char *parentDir) {
   const int op = parseOperator(tokens[0][0]);
   int err = 0;
 
@@ -1187,7 +1237,8 @@ int parseInstruction(void *tz, char *instr, char **tokens, int numTokens,
     break;
 
   case CREATE_NODE_OP:
-    err = parseCreateNodeInstruction(tz, tokens, numTokens, isModule);
+    err = parseCreateNodeInstruction(tz, tokens, numTokens, isModule,
+                                     parentDir);
     break;
 
   case CREATE_CONSTANT_OP:
@@ -1216,6 +1267,7 @@ int parseInstruction(void *tz, char *instr, char **tokens, int numTokens,
 int parsePatch(void *engine, FILE *patch, const char *filename, int isModule) {
   char cache[PARSER_CACHE_SIZE];
   char instr[PARSER_CACHE_SIZE];
+  char parentDir[PARSER_PATH_SIZE];
   int i;
   int lcount = 1;
   int err = 0;
@@ -1225,6 +1277,7 @@ int parsePatch(void *engine, FILE *patch, const char *filename, int isModule) {
 
   memset(cache, 0, PARSER_CACHE_SIZE);
   memset(instr, 0, PARSER_CACHE_SIZE);
+  getParentDir(filename, parentDir, sizeof(parentDir));
 
   for (i = 0; i < PARSER_MAX_TOKENS; ++i) {
     tokens[i] = malloc(PARSER_TOKEN_LENGTH * sizeof(char));
@@ -1249,7 +1302,8 @@ int parsePatch(void *engine, FILE *patch, const char *filename, int isModule) {
     }
 
     if (numTokens > 0) {
-      err = parseInstruction(engine, instr, tokens, numTokens, isModule);
+      err = parseInstruction(engine, instr, tokens, numTokens, isModule,
+                             parentDir);
     }
 
     if (err != 0) {

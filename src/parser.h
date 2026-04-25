@@ -11,6 +11,8 @@
 #define PARSER_MAX_TOKENS 256
 #define PARSER_TOKEN_LENGTH 256
 
+#define PARSER_PATH_SIZE 1024
+
 #define TZARA_OUTPUT_NODE_INDEX -0xaa
 #define TZARA_OUTPUT_LEFT_INDEX -0xbb
 #define TZARA_OUTPUT_RIGHT_INDEX -0xcc
@@ -45,9 +47,16 @@ int parseNodeType(const char *name);
 
 void trimNewLine(char *str);
 
-TzNode *parseAndCreateModule(char **tokens, int numTokens);
+void getParentDir(const char *path, char *out, size_t outSize);
 
-TzNode *parseAndCreateMatrix(char **tokens, int numTokens);
+void resolvePatchPath(const char *parentDir, const char *path, char *out,
+                      size_t outSize);
+
+TzNode *parseAndCreateModule(char **tokens, int numTokens,
+                             const char *parentDir);
+
+TzNode *parseAndCreateMatrix(char **tokens, int numTokens,
+                             const char *parentDir);
 
 TzNode *parseAndCreateMget(void *tz, char **tokens, int numTokens,
                            int isModule);
@@ -57,7 +66,7 @@ TzNode *parseAndCreateMset(void *tz, char **tokens, int numTokens,
 int addEngineNode(void *engine, TzNode *n, char *name, int isModule);
 
 int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
-                               int isModule);
+                               int isModule, const char *parentDir);
 
 int searchNode(void *tz, const char *name, int isModule);
 
@@ -87,7 +96,7 @@ int parseModuleIOInstruction(void *tz, char **tokens, int numTokens,
                              int isModule);
 
 int parseInstruction(void *tz, char *instr, char **tokens, int numTokens,
-                     int isModule);
+                     int isModule, const char *parentDir);
 
 int parsePatch(void *engine, FILE *patch, const char *filename, int isModule);
 

@@ -66,7 +66,7 @@ This is just a basic overview. For a more detailed introduction, look at the `tu
 #
 
 ```
-To run the patch, if you saved the file as `synth.tzara`, run the following from the patch directory (it would work with relative paths from another directory but would break if the patch uses modules) :
+To run the patch, if you saved the file as `synth.tzara`, run :
 
 ```
 tzara synth.tzara synth.wav
@@ -111,7 +111,8 @@ You instantiate a module like this :
 
 ```
 
-# the patch synth.tzara must be located in the directory where the tzara process is called.
+# Relative paths are resolved against the directory of the patch that
+# loads the module. Absolute paths are used as-is.
 
 + module mysynth <synth.tzara>
 

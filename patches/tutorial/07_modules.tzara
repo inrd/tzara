@@ -52,10 +52,9 @@
 
 # Here we load our module using the syntax :
 #     + module mymod <path_to_module_file/modulefile.tzara>
-# At the time of this writing, if you want to load a module using a relative path,
-# make sure to call the tzara executable from the main patch (the one loading the module)
-# directory.
-# This quirk will be fixed in the future...
+# Relative paths are resolved against the directory of the patch that loads
+# the module, so you can run tzara from any directory.
+# Absolute paths (starting with /) are used as-is.
 
 + module synth1 <modules/arpsine.tzara>
 
