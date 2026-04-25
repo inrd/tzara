@@ -544,9 +544,11 @@ TzNode *createMatrixNode(int numRows, int numCols, char *filename) {
 
   n->matrix = malloc(sizeof(TzMatrix));
 
-  if ((n->matrix != NULL) && (initMatrix(n->matrix, numRows, numCols) != 0)) {
+  if (n->matrix == NULL || initMatrix(n->matrix, numRows, numCols) != 0) {
     fprintf(stderr, "Failed to create matrix node...\n\n");
-    return n;
+    releaseNode(n);
+    free(n);
+    return NULL;
   }
 
   if (filename != NULL) {
