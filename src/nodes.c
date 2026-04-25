@@ -376,6 +376,9 @@ float getNodeInputClipped(TzNode *n, int inputIndex, float defaultValue,
 }
 
 int addModuleNode(TzModule *m, TzNode *n, const char *name) {
+  if (n == NULL) {
+    return 2;
+  }
   if (m->numNodes < (TZMODULE_MAX_NODES - 1)) {
     strncpy(n->name, name, sizeof(n->name) - 1);
     m->nodes[m->numNodes] = n;
@@ -459,14 +462,19 @@ TzNode *createModuleNode(const char *filename) {
   patch = fopen(filename, "r");
   if (patch == NULL) {
     fprintf(stderr, "Could not open %s...\n\n", filename);
-    return n;
+    releaseNode(n);
+    free(n);
+    return NULL;
   }
 
   n->submodule = malloc(sizeof(TzModule));
 
   if (n->submodule == NULL) {
     fprintf(stderr, "Failed to create module node...\n\n");
-    return n;
+    fclose(patch);
+    releaseNode(n);
+    free(n);
+    return NULL;
   }
 
   for (i = 0; i < TZMODULE_MAX_NODES; ++i) {
@@ -487,7 +495,9 @@ TzNode *createModuleNode(const char *filename) {
   if (parsePatch(n->submodule, patch, filename, 1) != 0) {
     fclose(patch);
     fprintf(stderr, "Errors encountered while building module patch...\n\n");
-    return n;
+    releaseNode(n);
+    free(n);
+    return NULL;
   }
 
   fclose(patch);
