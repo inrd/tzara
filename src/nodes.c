@@ -1218,7 +1218,7 @@ void performMerge(TzNode *n, TzProcessInfo *info) {
   float out = 0.f;
   int i = 0;
 
-  for (i = 0; i < 16; ++i) {
+  for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
     out += getNodeInput(n, i, 0.f);
   }
 
@@ -1230,8 +1230,8 @@ TzNode *createMergeNode() {
   char inName[32];
 
   TzNode *n = allocateNewNode();
-  n->numInputs = 16;
-  for (i = 0; i < 16; ++i) {
+  n->numInputs = TZNODE_MAX_INPUTS;
+  for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
     sprintf(inName, "in%d", i);
     strcpy(n->inputsNames[i], inName);
   }
@@ -1247,7 +1247,7 @@ void performPmerge(TzNode *n, TzProcessInfo *info) {
   float out = 0.f;
   int i = 0;
 
-  for (i = 0; i < 16; ++i) {
+  for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
     if (getNodeInput(n, i, 0.f) != 0.f)
       out = 1.f;
   }
@@ -1260,8 +1260,8 @@ TzNode *createPmergeNode() {
   char inName[32];
 
   TzNode *n = allocateNewNode();
-  n->numInputs = 16;
-  for (i = 0; i < 16; ++i) {
+  n->numInputs = TZNODE_MAX_INPUTS;
+  for (i = 0; i < TZNODE_MAX_INPUTS; ++i) {
     sprintf(inName, "in%d", i);
     strcpy(n->inputsNames[i], inName);
   }
