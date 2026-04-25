@@ -1764,8 +1764,13 @@ void performSeq8(TzNode *n, TzProcessInfo *info) {
     }
   }
 
-  n->outputs[0] = steps[(int)(*pos)] >= 0.f ? steps[(int)(*pos)] : 0.f;
-  n->outputs[1] = *pos;
+  if ((int)(*pos) < 0) {
+    n->outputs[0] = 0.f;
+    n->outputs[1] = 0.f;
+  } else {
+    n->outputs[0] = steps[(int)(*pos)] >= 0.f ? steps[(int)(*pos)] : 0.f;
+    n->outputs[1] = *pos;
+  }
 }
 
 TzNode *createSeq8Node() {
