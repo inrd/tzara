@@ -235,17 +235,17 @@ TzNode *parseAndCreateMset(void *tz, char **tokens, int numTokens,
   return createMsetNode(ref);
 }
 
-void addEngineNode(void *engine, TzNode *n, char *name, int isModule) {
+int addEngineNode(void *engine, TzNode *n, char *name, int isModule) {
   if (isModule == 0) {
-    addNode((Tzara *)engine, n, name);
-  } else {
-    addModuleNode((TzModule *)engine, n, name);
+    return addNode((Tzara *)engine, n, name);
   }
+  return addModuleNode((TzModule *)engine, n, name);
 }
 
 int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
                                int isModule) {
   int nodeType = INVALID_NODE_TYPE;
+  int err = 0;
   char name[TZNODE_NAME_SIZE];
 
   if (numTokens < 3) {
@@ -261,409 +261,411 @@ int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
   switch (nodeType) {
   case MODULE_NODE:
     printf("Creating module : %s\n", name);
-    addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name, isModule);
+    err = addEngineNode(tz, parseAndCreateModule(tokens, numTokens), name,
+                        isModule);
     break;
 
   case MATRIX_NODE:
     printf("Creating matrix : %s\n", name);
-    addEngineNode(tz, parseAndCreateMatrix(tokens, numTokens), name, isModule);
+    err = addEngineNode(tz, parseAndCreateMatrix(tokens, numTokens), name,
+                        isModule);
     break;
 
   case MGET_NODE:
     printf("Creating mget : %s\n", name);
-    addEngineNode(tz, parseAndCreateMget(tz, tokens, numTokens, isModule), name,
-                  isModule);
+    err = addEngineNode(tz, parseAndCreateMget(tz, tokens, numTokens, isModule),
+                        name, isModule);
     break;
 
   case MSET_NODE:
     printf("Creating mset : %s\n", name);
-    addEngineNode(tz, parseAndCreateMset(tz, tokens, numTokens, isModule), name,
-                  isModule);
+    err = addEngineNode(tz, parseAndCreateMset(tz, tokens, numTokens, isModule),
+                        name, isModule);
     break;
 
   case DEFAULTVAL_NODE:
     printf("Creating defaultval : %s\n", name);
-    addEngineNode(tz, createDefaultvalNode(), name, isModule);
+    err = addEngineNode(tz, createDefaultvalNode(), name, isModule);
     break;
 
   case VAR_NODE:
     printf("Creating var : %s\n", name);
-    addEngineNode(tz, createVarNode(), name, isModule);
+    err = addEngineNode(tz, createVarNode(), name, isModule);
     break;
 
   case ADDER_NODE:
     printf("Creating add : %s\n", name);
-    addEngineNode(tz, createAdderNode(), name, isModule);
+    err = addEngineNode(tz, createAdderNode(), name, isModule);
     break;
 
   case SUB_NODE:
     printf("Creating sub : %s\n", name);
-    addEngineNode(tz, createSubNode(), name, isModule);
+    err = addEngineNode(tz, createSubNode(), name, isModule);
     break;
 
   case MULT_NODE:
     printf("Creating mult : %s\n", name);
-    addEngineNode(tz, createMultNode(), name, isModule);
+    err = addEngineNode(tz, createMultNode(), name, isModule);
     break;
 
   case DIV_NODE:
     printf("Creating div : %s\n", name);
-    addEngineNode(tz, createDivNode(), name, isModule);
+    err = addEngineNode(tz, createDivNode(), name, isModule);
     break;
 
   case MODULO_NODE:
     printf("Creating modulo : %s\n", name);
-    addEngineNode(tz, createModuloNode(), name, isModule);
+    err = addEngineNode(tz, createModuloNode(), name, isModule);
     break;
 
   case POW_NODE:
     printf("Creating pow : %s\n", name);
-    addEngineNode(tz, createPowNode(), name, isModule);
+    err = addEngineNode(tz, createPowNode(), name, isModule);
     break;
 
   case SQRT_NODE:
     printf("Creating sqrt : %s\n", name);
-    addEngineNode(tz, createSqrtNode(), name, isModule);
+    err = addEngineNode(tz, createSqrtNode(), name, isModule);
     break;
 
   case ABS_NODE:
     printf("Creating abs : %s\n", name);
-    addEngineNode(tz, createAbsNode(), name, isModule);
+    err = addEngineNode(tz, createAbsNode(), name, isModule);
     break;
 
   case SIN_NODE:
     printf("Creating sin : %s\n", name);
-    addEngineNode(tz, createSinNode(), name, isModule);
+    err = addEngineNode(tz, createSinNode(), name, isModule);
     break;
 
   case COS_NODE:
     printf("Creating cos : %s\n", name);
-    addEngineNode(tz, createCosNode(), name, isModule);
+    err = addEngineNode(tz, createCosNode(), name, isModule);
     break;
 
   case TAN_NODE:
     printf("Creating tan : %s\n", name);
-    addEngineNode(tz, createTanNode(), name, isModule);
+    err = addEngineNode(tz, createTanNode(), name, isModule);
     break;
 
   case TANH_NODE:
     printf("Creating tanh : %s\n", name);
-    addEngineNode(tz, createTanhNode(), name, isModule);
+    err = addEngineNode(tz, createTanhNode(), name, isModule);
     break;
 
   case CLIP_NODE:
     printf("Creating clip : %s\n", name);
-    addEngineNode(tz, createClipNode(), name, isModule);
+    err = addEngineNode(tz, createClipNode(), name, isModule);
     break;
 
   case WRAP_NODE:
     printf("Creating wrap : %s\n", name);
-    addEngineNode(tz, createWrapNode(), name, isModule);
+    err = addEngineNode(tz, createWrapNode(), name, isModule);
     break;
 
   case EQUAL_NODE:
     printf("Creating equal : %s\n", name);
-    addEngineNode(tz, createEqualNode(), name, isModule);
+    err = addEngineNode(tz, createEqualNode(), name, isModule);
     break;
 
   case NEQUAL_NODE:
     printf("Creating nequal : %s\n", name);
-    addEngineNode(tz, createNequalNode(), name, isModule);
+    err = addEngineNode(tz, createNequalNode(), name, isModule);
     break;
 
   case LOWER_NODE:
     printf("Creating lower : %s\n", name);
-    addEngineNode(tz, createLowerNode(), name, isModule);
+    err = addEngineNode(tz, createLowerNode(), name, isModule);
     break;
 
   case GREATER_NODE:
     printf("Creating greater : %s\n", name);
-    addEngineNode(tz, createGreaterNode(), name, isModule);
+    err = addEngineNode(tz, createGreaterNode(), name, isModule);
     break;
 
   case MIN_NODE:
     printf("Creating min : %s\n", name);
-    addEngineNode(tz, createMinNode(), name, isModule);
+    err = addEngineNode(tz, createMinNode(), name, isModule);
     break;
 
   case MAX_NODE:
     printf("Creating max : %s\n", name);
-    addEngineNode(tz, createMaxNode(), name, isModule);
+    err = addEngineNode(tz, createMaxNode(), name, isModule);
     break;
 
   case ROUND_NODE:
     printf("Creating round : %s\n", name);
-    addEngineNode(tz, createRoundNode(), name, isModule);
+    err = addEngineNode(tz, createRoundNode(), name, isModule);
     break;
 
   case CEIL_NODE:
     printf("Creating ceil : %s\n", name);
-    addEngineNode(tz, createCeilNode(), name, isModule);
+    err = addEngineNode(tz, createCeilNode(), name, isModule);
     break;
 
   case FLOOR_NODE:
     printf("Creating floor : %s\n", name);
-    addEngineNode(tz, createFloorNode(), name, isModule);
+    err = addEngineNode(tz, createFloorNode(), name, isModule);
     break;
 
   case FRAC_NODE:
     printf("Creating frac : %s\n", name);
-    addEngineNode(tz, createFracNode(), name, isModule);
+    err = addEngineNode(tz, createFracNode(), name, isModule);
     break;
 
   case AND_NODE:
     printf("Creating and : %s\n", name);
-    addEngineNode(tz, createAndNode(), name, isModule);
+    err = addEngineNode(tz, createAndNode(), name, isModule);
     break;
 
   case OR_NODE:
     printf("Creating or : %s\n", name);
-    addEngineNode(tz, createOrNode(), name, isModule);
+    err = addEngineNode(tz, createOrNode(), name, isModule);
     break;
 
   case XOR_NODE:
     printf("Creating xor : %s\n", name);
-    addEngineNode(tz, createXorNode(), name, isModule);
+    err = addEngineNode(tz, createXorNode(), name, isModule);
     break;
 
   case MIX_NODE:
     printf("Creating mix : %s\n", name);
-    addEngineNode(tz, createMixNode(), name, isModule);
+    err = addEngineNode(tz, createMixNode(), name, isModule);
     break;
 
   case MERGE_NODE:
     printf("Creating merge : %s\n", name);
-    addEngineNode(tz, createMergeNode(), name, isModule);
+    err = addEngineNode(tz, createMergeNode(), name, isModule);
     break;
 
   case PMERGE_NODE:
     printf("Creating pmerge : %s\n", name);
-    addEngineNode(tz, createPmergeNode(), name, isModule);
+    err = addEngineNode(tz, createPmergeNode(), name, isModule);
     break;
 
   case MAP_NODE:
     printf("Creating map : %s\n", name);
-    addEngineNode(tz, createMapNode(), name, isModule);
+    err = addEngineNode(tz, createMapNode(), name, isModule);
     break;
 
   case FROM01_NODE:
     printf("Creating from0_1 : %s\n", name);
-    addEngineNode(tz, createFrom0_1Node(), name, isModule);
+    err = addEngineNode(tz, createFrom0_1Node(), name, isModule);
     break;
 
   case TO01_NODE:
     printf("Creating to0_1 : %s\n", name);
-    addEngineNode(tz, createTo0_1Node(), name, isModule);
+    err = addEngineNode(tz, createTo0_1Node(), name, isModule);
     break;
 
   case SMOOTH_NODE:
     printf("Creating smooth : %s\n", name);
-    addEngineNode(tz, createSmoothNode(), name, isModule);
+    err = addEngineNode(tz, createSmoothNode(), name, isModule);
     break;
 
   case MIDITOFREQ_NODE:
     printf("Creating miditofreq : %s\n", name);
-    addEngineNode(tz, createMiditofreqNode(), name, isModule);
+    err = addEngineNode(tz, createMiditofreqNode(), name, isModule);
     break;
 
   case DBTOAMP_NODE:
     printf("Creating dbtoamp : %s\n", name);
-    addEngineNode(tz, createDbtoampNode(), name, isModule);
+    err = addEngineNode(tz, createDbtoampNode(), name, isModule);
     break;
 
   case MSTOHZ_NODE:
     printf("Creating mstohz : %s\n", name);
-    addEngineNode(tz, createMstohzNode(), name, isModule);
+    err = addEngineNode(tz, createMstohzNode(), name, isModule);
     break;
 
   case HZTOMS_NODE:
     printf("Creating hztoms : %s\n", name);
-    addEngineNode(tz, createHztomsNode(), name, isModule);
+    err = addEngineNode(tz, createHztomsNode(), name, isModule);
     break;
 
   case SAMPLERATE_NODE:
     printf("Creating samplerate : %s\n", name);
-    addEngineNode(tz, createSamplerateNode(), name, isModule);
+    err = addEngineNode(tz, createSamplerateNode(), name, isModule);
     break;
 
   case DURATION_NODE:
     printf("Creating duration : %s\n", name);
-    addEngineNode(tz, createDurationNode(), name, isModule);
+    err = addEngineNode(tz, createDurationNode(), name, isModule);
     break;
 
   case FIXDENORM_NODE:
     printf("Creating fixdenorm : %s\n", name);
-    addEngineNode(tz, createFixdenormNode(), name, isModule);
+    err = addEngineNode(tz, createFixdenormNode(), name, isModule);
     break;
 
   case FIXNAN_NODE:
     printf("Creating fixnan : %s\n", name);
-    addEngineNode(tz, createFixnanNode(), name, isModule);
+    err = addEngineNode(tz, createFixnanNode(), name, isModule);
     break;
 
   case COUNT_NODE:
     printf("Creating count : %s\n", name);
-    addEngineNode(tz, createCountNode(), name, isModule);
+    err = addEngineNode(tz, createCountNode(), name, isModule);
     break;
 
   case PHASOR_NODE:
     printf("Creating phasor : %s\n", name);
-    addEngineNode(tz, createPhasorNode(), name, isModule);
+    err = addEngineNode(tz, createPhasorNode(), name, isModule);
     break;
 
   case PULSE_NODE:
     printf("Creating pulse : %s\n", name);
-    addEngineNode(tz, createPulseNode(), name, isModule);
+    err = addEngineNode(tz, createPulseNode(), name, isModule);
     break;
 
   case SINOSC_NODE:
     printf("Creating sinosc : %s\n", name);
-    addEngineNode(tz, createSinoscNode(), name, isModule);
+    err = addEngineNode(tz, createSinoscNode(), name, isModule);
     break;
 
   case SAWOSC_NODE:
     printf("Creating sawosc : %s\n", name);
-    addEngineNode(tz, createSawoscNode(), name, isModule);
+    err = addEngineNode(tz, createSawoscNode(), name, isModule);
     break;
 
   case SQROSC_NODE:
     printf("Creating sqrosc : %s\n", name);
-    addEngineNode(tz, createSqroscNode(), name, isModule);
+    err = addEngineNode(tz, createSqroscNode(), name, isModule);
     break;
 
   case TRIOSC_NODE:
     printf("Creating triosc : %s\n", name);
-    addEngineNode(tz, createTrioscNode(), name, isModule);
+    err = addEngineNode(tz, createTrioscNode(), name, isModule);
     break;
 
   case NOISE_NODE:
     printf("Creating noise : %s\n", name);
-    addEngineNode(tz, createNoiseNode(), name, isModule);
+    err = addEngineNode(tz, createNoiseNode(), name, isModule);
     break;
 
   case SEQ8_NODE:
     printf("Creating seq8 : %s\n", name);
-    addEngineNode(tz, createSeq8Node(), name, isModule);
+    err = addEngineNode(tz, createSeq8Node(), name, isModule);
     break;
 
   case RANDOM_NODE:
     printf("Creating random : %s\n", name);
-    addEngineNode(tz, createRandomNode(), name, isModule);
+    err = addEngineNode(tz, createRandomNode(), name, isModule);
     break;
 
   case IRANDOM_NODE:
     printf("Creating irandom : %s\n", name);
-    addEngineNode(tz, createIrandomNode(), name, isModule);
+    err = addEngineNode(tz, createIrandomNode(), name, isModule);
     break;
 
   case NOTESCALE_NODE:
     printf("Creating notescale : %s\n", name);
-    addEngineNode(tz, createNotescaleNode(), name, isModule);
+    err = addEngineNode(tz, createNotescaleNode(), name, isModule);
     break;
 
   case SEGMENT_NODE:
     printf("Creating segment : %s\n", name);
-    addEngineNode(tz, createSegmentNode(), name, isModule);
+    err = addEngineNode(tz, createSegmentNode(), name, isModule);
     break;
 
   case ADENV_NODE:
     printf("Creating adenv : %s\n", name);
-    addEngineNode(tz, createADenvNode(), name, isModule);
+    err = addEngineNode(tz, createADenvNode(), name, isModule);
     break;
 
   case ASRENV_NODE:
     printf("Creating asrenv : %s\n", name);
-    addEngineNode(tz, createASRenvNode(), name, isModule);
+    err = addEngineNode(tz, createASRenvNode(), name, isModule);
     break;
 
   case SELECT_NODE:
     printf("Creating select : %s\n", name);
-    addEngineNode(tz, createSelectNode(), name, isModule);
+    err = addEngineNode(tz, createSelectNode(), name, isModule);
     break;
 
   case ROUTE_NODE:
     printf("Creating route : %s\n", name);
-    addEngineNode(tz, createRouteNode(), name, isModule);
+    err = addEngineNode(tz, createRouteNode(), name, isModule);
     break;
 
   case SAH_NODE:
     printf("Creating sah : %s\n", name);
-    addEngineNode(tz, createSahNode(), name, isModule);
+    err = addEngineNode(tz, createSahNode(), name, isModule);
     break;
 
   case GATE_NODE:
     printf("Creating gate : %s\n", name);
-    addEngineNode(tz, createGateNode(), name, isModule);
+    err = addEngineNode(tz, createGateNode(), name, isModule);
     break;
 
   case TIMEPOINT_NODE:
     printf("Creating timepoint : %s\n", name);
-    addEngineNode(tz, createTimepointNode(), name, isModule);
+    err = addEngineNode(tz, createTimepointNode(), name, isModule);
     break;
 
   case LOWPASS_NODE:
     printf("Creating lowpass : %s\n", name);
-    addEngineNode(tz, createLowpassNode(), name, isModule);
+    err = addEngineNode(tz, createLowpassNode(), name, isModule);
     break;
 
   case HIGHPASS_NODE:
     printf("Creating highpass : %s\n", name);
-    addEngineNode(tz, createHighpassNode(), name, isModule);
+    err = addEngineNode(tz, createHighpassNode(), name, isModule);
     break;
 
   case LOWPASS2_NODE:
     printf("Creating lowpass2 : %s\n", name);
-    addEngineNode(tz, createLowpass2Node(), name, isModule);
+    err = addEngineNode(tz, createLowpass2Node(), name, isModule);
     break;
 
   case HIGHPASS2_NODE:
     printf("Creating highpass2 : %s\n", name);
-    addEngineNode(tz, createHighpass2Node(), name, isModule);
+    err = addEngineNode(tz, createHighpass2Node(), name, isModule);
     break;
 
   case BANDPASS_NODE:
     printf("Creating bandpass : %s\n", name);
-    addEngineNode(tz, createBandpassNode(), name, isModule);
+    err = addEngineNode(tz, createBandpassNode(), name, isModule);
     break;
 
   case NOTCH_NODE:
     printf("Creating notch : %s\n", name);
-    addEngineNode(tz, createNotchNode(), name, isModule);
+    err = addEngineNode(tz, createNotchNode(), name, isModule);
     break;
 
   case PEAK_NODE:
     printf("Creating peak : %s\n", name);
-    addEngineNode(tz, createPeakNode(), name, isModule);
+    err = addEngineNode(tz, createPeakNode(), name, isModule);
     break;
 
   case LOWSHELF_NODE:
     printf("Creating lowshelf : %s\n", name);
-    addEngineNode(tz, createLowshelfNode(), name, isModule);
+    err = addEngineNode(tz, createLowshelfNode(), name, isModule);
     break;
 
   case HIGHSHELF_NODE:
     printf("Creating highshelf : %s\n", name);
-    addEngineNode(tz, createHighshelfNode(), name, isModule);
+    err = addEngineNode(tz, createHighshelfNode(), name, isModule);
     break;
 
   case SVF_NODE:
     printf("Creating svf : %s\n", name);
-    addEngineNode(tz, createSvfNode(), name, isModule);
+    err = addEngineNode(tz, createSvfNode(), name, isModule);
     break;
 
   case DELAY_NODE:
     printf("Creating delay : %s\n", name);
-    addEngineNode(tz, createDelayNode(), name, isModule);
+    err = addEngineNode(tz, createDelayNode(), name, isModule);
     break;
 
   case FDELAY_NODE:
     printf("Creating fdelay : %s\n", name);
-    addEngineNode(tz, createFdelayNode(), name, isModule);
+    err = addEngineNode(tz, createFdelayNode(), name, isModule);
     break;
 
   case ALLPASS_NODE:
     printf("Creating allpass : %s\n", name);
-    addEngineNode(tz, createAllpassNode(), name, isModule);
+    err = addEngineNode(tz, createAllpassNode(), name, isModule);
     break;
 
   default:
@@ -672,7 +674,11 @@ int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
     break;
   }
 
-  return 0;
+  if (err != 0) {
+    fprintf(stderr, "Could not create node : %s\n", name);
+  }
+
+  return err;
 }
 
 int searchNode(void *tz, const char *name, int isModule) {

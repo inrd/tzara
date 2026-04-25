@@ -54,7 +54,7 @@ TzNode *parseAndCreateMget(void *tz, char **tokens, int numTokens,
 TzNode *parseAndCreateMset(void *tz, char **tokens, int numTokens,
                            int isModule);
 
-void addEngineNode(void *engine, TzNode *n, char *name, int isModule);
+int addEngineNode(void *engine, TzNode *n, char *name, int isModule);
 
 int parseCreateNodeInstruction(void *tz, char **tokens, int numTokens,
                                int isModule);
