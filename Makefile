@@ -6,6 +6,8 @@ BUILD_DIR = build
 
 CFLAGS = -Wall -Wextra -O2
 
+Q ?= @
+
 SRC_FILES = main.c \
 			tzdsp.c \
 			nodes.c  \
@@ -14,19 +16,23 @@ SRC_FILES = main.c \
 
 OBJECTS = $(SRC_FILES:%.c=$(BUILD_DIR)/%.o)
 
-.PHONY: clean install vimsyntax
+.PHONY: clean install vimsyntax debug
 
 default: tzara
 
+debug:
+	$(MAKE) clean
+	$(MAKE) tzara CFLAGS="-Wall -Wextra -O0 -g" Q=
+
 tzara: $(OBJECTS)
-	@$(LINKER) -o $@ $^ -lm
-	@echo "# Tzara Nodes" > nodes_list.md
-	@echo " " >> nodes_list.md
-	@./tzara --nodes >> nodes_list.md
+	$(Q)$(LINKER) -o $@ $^ -lm
+	$(Q)echo "# Tzara Nodes" > nodes_list.md
+	$(Q)echo " " >> nodes_list.md
+	$(Q)./tzara --nodes >> nodes_list.md
 
 $(OBJECTS): $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(@D)
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)mkdir -p $(@D)
+	$(Q)$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	rm -rf $(BUILD_DIR) tzara
