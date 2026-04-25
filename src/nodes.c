@@ -2514,8 +2514,10 @@ void performDelay(TzNode *n, TzProcessInfo *info) {
     n->buffers[0] = malloc(maxLength * sizeof(float));
     if (n->buffers[0] == NULL) {
       printf("Failed to allocate delay buffer.\n");
+      n->outputs[0] = 0.f;
+      return;
     }
-    memset(n->buffers[0], 0, maxLength);
+    memset(n->buffers[0], 0, maxLength * sizeof(float));
     *maxpos = (2.f * info->samplerate) - 1;
     *startupFlag = 1.f;
   }
@@ -2553,8 +2555,10 @@ void performFdelay(TzNode *n, TzProcessInfo *info) {
     n->buffers[0] = malloc(maxLength * sizeof(float));
     if (n->buffers[0] == NULL) {
       printf("Failed to allocate delay buffer.\n");
+      n->outputs[0] = 0.f;
+      return;
     }
-    memset(n->buffers[0], 0, maxLength);
+    memset(n->buffers[0], 0, maxLength * sizeof(float));
     *maxpos = (2.f * info->samplerate) - 1;
     *startupFlag = 1.f;
   }
@@ -2593,8 +2597,10 @@ void performAllpass(TzNode *n, TzProcessInfo *info) {
     n->buffers[0] = malloc(maxLength * sizeof(float));
     if (n->buffers[0] == NULL) {
       printf("Failed to allocate delay buffer.\n");
+      n->outputs[0] = 0.f;
+      return;
     }
-    memset(n->buffers[0], 0, maxLength);
+    memset(n->buffers[0], 0, maxLength * sizeof(float));
     *maxpos = (2.f * info->samplerate) - 1;
     *startupFlag = 1.f;
   }
