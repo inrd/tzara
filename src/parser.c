@@ -963,6 +963,10 @@ int parseCreateConstantInstruction(void *tz, char **tokens, int numTokens,
   }
 
   if (node == MODULE_OUTPUTS_NODE_INDEX) {
+    if (input < 0) {
+      fprintf(stderr, "Invalid module output : %s\n", destString);
+      return 1;
+    }
     printf("Map constant with value %f to module out\n", val);
     addModuleNode((TzModule *)tz, createConstantNode(val), "\0");
     connectModuleOutlet((TzModule *)tz, ((TzModule *)tz)->numNodes - 1, 0,
@@ -1060,6 +1064,10 @@ int parseConnectInstruction(void *tz, char **tokens, int numTokens,
       fprintf(stderr, "Invalid connection source : %s\n", srcString);
       return 1;
     }
+    if (destInput < 0) {
+      fprintf(stderr, "Invalid module output : %s\n", destString);
+      return 1;
+    }
     printf("Connect %s[%s] to module out\n",
            ((TzModule *)tz)->nodes[srcNode]->name,
            ((TzModule *)tz)->nodes[srcNode]->outputsNames[srcOutput]);
@@ -1070,6 +1078,10 @@ int parseConnectInstruction(void *tz, char **tokens, int numTokens,
   if (srcNode == MODULE_INPUTS_NODE_INDEX) {
     if (destNode < 0 || destInput < 0) {
       fprintf(stderr, "Invalid connection destination : %s\n", destString);
+      return 1;
+    }
+    if (srcOutput < 0) {
+      fprintf(stderr, "Invalid module input : %s\n", srcString);
       return 1;
     }
     printf("Connect module in to %s[%s]\n",
